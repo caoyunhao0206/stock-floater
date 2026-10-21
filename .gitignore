@@ -1,0 +1,18 @@
+# ===== 敏感数据：绝不提交 =====
+data.json
+*.key
+.env
+.env.*
+secrets.json
+
+# 本地/构建产物
+venv/
+__pycache__/
+*.pyc
+*.pyo
+published.html
+index_v1_backup.html
+
+# 系统
+.DS_Store
+Thumbs.db
