@@ -535,3 +535,80 @@ def fetch_news_multi_v2(symbol, code, name, limit=10):
         "verified": sum(1 for x in merged if x.get("verified")),
         "sources": sorted({s for x in merged for s in (x.get("sources") or [])}),
     }
+
+
+# ================= 筹码与事件数据 =================
+
+def fetch_holder_num(code):
+    """股东户数（季度披露）：户数下降=筹码集中"""
+    params = {
+        "reportName": "RPT_HOLDERNUMLATEST", "columns": "ALL",
+        "pageNumber": "1", "pageSize": "3", "source": "WEB", "client": "WEB",
+        "filter": '(SECURITY_CODE="%s")' % code,
+        "sortColumns": "END_DATE", "sortTypes": "-1",
+    }
+    try:
+        r = _get(DC_URL, params=params)
+        data = ((r.json().get("result") or {}).get("data")) or []
+    except Exception:  # noqa: BLE001
+        return {}
+    if not data:
+        return {}
+    it = data[0]
+    try:
+        num = int(it.get("HOLDER_NUM") or 0)
+        prev = int(it.get("PRE_HOLDER_NUM") or 0)
+        ratio = float(it.get("HOLDER_NUM_RATIO") or 0)
+    except (TypeError, ValueError):
+        return {}
+    return {
+        "date": (it.get("END_DATE") or "")[:10],
+        "num": num,
+        "prev": prev,
+        "ratio": round(ratio, 2),          # 户数变化率，负=集中
+        "avg_hold": round(it.get("AVG_HOLD_NUM") or 0, 0) if it.get("AVG_HOLD_NUM") else None,
+        "signal": ("筹码集中" if ratio <= -5 else
+                   "筹码分散" if ratio >= 5 else "基本稳定"),
+    }
+
+
+def fetch_block_trade(code, days=60):
+    """近 N 日大宗交易：溢价成交偏多说明机构愿意接"""
+    import datetime as _dt
+    begin = (_dt.date.today() - _dt.timedelta(days=days)).isoformat()
+    params = {
+        "reportName": "RPT_DATA_BLOCKTRADE", "columns": "ALL",
+        "pageNumber": "1", "pageSize": "20", "source": "WEB", "client": "WEB",
+        "filter": '(SECURITY_CODE="%s")(TRADE_DATE>=\'%s\')' % (code, begin),
+        "sortColumns": "TRADE_DATE", "sortTypes": "-1",
+    }
+    try:
+        r = _get(DC_URL, params=params)
+        data = ((r.json().get("result") or {}).get("data")) or []
+    except Exception:  # noqa: BLE001
+        return {}
+    if not data:
+        return {"count": 0}
+    prem, items, vol = [], [], 0.0
+    for it in data:
+        try:
+            p = float(it.get("PREMIUM_RATIO") or 0)
+            prem.append(p)
+            vol += float(it.get("DEAL_VOLUME") or 0)
+        except (TypeError, ValueError):
+            pass
+        if len(items) < 3:
+            items.append({
+                "date": (it.get("TRADE_DATE") or "")[:10],
+                "price": it.get("DEAL_PRICE"),
+                "premium": it.get("PREMIUM_RATIO"),
+                "volume": it.get("DEAL_VOLUME"),
+            })
+    avg = round(sum(prem) / len(prem), 2) if prem else 0
+    return {
+        "count": len(data),
+        "avg_premium": avg,
+        "total_vol": round(vol, 0),
+        "items": items,
+        "signal": ("溢价成交" if avg >= 2 else "折价成交" if avg <= -5 else "平价成交"),
+    }
