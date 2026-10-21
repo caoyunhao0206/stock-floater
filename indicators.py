@@ -304,6 +304,14 @@ def compute_all(kl, quote=None, index_closes=None):
         ind_tmp = {"ma5": sma(closes, 5), "ma20": sma(closes, 20)}
         out["patterns"] = [{"name": a, "dir": b, "desc": c}
                            for a, b, c in detect_patterns(kl, ind_tmp, quote)]
+        vols = [x.get("volume") or 0 for x in kl]
+        out["position250"] = price_position(closes)
+        out["vol_ratio_5_20"] = vol_ma_ratio(vols)
+        out["shrink_days"] = shrink_days(vols)
+        out["gap"] = gap_info(kl)
+        out["atr_pos"] = atr_position(kl, closes)
+        out["up_vol_share"] = up_vol_share(kl)
+        out["limit_up_info"] = limit_up_days(kl)
     except Exception:  # noqa: BLE001
         pass
     return out
@@ -453,3 +461,99 @@ def detect_patterns(kl, ind, quote=None):
             out.append(("超跌反弹", 1, "急跌后放量止跌"))
 
     return out
+
+
+# ================= 指标 V3：位置、量能结构、缺口 =================
+
+def price_position(closes, n=250):
+    """当前价在近 N 日的分位（0=最低，100=最高）"""
+    if len(closes) < 20:
+        return None
+    seg = closes[-n:] if len(closes) > n else closes
+    lo, hi = min(seg), max(seg)
+    if hi <= lo:
+        return None
+    return round((closes[-1] - lo) / (hi - lo) * 100, 1)
+
+
+def vol_ma_ratio(vols, short=5, long=20):
+    """短期均量 / 长期均量"""
+    if len(vols) < long:
+        return None
+    a = sum(vols[-short:]) / short
+    b = sum(vols[-long:]) / long
+    if b <= 0:
+        return None
+    return round(a / b, 2)
+
+
+def shrink_days(vols, ratio=0.8):
+    """连续缩量天数（相对 20 日均量）"""
+    if len(vols) < 21:
+        return 0
+    base = sum(vols[-20:]) / 20
+    if base <= 0:
+        return 0
+    cnt = 0
+    for v in reversed(vols):
+        if v < base * ratio:
+            cnt += 1
+        else:
+            break
+    return cnt
+
+
+def gap_info(kl):
+    """最近一根 K 线的跳空情况（%）"""
+    if len(kl) < 2:
+        return None
+    today, prev = kl[-1], kl[-2]
+    if prev["high"] <= 0:
+        return None
+    if today["low"] > prev["high"]:
+        return {"dir": 1, "pct": round((today["low"] / prev["high"] - 1) * 100, 2)}
+    if today["high"] < prev["low"]:
+        return {"dir": -1, "pct": round((today["high"] / prev["low"] - 1) * 100, 2)}
+    return None
+
+
+def atr_position(kl, closes, n=14):
+    """价格在 ATR 通道中的位置（0~1），>0.8 偏高位"""
+    if len(kl) < n + 1:
+        return None
+    trs = []
+    for i in range(len(kl) - n, len(kl)):
+        h, l, pc = kl[i]["high"], kl[i]["low"], kl[i - 1]["close"]
+        trs.append(max(h - l, abs(h - pc), abs(l - pc)))
+    atr = sum(trs) / len(trs)
+    if atr <= 0:
+        return None
+    base = sum(closes[-n:]) / n
+    return round((closes[-1] - (base - atr)) / (2 * atr), 2)
+
+
+def up_vol_share(kl, n=20):
+    """近 N 日上涨日的成交量占比（资金是否在涨时进场）"""
+    if len(kl) < n + 1:
+        return None
+    seg = kl[-n:]
+    up_v = sum(x["volume"] for i, x in enumerate(seg)
+               if i > 0 and x["close"] > seg[i - 1]["close"])
+    all_v = sum(x["volume"] for x in seg[1:])
+    if all_v <= 0:
+        return None
+    return round(up_v / all_v * 100, 1)
+
+
+def limit_up_days(kl, lookback=10):
+    """近 N 日涨停次数与最近一次涨停距今几天（判断连板/情绪）"""
+    cnt, last = 0, None
+    start = max(1, len(kl) - lookback)
+    for i in range(start, len(kl)):
+        prev = kl[i - 1]["close"]
+        if prev <= 0:
+            continue
+        if (kl[i]["close"] / prev - 1) * 100 >= 9.5:
+            cnt += 1
+            last = len(kl) - 1 - i
+    return {"count": cnt, "last_ago": last}
