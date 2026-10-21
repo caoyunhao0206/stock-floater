@@ -142,7 +142,7 @@ def wechat_send(title, content):
 
 
 # 每类消息每日上限，避免一天几十条轰炸
-PUSH_CAP = {"new_a": 4, "board": 3, "watch": 8, "daily": 1}
+PUSH_CAP = {"new_a": 4, "board": 3, "watch": 8, "daily": 1, "lof": 3}
 
 
 def push_all(data, reco):
@@ -218,7 +218,22 @@ def push_all(data, reco):
             mark("watch")
             sent += 1
 
-    # 4. 每日复盘（15:30 后，每天一次）
+    # 4. LOF 套利机会（溢价 ≥ 2% 且可申购）
+    lof = data.get("lof") or {}
+    lof_hits = [x for x in (lof.get("items") or [])
+                if x.get("sg_ok") and (x.get("premium") or 0) >= 2]
+    if lof_hits and allow("lof"):
+        lines = []
+        for x in lof_hits[:4]:
+            lines.append("%s(%s) 溢价 %+.2f%%\n场内 %.3f / 净值 %.4f（%s）\n成交额 %.2f 亿 · %s" % (
+                x.get("name"), x.get("code"), x.get("premium", 0),
+                x.get("price", 0), x.get("nav", 0), x.get("nav_date", ""),
+                (x.get("amount") or 0) / 10000, x.get("sg", "")))
+        if wechat_send("【LOF套利】%d 只溢价超 2%%" % len(lof_hits), "\n\n".join(lines)):
+            mark("lof")
+            sent += 1
+
+    # 5. 每日复盘（尾盘一次）
     now = datetime.now(timezone(timedelta(hours=8)))
     mins = now.hour * 60 + now.minute
     # 14:45 之后的第一轮视为尾盘复盘（15:00 收盘价与 14:45 差异极小）
@@ -438,6 +453,20 @@ def main():
         print("校准失败:", e)
 
     _t["bt"] = time.time() - t0 - _t["scan"] - _t["reco"]
+    # ---- LOF 套利 ----
+    lof = {"items": [], "scanned": 0, "updated": ""}
+    try:
+        lof = sources.build_lof_arbitrage(min_amount=100, max_check=60)
+        its = lof.get("items") or []
+        top = its[0] if its else {}
+        arb = [x for x in its if x.get("sg_ok") and x.get("premium", 0) >= 0.5]
+        print("LOF：达标 %d 只，有净值 %d 只，可套利 %d 只，最高溢价 %s（%s）" % (
+            lof.get("scanned", 0), len(its), len(arb),
+            ("%+.2f%%" % top["premium"]) if top else "-",
+            (top.get("name") or "-")))
+    except Exception as e:  # noqa: BLE001
+        print("LOF 扫描失败:", e)
+
     # ---- 板块热度 ----
     sectors = {}
     try:
@@ -552,6 +581,7 @@ def main():
         "sectors": sectors,
         "limit_up": limit_up,
         "watch_detail": watch_detail,
+        "lof": lof,
         "holder": holder,
         "block_trade": blocks,
         "tracking": tst,
