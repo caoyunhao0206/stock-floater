@@ -433,7 +433,18 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
         e += 1
     dims["value"] = round(min(10, e), 1)
 
-    total = sum(dims.values())
+    # ---- 加权总分（权重可由追踪模块自动校准）----
+    _W, _MAX = None, None
+    try:
+        import tracking as _tk
+        _W, _MAX = _tk.load_weights(), _tk.DIM_MAX
+    except Exception:  # noqa: BLE001
+        _MAX = {"trend": 25, "momentum": 20, "volume": 20,
+                "fund": 15, "news": 10, "value": 10}
+        _W = {k: 1.0 for k in _MAX}
+    _num = sum(dims.get(k, 0) * _W.get(k, 1.0) for k in _MAX)
+    _den = sum(v * _W.get(k, 1.0) for k, v in _MAX.items())
+    total = (_num / _den * 100) if _den else sum(dims.values())
 
     # ---- 形态加减分 ----
     pats = ext.get("patterns") or []
@@ -491,7 +502,7 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
     else:
         grade = "D"
     return {"total": round(total, 1), "grade": grade, "dims": dims,
-            "penalties": penalties}
+            "penalties": penalties, "weights": _W}
 
 # ---------------- 综合建议 ----------------
 ACTION_LABEL = {
@@ -614,6 +625,7 @@ def build_advice(quote, kl, flows, news_items, cost=0.0, shares=0,
         "grade": sc["grade"],
         "grade_label": GRADE_LABEL[sc["grade"]],
         "dims": sc["dims"],
+        "weights": sc.get("weights") or {},
         "penalties": sc["penalties"],
         "ext": ext,
         "tech_score": round(ts_, 1),
