@@ -218,6 +218,18 @@ function fmt(n, d){
 function cls(v){ return v>0?"up":(v<0?"down":"flat"); }
 function sign(v,d){ if(v===null||v===undefined||isNaN(v)) return "--"; return (v>0?"+":"")+fmt(v,d); }
 function esc(s){ return String(s===null||s===undefined?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function fmtTime(ts){
+  if(!ts) return "--:--";
+  var d = new Date(ts * 1000);
+  var mm = ("0"+(d.getMonth()+1)).slice(-2), dd = ("0"+d.getDate()).slice(-2);
+  var hh = ("0"+d.getHours()).slice(-2), mi = ("0"+d.getMinutes()).slice(-2);
+  return mm + "-" + dd + " " + hh + ":" + mi;
+}
+function fmtHM(ts){
+  if(!ts) return "--:--";
+  var d = new Date(ts * 1000);
+  return ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2);
+}
 
 function saveWatches(){ try{ localStorage.setItem("sf_watches", JSON.stringify(watches)); }catch(e){} }
 
@@ -229,9 +241,8 @@ function loadData(){
     .then(function(d){
       DATA = d;
       $("dot").className = "hDot ok";
-      var t = (d.updated || "").replace("T", " ");
-      $("hTime").textContent = t.slice(5, 16);
-      $("hSub").textContent = "扫描 " + ((d.market.stats||{}).total || 0) + " 只 · 更新 " + t.slice(11, 16) + " · 每 5 分钟自动刷新";
+      $("hTime").textContent = fmtTime(d.updated_ts);
+      $("hSub").textContent = "扫描 " + ((d.market.stats||{}).total || 0) + " 只 · 更新 " + fmtHM(d.updated_ts) + " · 每 5 分钟自动刷新";
       render();
     })
     .catch(function(e){
@@ -386,7 +397,7 @@ function renderMarket(){
     + '<div><i>平均涨幅</i><b class="'+cls(st.avg_change)+'">'+sign(st.avg_change)+'%</b></div>'
     + '<div><i>上涨占比</i><b>'+st.breadth+'%</b></div>'
     + '<div><i>成交额</i><b>'+(st.amount/10000).toFixed(2)+'万亿</b></div>'
-    + '<div><i>更新时间</i><b style="font-size:11px">'+((DATA.updated||"").slice(11,16))+'</b></div>'
+    + '<div><i>更新时间</i><b style="font-size:11px">'+fmtHM(DATA.updated_ts)+'</b></div>'
     + '</div></div>';
 
   html += '<div class="rank"><h4>涨幅榜</h4>' + rankRows(m.gainers || [], "c") + '</div>';
