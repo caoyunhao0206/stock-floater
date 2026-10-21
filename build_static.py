@@ -116,17 +116,18 @@ def wechat_send(title, content):
     key = os.environ.get("SERVERCHAN_KEY", "").strip()
     if not key:
         return False
-    try:
-        import requests
-        r = requests.post("https://sctapi.ft08.com/%s.send" % key,
-                          data={"title": title, "desp": content}, timeout=12)
-        ok = r.json().get("code") == 0
-        if not ok:
-            print("推送返回异常:", r.text[:120])
-        return ok
-    except Exception as e:  # noqa: BLE001
-        print("推送失败:", e)
-        return False
+    import requests
+    for base in ("https://sctapi.ftqq.com", "https://sctapi.ft08.com"):
+        try:
+            r = requests.post("%s/%s.send" % (base, key),
+                              data={"title": title, "desp": content}, timeout=12)
+            j = r.json()
+            if j.get("code") == 0:
+                return True
+            print("推送返回异常:", str(j)[:120])
+        except Exception as e:  # noqa: BLE001
+            print("推送通道 %s 失败: %s" % (base, str(e)[:80]))
+    return False
 
 
 def push_all(data, reco):
