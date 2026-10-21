@@ -1,10 +1,15 @@
 name: update-market-data
-# 调度说明：GitHub 免费层 cron 可能有 5-20 分钟延迟，workflow_dispatch 可手动触发
+# 设计说明：
+# GitHub 免费层的 schedule 对这个新仓库延迟严重（实测延迟 3 小时以上，甚至不触发），
+# 所以不再依赖"每 5 分钟触发一次"，改为一早触发一次、任务内部循环到收盘。
+# 只要 09:00-10:30 之间 cron 命中一次，整个交易日就能持续更新并推送。
 
 on:
   schedule:
-    # 北京时间 9:00-15:55，每 5 分钟（UTC 1:00-7:55），仅工作日
-    - cron: "*/5 1-7 * * 1-5"
+    # 北京时间 09:00 / 10:30 / 13:00 三次机会，任意一次命中即可覆盖余下时段
+    - cron: "0 1 * * 1-5"
+    - cron: "30 2 * * 1-5"
+    - cron: "0 5 * * 1-5"
   workflow_dispatch:
 
 permissions:
@@ -17,7 +22,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
 
@@ -29,22 +34,41 @@ jobs:
       - name: Install deps
         run: pip install -r requirements-server.txt
 
-      - name: Build data
+      - name: Intraday loop
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ vars.AI_BASE_URL }}
           AI_MODEL: ${{ vars.AI_MODEL }}
           SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
-        run: python build_static.py
-
-      - name: Commit data
+          TZ: Asia/Shanghai
         run: |
           git config user.name "stock-floater-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/data/
-          if git diff --staged --quiet; then
-            echo "数据无变化，跳过提交"
-          else
-            git commit -m "data: $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
-          fi
+          n=0
+          while true; do
+            n=$((n+1))
+            echo "========== 第 $n 轮  $(date +'%H:%M:%S') =========="
+            python build_static.py || echo "!! 本轮构建失败，稍后重试"
+
+            git add docs/data/
+            if git diff --staged --quiet; then
+              echo "数据无变化，跳过提交"
+            else
+              git commit -q -m "data: $(date +'%m-%d %H:%M')"
+              if git push -q; then
+                echo "已提交并推送"
+              else
+                echo "!! 推送失败，下轮重试"
+                git reset --soft HEAD~1
+              fi
+            fi
+
+            NOW=$(date +%H%M)
+            # 14:50 收尾，给 6 小时上限留余量（9:00 启动 → 约 5 小时 50 分）
+            if [ "$NOW" -ge 1450 ] || [ "$NOW" -lt 900 ]; then
+              echo "收盘或未开盘（当前 $NOW），结束循环"
+              break
+            fi
+            echo "等待 4 分钟后进入下一轮…"
+            sleep 240
+          done
