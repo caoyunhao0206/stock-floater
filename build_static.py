@@ -9,7 +9,7 @@ import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import market
 import recommender
@@ -123,7 +123,7 @@ def main():
     amount_top = sorted(rows, key=lambda x: -(x["amount"] or 0))
 
     out = {
-        "updated": datetime.now().isoformat(timespec="seconds"),
+        "updated": datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="seconds"),
         "updated_ts": int(time.time()),
         "market": {
             "stats": stats,
