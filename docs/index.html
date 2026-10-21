@@ -258,7 +258,7 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
     <div class="hTop">
       <div class="logo"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 4-6 5 5"/></svg></div>
       <span class="hTitle">A股盯盘助手</span>
-      <span class="live"><span class="liveDot" id="liveDot"></span><span id="liveTxt">连接中</span></span>
+      <span class="live" id="rtEntry" style="cursor:pointer"><span class="liveDot" id="liveDot"></span><span id="liveTxt">连接中</span></span>
     </div>
 
     <div class="pulse">
@@ -293,6 +293,16 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
     <span class="fNote" id="fNote">数据每 5 分钟<br>自动更新</span>
   </footer>
 </div>
+
+<div class="mask" id="maskRT"><div class="modal">
+  <div class="mTitle">实时行情（可选） <button data-close="maskRT">×</button></div>
+  <div class="hint">静态页面无法直接访问行情接口（跨域限制）。部署一个免费的 Cloudflare Worker 代理后，把地址填在这里，价格即可每 <b>10 秒</b>刷新。</div>
+  <div class="field"><label>代理地址</label><input id="rtProxy" placeholder="https://名字.workers.dev"></div>
+  <div class="hint">留空 = 关闭实时，使用 5 分钟快照。代理代码和部署步骤见仓库 <b>worker.js</b>。</div>
+  <div class="err" id="rtErr"></div>
+  <button class="btn" id="btnSaveRT">保存并连接</button>
+  <button class="btn ghost" id="btnTestRT">测试连接</button>
+</div></div>
 
 <div class="mask" id="maskW"><div class="modal">
   <div class="mTitle">添加自选 <button data-close="maskW">×</button></div>
@@ -446,8 +456,8 @@ function card(x, kind){
     + '<div class="rcHead">'
     +   '<span class="grade '+gCls+'">'+esc(g)+'</span>'
     +   '<div><div class="rcName">'+esc(x.name)+'</div><div class="rcCode">'+esc(x.code)+'</div></div>'
-    +   '<div class="rcQuote"><b class="'+cls(x.change_pct)+'">'+fmt(x.price)+'</b>'
-    +     '<span class="'+cls(x.change_pct)+'">'+sign(x.change_pct)+'%</span></div>'
+    +   '<div class="rcQuote"><b class="'+cls(x.change_pct)+'" data-rt="'+esc(x.code)+'">'+fmt(x.price)+'</b>'
+    +     '<span class="'+cls(x.change_pct)+'" data-rtpct="'+esc(x.code)+'">'+sign(x.change_pct)+'%</span></div>'
     + '</div>'
     + '<div class="buyRow">'
     +   '<div class="buyMain"><i>推荐买入价</i><b>'+fmt(x.buy_price)+'</b></div>'
@@ -689,8 +699,8 @@ function renderWatch(){
     var pnlPct = hasPos ? (q.p / w.cost - 1) * 100 : null;
     return '<div class="wCard">'
       + '<div class="wTop"><span class="wName">'+esc(q.n)+'</span><span class="wCode">'+esc(w.code)+'</span>'
-      + '<span class="wPrice '+cls(q.c)+'">'+fmt(q.p)+'</span>'
-      + '<span class="wChg '+cls(q.c)+'">'+sign(q.c)+'%</span></div>'
+      + '<span class="wPrice '+cls(q.c)+'" data-rt="'+esc(w.code)+'">'+fmt(q.p)+'</span>'
+      + '<span class="wChg '+cls(q.c)+'" data-rtpct="'+esc(w.code)+'">'+sign(q.c)+'%</span></div>'
       + '<div class="wGrid">'
       +   '<div>成本价<b>'+(w.cost?fmt(w.cost):'--')+'</b></div>'
       +   '<div>持仓<b>'+(w.shares?w.shares+' 股':'--')+'</b></div>'
@@ -704,6 +714,98 @@ function renderWatch(){
       + '</div>';
   }).join("");
   $("main").innerHTML = html;
+}
+
+/* ---------------- 实时行情（可选代理） ---------------- */
+var rtTimer = null, rtOk = false, rtLast = 0;
+
+function rtProxy(){ return localStorage.getItem("sf_proxy") || ""; }
+
+function rtSymbols(){
+  var map = {};
+  watches.forEach(function(w){
+    var c = w.code;
+    if(/^\d{6}$/.test(c)) map[(c[0] === "6" ? "sh" : "sz") + c] = 1;
+  });
+  Object.keys(RECO_MAP).forEach(function(c){
+    if(/^\d{6}$/.test(c)) map[(c[0] === "6" ? "sh" : "sz") + c] = 1;
+  });
+  return Object.keys(map);
+}
+
+function rtUrl(target){
+  var proxy = rtProxy();
+  if(!proxy) return "";
+  var sep = proxy.indexOf("?") >= 0 ? "&" : "?";
+  return proxy + sep + "url=" + encodeURIComponent(target);
+}
+
+function rtRefresh(){
+  if(!rtProxy() || !DATA) return;
+  var syms = rtSymbols();
+  if(!syms.length) return;
+  var target = "https://qt.gtimg.cn/q=" + syms.slice(0, 60).join(",");
+  fetch(rtUrl(target), {cache:"no-store"})
+    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
+    .then(function(txt){
+      var re = /v_(\w+)="([^"]*)"/g, m, cnt = 0;
+      while((m = re.exec(txt))){
+        var f = m[2].split("~");
+        if(f.length < 33) continue;
+        var code = m[1].replace(/^(sh|sz)/, "");
+        var price = parseFloat(f[3]), pct = parseFloat(f[32]);
+        if(isNaN(price) || price <= 0 || !DATA.quotes[code]) continue;
+        DATA.quotes[code].p = price;
+        DATA.quotes[code].c = pct;
+        cnt++;
+      }
+      rtOk = cnt > 0; rtLast = Date.now();
+      if(rtOk) updateRtPrices();
+      setRtStatus();
+    })
+    .catch(function(){ rtOk = false; setRtStatus(); });
+}
+
+function updateRtPrices(){
+  Array.prototype.forEach.call(document.querySelectorAll("[data-rt]"), function(el){
+    var code = el.getAttribute("data-rt");
+    var q = (DATA.quotes||{})[code];
+    if(!q) return;
+    var prev = parseFloat(el.textContent.replace(/,/g,""));
+    el.textContent = fmt(q.p);
+    el.classList.remove("up","down","flat");
+    el.classList.add(cls(q.c));
+    if(!isNaN(prev) && Math.abs(prev - q.p) > 0.001){
+      el.style.transition = "none"; el.style.opacity = ".55";
+      setTimeout(function(){ el.style.transition = "opacity .45s"; el.style.opacity = "1"; }, 60);
+    }
+    var pctEl = el.parentNode.querySelector("[data-rtpct]");
+    if(pctEl){
+      pctEl.textContent = sign(q.c) + "%";
+      pctEl.classList.remove("up","down","flat");
+      pctEl.classList.add(cls(q.c));
+    }
+  });
+}
+
+function setRtStatus(){
+  var dot = $("liveDot"), txt = $("liveTxt");
+  if(!rtProxy()){ dot.className = "liveDot"; txt.textContent = "快照模式"; return; }
+  if(rtOk){
+    dot.className = "liveDot ok";
+    txt.textContent = "实时 " + Math.max(1, Math.round((Date.now()-rtLast)/1000)) + "s";
+  }else{
+    dot.className = "liveDot";
+    txt.textContent = "实时失败";
+  }
+}
+
+function rtStart(){
+  clearInterval(rtTimer);
+  setRtStatus();
+  if(!rtProxy()) return;
+  rtRefresh();
+  rtTimer = setInterval(rtRefresh, 10000);
 }
 
 /* ---------------- 交互 ---------------- */
@@ -770,6 +872,35 @@ function addWatch(code){
   });
   render();
 }
+$("rtEntry").onclick = function(){
+  $("rtProxy").value = rtProxy();
+  $("rtErr").textContent = "";
+  $("maskRT").classList.add("show");
+};
+$("btnSaveRT").onclick = function(){
+  var v = $("rtProxy").value.trim().replace(/\/+$/, "");
+  if(v && !/^https?:\/\//.test(v)){ $("rtErr").textContent = "需以 https:// 开头"; return; }
+  if(v) localStorage.setItem("sf_proxy", v); else localStorage.removeItem("sf_proxy");
+  $("maskRT").classList.remove("show");
+  rtStart();
+};
+$("btnTestRT").onclick = function(){
+  var v = $("rtProxy").value.trim().replace(/\/+$/, "");
+  if(!v){ $("rtErr").textContent = "请先填代理地址"; return; }
+  $("rtErr").textContent = "测试中…";
+  var target = "https://qt.gtimg.cn/q=sh000001";
+  var url = v + (v.indexOf("?") >= 0 ? "&" : "?") + "url=" + encodeURIComponent(target);
+  fetch(url, {cache:"no-store"}).then(function(r){ return r.text(); }).then(function(t){
+    if(t && t.indexOf("v_sh000001") >= 0){
+      $("rtErr").textContent = "连接成功，可以保存";
+      $("rtErr").style.color = "var(--down)";
+    }else{
+      $("rtErr").textContent = "返回内容异常，检查代理代码";
+      $("rtErr").style.color = "";
+    }
+  }).catch(function(){ $("rtErr").textContent = "连接失败，检查地址"; $("rtErr").style.color = ""; });
+};
+
 $("btnAdd").onclick = function(){ openWatch(null); };
 $("btnSaveW").onclick = function(){
   var code = $("wCode").value.trim().replace(/\D/g,"");
@@ -803,6 +934,8 @@ $("btnRefresh").onclick = loadData;
 
 loadData();
 setInterval(loadData, 60000);
+rtStart();
+setInterval(setRtStatus, 3000);
 })();
 </script>
 </body>
