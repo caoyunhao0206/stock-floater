@@ -285,7 +285,14 @@ def main():
     except Exception:  # noqa: BLE001
         idx = []
 
-    today_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
+    _now8 = datetime.now(timezone(timedelta(hours=8)))
+    if _now8.hour < 9:                      # 凌晨运行归到前一交易日
+        _prev = _now8 - timedelta(days=1)
+        while _prev.weekday() >= 5:         # 跳过周末
+            _prev -= timedelta(days=1)
+        today_str = _prev.strftime("%Y-%m-%d")
+    else:
+        today_str = _now8.strftime("%Y-%m-%d")
     print("开始推荐引擎…")
     reco = recommender.build(rows, idx, per_list=10)
     all_recs = reco["aggressive"] + reco["steady"]
@@ -311,6 +318,7 @@ def main():
             except Exception:  # noqa: BLE001
                 continue
         bt = backtest.run(bt_recs, horizon=10, threshold=65, tp=0.10, sl=0.07)
+
         print("回测：%d 只股票，%d 个历史信号，10日胜率 %s%%（盈8%%/损5%%）" % (
             bt["strategy"]["stocks"] if bt.get("strategy") else 0,
             bt["strategy"]["samples"] if bt.get("strategy") else 0,
@@ -341,6 +349,72 @@ def main():
     except Exception as e:  # noqa: BLE001
         print("跟踪失败:", e)
         tst = {}
+
+    # ---- K 线（推荐股 120 根，供前端画图）----
+    klines = {}
+    try:
+        def _one_kl(r):
+            try:
+                k = sources.fetch_kline(r["symbol"], 130)
+                if len(k) < 20:
+                    return None
+                # [date, open, close, low, high, volume]
+                rows = [[x["date"], x["open"], x["close"], x["low"], x["high"], x["volume"]]
+                        for x in k[-120:]]
+                return r["code"], {"n": r["name"], "k": rows}
+            except Exception:  # noqa: BLE001
+                return None
+
+        # 推荐股 + 自选股都要有 K 线（自选用于走势对比）
+        wl_codes = []
+        try:
+            for w in _load_json(WATCHLIST_FILE, []):
+                c6 = str(w.get("code", "")).strip()
+                if len(c6) == 6:
+                    wl_codes.append({"code": c6, "name": c6,
+                                     "symbol": ("sh" if c6[0] == "6" else "sz") + c6})
+        except Exception:  # noqa: BLE001
+            pass
+        seen = {r["code"] for r in all_recs}
+        targets = list(all_recs) + [w for w in wl_codes if w["code"] not in seen]
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for item in ex.map(_one_kl, targets):
+                if item:
+                    klines[item[0]] = item[1]
+        print("K线：%d 只" % len(klines))
+        # 用同一批 K 线算组合净值（省一次网络请求）
+        try:
+            ec_recs = []
+            for _c, _item in klines.items():
+                _kl = [{"date": r[0], "open": r[1], "close": r[2],
+                        "low": r[3], "high": r[4], "volume": r[5]} for r in _item["k"]]
+                ec_recs.append({"_kl": _kl, "code": _c})
+            ec = backtest.equity_curve(ec_recs, horizon=5, threshold=65, max_points=120)
+            if ec:
+                bt["equity"] = ec
+                print("净值：%d 日，策略 %+.1f%% / 基准 %+.1f%% / 超额 %+.1f%%，回撤 %.1f%%，夏普 %.2f" % (
+                    ec["stat"]["days"], ec["stat"]["total"], ec["stat"]["bench"],
+                    ec["stat"]["excess"], ec["stat"]["mdd"], ec["stat"]["sharpe"]))
+        except Exception as e:  # noqa: BLE001
+            print("净值曲线失败:", e)
+    except Exception as e:  # noqa: BLE001
+        print("K线失败:", e)
+
+    # ---- 筹码 + 大宗（推荐股）----
+    holder, blocks = {}, {}
+    try:
+        def _extra(code):
+            return code, sources.fetch_holder_num(code), sources.fetch_block_trade(code)
+
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            for code, h, b in ex.map(_extra, [r["code"] for r in all_recs]):
+                if h:
+                    holder[code] = h
+                if b and b.get("count"):
+                    blocks[code] = b
+        print("筹码：%d 只有股东户数，%d 只有大宗交易" % (len(holder), len(blocks)))
+    except Exception as e:  # noqa: BLE001
+        print("筹码数据失败:", e)
 
     print("推荐：稳健 %d / 进攻 %d（候选 %d，过滤 %d）" % (
         len(reco["steady"]), len(reco["aggressive"]),
@@ -478,6 +552,8 @@ def main():
         "sectors": sectors,
         "limit_up": limit_up,
         "watch_detail": watch_detail,
+        "holder": holder,
+        "block_trade": blocks,
         "tracking": tst,
         "weights": tracking.load_weights(),
         "ai_status": {"ok": AI_STATUS.get("ok", 0), "tried": AI_STATUS.get("tried", 0),
@@ -505,6 +581,14 @@ def main():
 
     print("分段耗时：扫描 %.1fs / 推荐 %.1fs / 回测 %.0fs / 其余 %.1fs" % (
         _t["scan"], _t["reco"], _t["bt"], time.time() - t0 - sum(_t.values())))
+
+    try:
+        kp = os.path.join(OUT_DIR, "klines.json")
+        with open(kp, "w", encoding="utf-8") as f:
+            json.dump(klines, f, ensure_ascii=False, separators=(",", ":"))
+        print("K线文件：%.0f KB" % (os.path.getsize(kp) / 1024))
+    except Exception as e:  # noqa: BLE001
+        print("K线写入失败:", e)
 
     size = os.path.getsize(path) / 1024
     print("已生成 %s（%.0f KB，总耗时 %.1fs）" % (path, size, time.time() - t0))
