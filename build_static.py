@@ -269,12 +269,14 @@ def check_ai_health(data):
 
 def main():
     t0 = time.time()
+    _t = {"scan": 0, "reco": 0, "bt": 0, "extra": 0}
     print("开始全市场扫描…")
     rows = market.scan_all()
     if not rows:
         print("扫描失败，退出")
         sys.exit(1)
-    print("扫描完成：%d 只，%.1fs" % (len(rows), time.time() - t0))
+    _t["scan"] = time.time() - t0
+    print("扫描完成：%d 只，%.1fs" % (len(rows), _t["scan"]))
 
     stats = market.stats(rows)
     try:
@@ -282,11 +284,21 @@ def main():
     except Exception:  # noqa: BLE001
         idx = []
 
+    today_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
     print("开始推荐引擎…")
     reco = recommender.build(rows, idx, per_list=10)
     all_recs = reco["aggressive"] + reco["steady"]
     ai_review(all_recs)
-    try:
+    _t["reco"] = time.time() - t0 - _t["scan"]
+    bt_cache_path = os.path.join(OUT_DIR, "backtest_cache.json")
+    bt_cached = _load_json(bt_cache_path, {})
+    if bt_cached.get("date") == today_str and bt_cached.get("data"):
+        bt = bt_cached["data"]
+        print("回测：复用今日缓存（%d 样本，胜率 %s%%）" % (
+            (bt.get("strategy") or {}).get("samples", 0),
+            (bt.get("strategy") or {}).get("win_rate", "-")))
+    else:
+      try:
         # 回测用整个候选池，样本更充分（推荐股本身只有十几只）
         cand_syms = reco.get("candidates") or [r["symbol"] for r in all_recs]
         bt_recs = []
@@ -302,7 +314,9 @@ def main():
             bt["strategy"]["stocks"] if bt.get("strategy") else 0,
             bt["strategy"]["samples"] if bt.get("strategy") else 0,
             bt["strategy"]["win_rate"] if bt.get("strategy") else "-"))
-    except Exception as e:  # noqa: BLE001
+        if bt.get("strategy"):
+            _save_json(bt_cache_path, {"date": today_str, "data": bt})
+      except Exception as e:  # noqa: BLE001
         print("回测失败:", e)
         bt = {"per_stock": {}, "strategy": None, "horizon": 5}
     if any(r.get("final_score") is not None for r in all_recs):
@@ -319,6 +333,7 @@ def main():
         len(reco["steady"]), len(reco["aggressive"]),
         reco.get("pool", 0), reco.get("filtered", 0)))
 
+    _t["bt"] = time.time() - t0 - _t["scan"] - _t["reco"]
     # ---- 板块热度 ----
     sectors = {}
     try:
@@ -455,6 +470,9 @@ def main():
         check_ai_health(out)
     except Exception as e:  # noqa: BLE001
         print("AI 健康检查异常:", e)
+
+    print("分段耗时：扫描 %.1fs / 推荐 %.1fs / 回测 %.0fs / 其余 %.1fs" % (
+        _t["scan"], _t["reco"], _t["bt"], time.time() - t0 - sum(_t.values())))
 
     size = os.path.getsize(path) / 1024
     print("已生成 %s（%.0f KB，总耗时 %.1fs）" % (path, size, time.time() - t0))
