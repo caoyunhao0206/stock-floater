@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 
 import backtest
 import market
+import tracking
 import recommender
 import sources
 
@@ -329,9 +330,38 @@ def main():
         if c and bt.get("per_stock", {}).get(c):
             r["hist"] = bt["per_stock"][c]
 
+    # ---- 推荐跟踪：回填历史表现 + 记录今日推荐 ----
+    quote_map = {r["code"]: {"p": r["price"]} for r in rows if r.get("price")}
+    try:
+        upd = tracking.update(quote_map)
+        added = tracking.record(all_recs, today_str, quote_map)
+        tst = tracking.summarize(tracking._load(tracking.TRACK_PATH, {}).get("entries") or [])
+        print("跟踪：更新 %d 条，新增 %d 条 | 已结算 %s 条，胜率 %s%%，均值 %s%%" % (
+            upd, added, tst.get("settled"), tst.get("win_rate"), tst.get("avg_ret")))
+    except Exception as e:  # noqa: BLE001
+        print("跟踪失败:", e)
+        tst = {}
+
     print("推荐：稳健 %d / 进攻 %d（候选 %d，过滤 %d）" % (
         len(reco["steady"]), len(reco["aggressive"]),
         reco.get("pool", 0), reco.get("filtered", 0)))
+
+    # ---- 自动校准：每天只做一次（用已结算样本调整六维权重）----
+    try:
+        cal_date_path = os.path.join(OUT_DIR, "calib_date.txt")
+        last_cal = ""
+        if os.path.exists(cal_date_path):
+            last_cal = open(cal_date_path, encoding="utf-8").read().strip()
+        if last_cal != today_str:
+            cr = tracking.apply_calibration()
+            if cr.get("applied"):
+                print("校准：权重已更新 ->", cr.get("changed"))
+            else:
+                print("校准：本轮不调整（%s）" % (cr.get("info") or {}).get("reason", ""))
+            with open(cal_date_path, "w", encoding="utf-8") as f:
+                f.write(today_str)
+    except Exception as e:  # noqa: BLE001
+        print("校准失败:", e)
 
     _t["bt"] = time.time() - t0 - _t["scan"] - _t["reco"]
     # ---- 板块热度 ----
@@ -448,6 +478,8 @@ def main():
         "sectors": sectors,
         "limit_up": limit_up,
         "watch_detail": watch_detail,
+        "tracking": tst,
+        "weights": tracking.load_weights(),
         "ai_status": {"ok": AI_STATUS.get("ok", 0), "tried": AI_STATUS.get("tried", 0),
                       "error": AI_STATUS.get("error", "")},
         "backtest": {
