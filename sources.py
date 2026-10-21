@@ -760,3 +760,225 @@ def build_lof_arbitrage(min_amount=100.0, max_check=80, workers=6):
         "scanned": len(spots),
         "updated": datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
+
+
+# ================= 可转债 =================
+
+CB_URL = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+CB_QUOTE = ("f2~01~CONVERT_STOCK_CODE~CONVERT_STOCK_PRICE,"
+            "f235~10~SECURITY_CODE~TRANSFER_PRICE,"
+            "f236~10~SECURITY_CODE~TRANSFER_VALUE,"
+            "f237~10~SECURITY_CODE~TRANSFER_PREMIUM_RATIO")
+
+RATING_SCORE = {
+    "AAA": 10, "AA+": 9, "AA": 7, "AA-": 5,
+    "A+": 3, "A": 2, "A-": 1,
+    "BBB": 1, "BB": 0, "B": 0, "CCC": 0, "CC": 0, "C": 0, "D": 0,
+}
+LOW_RATING = {"BB", "B", "CCC", "CC", "C", "D"}
+
+
+def _cb_rows():
+    """东财可转债基础表（含转股价/正股价/转股价值），返回未退市的"""
+    out = []
+    for page in (1, 2, 3):
+        p = {"reportName": "RPT_BOND_CB_LIST", "columns": "ALL",
+             "pageNumber": page, "pageSize": 500, "source": "WEB", "client": "WEB",
+             "sortColumns": "LISTING_DATE", "sortTypes": "-1",
+             "quoteColumns": CB_QUOTE, "quoteType": "1", "quote": "1"}
+        try:
+            r = requests.get(CB_URL, params=p,
+                             headers={**UA, "Referer": "https://data.eastmoney.com/kzz/"},
+                             timeout=(5, 15))
+            data = ((r.json().get("result") or {}).get("data")) or []
+        except Exception as e:  # noqa: BLE001
+            log.debug("可转债列表失败: %s", e)
+            break
+        out += data
+        if len(data) < 500:
+            break
+    return [x for x in out if not x.get("DELIST_DATE")]
+
+
+def fetch_cb_list(min_amount=100.0):
+    """
+    可转债实时列表
+    转债价格取腾讯行情，溢价率用「转债价 / 转股价值 - 1」重算（东财的转股价值是实时的）
+    """
+    rows = _cb_rows()
+    if not rows:
+        return []
+    codes = [str(x.get("SECURITY_CODE")) for x in rows if x.get("SECURITY_CODE")]
+    syms = [("sh" if c.startswith("11") else "sz") + c for c in codes]
+    quotes = {}
+    for i in range(0, len(syms), 60):
+        try:
+            r = _get("https://qt.gtimg.cn/q=" + ",".join(syms[i:i + 60]), encoding="gbk")
+        except Exception:  # noqa: BLE001
+            continue
+        for mm in re.finditer(r'v_(\w+)="([^"]*)"', r.text):
+            f = mm.group(2).split("~")
+            if len(f) < 40 or not f[1]:
+                continue
+            try:
+                quotes[mm.group(1)[2:]] = {
+                    "price": float(f[3]),
+                    "pct": float(f[32]) if f[32] else 0.0,
+                    "amount": float(f[37]) if f[37] else 0.0,
+                }
+            except (TypeError, ValueError):
+                continue
+
+    out = []
+    for x in rows:
+        code = str(x.get("SECURITY_CODE"))
+        q = quotes.get(code)
+        if not q or q["price"] <= 0 or q["amount"] < min_amount:
+            continue
+        tv = x.get("TRANSFER_VALUE")
+        tp = x.get("TRANSFER_PRICE")
+        sp = x.get("CONVERT_STOCK_PRICE")
+        try:
+            tv = float(tv) if tv not in (None, "-", "") else 0.0
+            tp = float(tp) if tp not in (None, "-", "") else 0.0
+            sp = float(sp) if sp not in (None, "-", "") else 0.0
+        except (TypeError, ValueError):
+            continue
+        if tv <= 0 or tp <= 0:
+            continue
+        premium = (q["price"] / tv - 1) * 100
+        # 强赎触发线：正股价 ≥ 转股价 × 1.3
+        redeem_ratio = (sp / tp) if tp > 0 else 0
+        expire = (x.get("EXPIRE_DATE") or "")[:10]
+        years = None
+        try:
+            if expire:
+                import datetime as _dt
+                d = _dt.date.fromisoformat(expire)
+                years = round((d - _dt.date.today()).days / 365.0, 2)
+        except Exception:  # noqa: BLE001
+            pass
+        out.append({
+            "code": code,
+            "name": x.get("SECURITY_NAME_ABBR") or "",
+            "price": round(q["price"], 2),
+            "change_pct": round(q["pct"], 2),
+            "amount": round(q["amount"], 0),
+            "stock_code": str(x.get("CONVERT_STOCK_CODE") or ""),
+            "stock_price": round(sp, 2),
+            "transfer_price": round(tp, 2),
+            "transfer_value": round(tv, 2),
+            "premium": round(premium, 2),
+            "double_low": round(q["price"] + premium, 1),
+            "redeem_ratio": round(redeem_ratio, 3),
+            "rating": (x.get("RATING") or "").strip(),
+            "scale": round(float(x.get("ACTUAL_ISSUE_SCALE") or 0), 2),
+            "expire": expire,
+            "years": years,
+        })
+    out.sort(key=lambda a: -a["amount"])
+    return out
+
+
+def score_cb(cb):
+    """可转债评分 0~100：价格 30 + 溢价 30 + 双低 20 + 评级 10 + 年限 5 + 流动 5，强赎扣分"""
+    s = 0.0
+    p = cb["price"]
+    if p <= 105:
+        s += 30
+    elif p <= 115:
+        s += 24
+    elif p <= 125:
+        s += 16
+    elif p <= 140:
+        s += 8
+    prem = cb["premium"]
+    if prem <= 5:
+        s += 30
+    elif prem <= 15:
+        s += 24
+    elif prem <= 30:
+        s += 16
+    elif prem <= 50:
+        s += 8
+    else:
+        s += 2
+    dl = cb["double_low"]
+    if dl <= 130:
+        s += 20
+    elif dl <= 150:
+        s += 14
+    elif dl <= 170:
+        s += 8
+    else:
+        s += 2
+    s += RATING_SCORE.get((cb.get("rating") or "").upper(), 4)
+    y = cb.get("years")
+    if y is not None:
+        s += 5 if y >= 2 else (3 if y >= 1 else 0)
+    else:
+        s += 2
+    if cb["amount"] >= 5000:
+        s += 5
+    elif cb["amount"] >= 1000:
+        s += 3
+    s -= cb.get("penalty", 0)
+    return round(max(0, min(100, s)), 1)
+
+
+def build_cb_scan(min_amount=100.0, top=40):
+    """可转债扫描 + 评分 + 分组"""
+    items = fetch_cb_list(min_amount)
+    if not items:
+        return {"items": [], "groups": {}, "scanned": 0}
+
+    for it in items:
+        pen = 0
+        reasons = []
+        if it["redeem_ratio"] >= 1.3:
+            pen += 12
+            reasons.append("已触发强赎线（正股/转股价 %.2f），随时可能公告强赎" % it["redeem_ratio"])
+        elif it["redeem_ratio"] >= 1.2:
+            pen += 5
+            reasons.append("接近强赎线（%.2f），上行空间受限" % it["redeem_ratio"])
+        if it["years"] is not None and it["years"] < 1:
+            pen += 8
+            reasons.append("剩余期限不足 1 年，面临到期赎回")
+        if it["premium"] > 60:
+            pen += 5
+            reasons.append("转股溢价率 %.0f%%，股性弱" % it["premium"])
+        rk = (it.get("rating") or "").upper()
+        if rk in LOW_RATING:
+            pen += 20
+            reasons.append("评级 %s，信用风险高，低价低溢价不代表便宜" % rk)
+        elif rk == "":
+            pen += 3
+            reasons.append("无评级，信息不足")
+        it["penalty"] = pen
+        it["warnings"] = reasons
+        it["score"] = score_cb(it)
+
+    items.sort(key=lambda a: -a["score"])
+    picked = items[:top]
+
+    groups = {
+        # 双低：价格 + 溢价率 双低的经典防守策略
+        "double_low": sorted(
+            [x for x in items if x["double_low"] <= 150 and x["redeem_ratio"] < 1.25
+             and (x.get("rating") or "").upper() not in LOW_RATING],
+            key=lambda a: a["double_low"])[:10],
+        # 折价：转股溢价率为负，可转股套利
+        "discount": sorted(
+            [x for x in items if x["premium"] < 0],
+            key=lambda a: a["premium"])[:10],
+        # 进攻：正股强（接近强赎线）但价格不算离谱
+        "attack": sorted(
+            [x for x in items if 1.0 <= x["redeem_ratio"] < 1.28 and x["price"] <= 145],
+            key=lambda a: -a["redeem_ratio"])[:10],
+    }
+    return {
+        "items": picked,
+        "groups": groups,
+        "scanned": len(items),
+        "updated": datetime.now().strftime("%Y-%m-%d %H:%M"),
+    }
