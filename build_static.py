@@ -467,6 +467,19 @@ def main():
     except Exception as e:  # noqa: BLE001
         print("LOF 扫描失败:", e)
 
+    # ---- 可转债 ----
+    cb = {"items": [], "groups": {}, "scanned": 0}
+    try:
+        cb = sources.build_cb_scan(min_amount=100, top=40)
+        g = cb.get("groups") or {}
+        print("可转债：%d 只可交易，双低 %d / 折价 %d / 进攻 %d，榜首 %s（%.0f 分）" % (
+            cb.get("scanned", 0), len(g.get("double_low") or []),
+            len(g.get("discount") or []), len(g.get("attack") or []),
+            (cb["items"][0]["name"] if cb.get("items") else "-"),
+            (cb["items"][0]["score"] if cb.get("items") else 0)))
+    except Exception as e:  # noqa: BLE001
+        print("可转债扫描失败:", e)
+
     # ---- 板块热度 ----
     sectors = {}
     try:
@@ -582,6 +595,7 @@ def main():
         "limit_up": limit_up,
         "watch_detail": watch_detail,
         "lof": lof,
+        "cb": cb,
         "holder": holder,
         "block_trade": blocks,
         "tracking": tst,
