@@ -198,6 +198,16 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 .lofWarn{background:rgba(255,212,94,.08);border:1px solid rgba(255,212,94,.28);
   border-radius:10px;padding:9px 10px;font-size:10px;line-height:1.65;color:#e8d8a8}
 
+/* 可转债 */
+.cbScore{display:flex;align-items:center;gap:5px;flex:none;width:52px}
+.cbScore b{font-size:13px;font-variant-numeric:tabular-nums}
+.cbBar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.cbBar u{display:block;height:100%;border-radius:2px}
+.cbDetail{margin-top:6px;font-size:9px;color:var(--sub2);line-height:1.6}
+.cbDetail b{color:var(--sub);font-variant-numeric:tabular-nums}
+.cbWarn{margin-top:5px;font-size:9px;color:#ffb27a;background:rgba(255,178,122,.08);
+  border:1px solid rgba(255,178,122,.22);border-radius:6px;padding:4px 7px;line-height:1.5}
+
 /* 图表 */
 .chartBox{height:210px;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.25);
   border:1px solid var(--line);margin-top:6px;position:relative}
@@ -1084,7 +1094,14 @@ function renderLimitUp(){
 }
 
 /* ---------------- LOF 套利 ---------------- */
+var lofSub = "lof";
+
 function renderLof(){
+  var sub = '<div class="secToggle" style="margin-bottom:10px">'
+    + '<button data-lofsub="lof" class="' + (lofSub === "lof" ? "on" : "") + '">LOF 套利</button>'
+    + '<button data-lofsub="cb" class="' + (lofSub === "cb" ? "on" : "") + '">可转债</button>'
+    + '</div>';
+  if(lofSub === "cb"){ $("main").innerHTML = sub + cbHtml(); return; }
   var d = DATA.lof || {};
   var items = d.items || [];
   if(!items.length){
@@ -1113,7 +1130,7 @@ function renderLof(){
       + '</div></div>';
   }
 
-  var html = '<div class="lofWarn">'
+  var html = sub + '<div class="lofWarn">'
     + '<b>溢价率 = 场内价格 ÷ 最新净值 − 1</b>，净值取最近公布日（多为 T-1，QDII 可能 T-2），'
     + '所以盘中的真实溢价率会随标的小幅偏移。<br>'
     + '溢价套利路径：场外申购 → T+2 份额到场 → 场内卖出。成本约 0.3%~1.0%（申购费+佣金+冲击），'
@@ -1138,6 +1155,73 @@ function renderLof(){
   html += '<div class="hint" style="margin-top:12px">扫描 ' + (d.scanned || 0) + ' 只成交额达标的 LOF，'
     + '更新于 ' + esc((d.updated || "").slice(11)) + '。成交额过小的标的未纳入（冲击成本过高）。</div>';
   $("main").innerHTML = html;
+}
+
+/* ---------------- 可转债 ---------------- */
+function cbScoreBar(s){
+  var col = s >= 75 ? "#ffd45e" : (s >= 60 ? "#4c8dff" : "#8b96a6");
+  return '<div class="cbScore"><b style="color:' + col + '">' + s + '</b>'
+    + '<div class="cbBar"><u style="width:' + Math.min(100, s) + '%;background:' + col + '"></u></div></div>';
+}
+
+function cbRow(x){
+  var premCol = x.premium < 0 ? "down" : (x.premium > 30 ? "up" : "");
+  var warn = (x.warnings || []).length
+    ? '<div class="cbWarn">⚠ ' + esc(x.warnings[0]) + '</div>' : "";
+  return '<div class="lofCard">'
+    + '<div class="lofTop"><span class="lofName">' + esc(x.name) + '</span>'
+    + '<span class="lofCode">' + esc(x.code) + '</span>'
+    + '<span class="lofTag ' + (x.rating && x.rating.indexOf("AA") === 0 ? "ok" : "no") + '">' + esc(x.rating || "—") + '</span>'
+    + cbScoreBar(x.score) + '</div>'
+    + '<div class="lofGrid">'
+    +   '<div><i>现价</i><b>' + fmt(x.price, 2) + '</b></div>'
+    +   '<div><i>转股溢价</i><b class="' + premCol + '">' + sign(x.premium) + '%</b></div>'
+    +   '<div><i>双低值</i><b>' + fmt(x.double_low, 1) + '</b></div>'
+    +   '<div><i>成交额</i><b>' + (x.amount >= 10000 ? fmt(x.amount / 10000, 2) + '亿' : fmt(x.amount, 0) + '万') + '</b></div>'
+    + '</div>'
+    + '<div class="cbDetail">'
+    +   '转股价 <b>' + fmt(x.transfer_price, 2) + '</b> · 正股价 <b>' + fmt(x.stock_price, 2) + '</b>'
+    +   ' · 转股价值 <b>' + fmt(x.transfer_value, 2) + '</b>'
+    +   ' · 强赎比 <b class="' + (x.redeem_ratio >= 1.2 ? "up" : "") + '">' + fmt(x.redeem_ratio, 2) + '</b>'
+    +   (x.years !== null && x.years !== undefined ? ' · 剩余 <b>' + fmt(x.years, 1) + '年</b>' : '')
+    + '</div>'
+    + warn
+    + '<div class="chartBar"><button data-cbai="' + esc(x.code) + '">AI 研判</button></div>'
+    + '<div id="cbao-' + esc(x.code) + '"></div>'
+    + '</div>';
+}
+
+function cbHtml(){
+  var d = DATA.cb || {};
+  var g = d.groups || {};
+  if(!(d.items || []).length){
+    return '<div class="empty">暂无可转债数据</div>';
+  }
+  var html = '<div class="lofWarn">'
+    + '<b>可转债评分 = 价格(30) + 转股溢价(30) + 双低值(20) + 评级(10) + 剩余年限(5) + 流动性(5)</b>，'
+    + '触发强赎线、剩余不足 1 年、低评级会扣分。<br>'
+    + '<b>双低值 = 价格 + 转股溢价率</b>，越低越安全，是经典防守策略；'
+    + '<b>强赎比 = 正股价 ÷ 转股价</b>，≥1.3 即触发强赎，此时转债会被强制赎回，必须及时卖出或转股。'
+    + '</div>';
+
+  var secs = [
+    ["double_low", "双低榜", "价格+溢价双低 · 防守型", 10],
+    ["attack", "正股强势", "接近强赎线 · 进攻型（注意强赎风险）", 8],
+    ["discount", "折价套利", "转股溢价为负 · 可转股套利", 8]
+  ];
+  secs.forEach(function(s){
+    var list = (g[s[0]] || []).slice(0, s[3]);
+    html += '<div class="lofHead"><b>' + s[1] + '</b><span>' + s[2] + '</span></div>';
+    html += list.length ? list.map(cbRow).join("")
+                        : '<div class="hint" style="padding:6px 2px">当前没有满足条件的标的</div>';
+  });
+
+  html += '<div class="lofHead"><b>综合评分榜</b><span>前 12 名</span></div>';
+  html += (d.items || []).slice(0, 12).map(cbRow).join("");
+  html += '<div class="hint" style="margin-top:10px">共扫描 ' + (d.scanned || 0) + ' 只可交易转债（成交额 ≥ 100 万），'
+    + '更新于 ' + esc((d.updated || "").slice(11)) + '。'
+    + '转股价值 = 100 ÷ 转股价 × 正股价，溢价率为实时重算值。</div>';
+  return html;
 }
 
 /* ---------------- 持仓总览 ---------------- */
@@ -1592,6 +1676,80 @@ function renderAiResult(code, d){
     + '</div>';
 }
 
+/* ---------- 可转债 AI 研判 ---------- */
+function buildCbPrompt(x){
+  return "你是可转债研究员。基于以下实时数据判断这只转债当前是否值得配置。\n\n"
+    + "转债：" + x.name + "（" + x.code + "）\n"
+    + "现价：" + x.price + "  转股价值：" + x.transfer_value
+    + "  转股溢价率：" + x.premium + "%\n"
+    + "双低值：" + x.double_low + "  信用评级：" + (x.rating || "无")
+    + "  发行规模：" + x.scale + "亿  剩余期限：" + (x.years !== null ? x.years + "年" : "未知") + "\n"
+    + "正股代码：" + x.stock_code + "  正股价：" + x.stock_price
+    + "  转股价：" + x.transfer_price + "  强赎比：" + x.redeem_ratio + "（≥1.3 触发强赎）\n"
+    + "今日成交额：" + (x.amount >= 10000 ? (x.amount/10000).toFixed(2) + "亿" : x.amount + "万")
+    + "  今日涨跌：" + x.change_pct + "%\n"
+    + (x.warnings && x.warnings.length ? "系统提示：" + x.warnings.join("；") + "\n" : "")
+    + "\n请综合判断：转股溢价率是否合理、纯债底保护、强赎风险、信用风险、剩余期限、正股趋势。\n"
+    + "只输出 JSON：{\"rating\":\"推荐/观察/回避\",\"score\":0到100,\"confidence\":0到100,"
+    + "\"one_line\":\"一句话结论\",\"thesis\":[\"理由1\",\"理由2\"],\"risks\":[\"风险1\"],"
+    + "\"advice\":\"操作建议（买入价位、仓位、止盈止损）\"}";
+}
+
+function cbAiReview(code, btn){
+  var cfg = userAI();
+  if(!cfg.key || !cfg.base){
+    var m = $("maskAI");
+    if(m){ m.classList.add("show"); $("uAiMsg").textContent = "请先填写 API 配置"; }
+    return;
+  }
+  var all = ((DATA.cb || {}).items || []);
+  var g = (DATA.cb || {}).groups || {};
+  ["double_low","attack","discount"].forEach(function(k){
+    (g[k] || []).forEach(function(x){ if(x.code === code && all.indexOf(x) < 0) all.push(x); });
+  });
+  var x = all.filter(function(a){ return a.code === code; })[0];
+  if(!x){ return; }
+  var cached = aiCacheGet("cb" + code);
+  if(cached){ renderCbAi(code, cached); return; }
+
+  var old = btn.textContent;
+  btn.textContent = "AI 分析中…"; btn.disabled = true;
+  fetch(cfg.base.replace(/\/+$/, "") + "/chat/completions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Authorization": "Bearer " + cfg.key},
+    body: JSON.stringify({model: cfg.model || "deepseek-chat",
+      messages: [{role: "user", content: buildCbPrompt(x)}], temperature: 0.3, max_tokens: 700})
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + t.slice(0, 60)); });
+    return r.json();
+  }).then(function(j){
+    var txt = (((j.choices || [])[0] || {}).message || {}).content || "";
+    var m = txt.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error("模型未返回 JSON");
+    var d = JSON.parse(m[0]);
+    aiCacheSet("cb" + code, d);
+    renderCbAi(code, d);
+    btn.textContent = "重新研判"; btn.disabled = false;
+  }).catch(function(e){
+    btn.textContent = old; btn.disabled = false;
+    alert("AI 调用失败：" + e.message);
+  });
+}
+
+function renderCbAi(code, d){
+  var box = document.getElementById("cbao-" + code);
+  if(!box) return;
+  var th = (d.thesis || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
+  var rk = (d.risks || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
+  box.innerHTML = '<div class="aiBox"><h5>' + esc(d.rating || "") + ' · 置信度 ' + (d.confidence || 0)
+    + '% · AI 评分 ' + (d.score || 0) + '</h5>'
+    + (d.one_line ? '<p>' + esc(d.one_line) + '</p>' : '')
+    + (th ? '<ul>' + th + '</ul>' : '')
+    + (rk ? '<ul style="margin-top:3px">' + rk.replace(/<li>/g, '<li style="color:#ff9b9b">') + '</ul>' : '')
+    + (d.advice ? '<p style="margin-top:5px;color:var(--sub);font-size:10.5px">操作：' + esc(d.advice) + '</p>' : '')
+    + '</div>';
+}
+
 function isTradingTime(){
   var d = new Date();
   var w = d.getDay();
@@ -1609,6 +1767,10 @@ function rtStart(){
 
 /* ---------------- 交互 ---------------- */
 $("main").addEventListener("click", function(e){
+  var cba = e.target.getAttribute("data-cbai");
+  if(cba){ cbAiReview(cba, e.target); return; }
+  var ls = e.target.getAttribute("data-lofsub");
+  if(ls){ lofSub = ls; renderLof(); return; }
   var cmp = e.target.getAttribute("data-compare");
   if(cmp){
     var cb = document.getElementById("cmpBox");
