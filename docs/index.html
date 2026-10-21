@@ -580,7 +580,7 @@ function backtestCard(){
       +   '<div><i>达标次数</i><b>' + (tk.hit_target || 0) + '</b></div>'
       +   '<div><i>止损次数</i><b>' + (tk.hit_stop || 0) + '</b></div>'
       + '</div>'
-      + (settled < 30 ? '<div class="btNote" style="margin-top:6px">样本不足 30 条，暂不做权重校准。按每天 15 只推荐计，约 2 个交易日后开始自动校正。</div>' : '')
+      + (settled < 30 ? '<div class="btNote" style="margin-top:6px">样本不足 30 条，暂不校准。持有满 1 天即可参与，按每天 15 只推荐计，约 2 个交易日后开始自动校正；满 5 天后只用已结算样本。</div>' : '')
       + '</div>';
   }
 
