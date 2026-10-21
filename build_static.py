@@ -130,13 +130,28 @@ def wechat_send(title, content):
     return False
 
 
+# 每类消息每日上限，避免一天几十条轰炸
+PUSH_CAP = {"new_a": 4, "board": 3, "watch": 8, "daily": 1}
+
+
 def push_all(data, reco):
-    """四类推送：新A级 / 榜单变化 / 自选触发 / 每日复盘"""
+    """四类推送：新A级 / 榜单变化 / 自选触发 / 每日复盘（带每日限额）"""
     if not os.environ.get("SERVERCHAN_KEY", "").strip():
         print("未配置 SERVERCHAN_KEY，跳过推送")
         return
 
     st = _load_json(PUSH_STATE, {"recos": [], "grade_a": [], "last_daily": ""})
+    today = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
+    if st.get("date") != today:
+        st["date"] = today
+        st["counts"] = {}
+
+    def allow(kind):
+        return st.get("counts", {}).get(kind, 0) < PUSH_CAP.get(kind, 3)
+
+    def mark(kind):
+        c = st.setdefault("counts", {})
+        c[kind] = c.get(kind, 0) + 1
     recs = (reco.get("steady") or []) + (reco.get("aggressive") or [])
     cur = {r["code"]: r for r in recs}
     prev_codes = set(st.get("recos") or [])
@@ -145,7 +160,7 @@ def push_all(data, reco):
 
     # 1. 新出现的 A/A+ 机会
     new_a = [r for r in recs if r.get("grade") in ("A+", "A") and r["code"] not in prev_a]
-    if new_a:
+    if new_a and allow("new_a"):
         lines = []
         for r in new_a[:3]:
             lines.append("【%s】%s(%s)\n现价 %.2f → 买入 %.2f\n目标 %.2f (+%.1f%%) 止损 %.2f\n%s" % (
@@ -153,12 +168,13 @@ def push_all(data, reco):
                 r.get("buy_price", 0), r.get("target", 0), r.get("upside", 0),
                 r.get("stop", 0), (r.get("reasons") or ["-"])[0]))
         if wechat_send("【新机会】%d 只 A 级标的" % len(new_a), "\n\n".join(lines)):
+            mark("new_a")
             sent += 1
 
     # 2. 榜单变化
     added = set(cur) - prev_codes
     removed = prev_codes - set(cur)
-    if prev_codes and (added or removed):
+    if prev_codes and (added or removed) and allow("board"):
         lines = []
         for c in list(added)[:5]:
             r = cur[c]
@@ -166,6 +182,7 @@ def push_all(data, reco):
         for c in list(removed)[:5]:
             lines.append("- %s 已移出榜单" % c)
         if wechat_send("【榜单变化】新增 %d / 移出 %d" % (len(added), len(removed)), "\n".join(lines)):
+            mark("board")
             sent += 1
 
     # 3. 自选股触发
@@ -185,13 +202,13 @@ def push_all(data, reco):
         if stop and price <= float(stop):
             hits.append("【跌破止损】%s(%s) 现价 %.2f 已跌破 %.2f" % (
                 q.get("n"), code, price, float(stop)))
-    if hits:
+    if hits and allow("watch"):
         if wechat_send("【自选提醒】%d 条" % len(hits), "\n".join(hits[:6])):
+            mark("watch")
             sent += 1
 
     # 4. 每日复盘（15:30 后，每天一次）
     now = datetime.now(timezone(timedelta(hours=8)))
-    today = now.strftime("%Y-%m-%d")
     if now.hour >= 15 and st.get("last_daily") != today:
         ms = data.get("market", {}).get("stats", {})
         bt = data.get("backtest", {}).get("strategy") or {}
@@ -204,12 +221,13 @@ def push_all(data, reco):
             bt.get("horizon", 10), bt.get("win_rate", "-"), bt.get("rr", "-"))
         if wechat_send("【收盘复盘】" + today, body):
             st["last_daily"] = today
+            mark("daily")
             sent += 1
 
     st["recos"] = list(cur)
     st["grade_a"] = [r["code"] for r in recs if r.get("grade") in ("A+", "A")]
     _save_json(PUSH_STATE, st)
-    print("推送完成：%d 条" % sent)
+    print("推送完成：%d 条 | 今日已发 %s" % (sent, st.get("counts", {})))
 
 
 def main():
