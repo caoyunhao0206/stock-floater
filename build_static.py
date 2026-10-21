@@ -11,6 +11,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
+import backtest
 import market
 import recommender
 import sources
@@ -108,11 +109,34 @@ def main():
     reco = recommender.build(rows, idx, per_list=10)
     all_recs = reco["aggressive"] + reco["steady"]
     ai_review(all_recs)
+    try:
+        # 回测用整个候选池，样本更充分（推荐股本身只有十几只）
+        cand_syms = reco.get("candidates") or [r["symbol"] for r in all_recs]
+        bt_recs = []
+        for sym in cand_syms[:70]:
+            try:
+                k = sources.fetch_kline(sym, 220)
+                if len(k) >= 120:
+                    bt_recs.append({"_kl": k, "code": sym[-6:]})
+            except Exception:  # noqa: BLE001
+                continue
+        bt = backtest.run(bt_recs, horizon=10, threshold=65, tp=0.10, sl=0.07)
+        print("回测：%d 只股票，%d 个历史信号，10日胜率 %s%%（盈8%%/损5%%）" % (
+            bt["strategy"]["stocks"] if bt.get("strategy") else 0,
+            bt["strategy"]["samples"] if bt.get("strategy") else 0,
+            bt["strategy"]["win_rate"] if bt.get("strategy") else "-"))
+    except Exception as e:  # noqa: BLE001
+        print("回测失败:", e)
+        bt = {"per_stock": {}, "strategy": None, "horizon": 5}
     if any(r.get("final_score") is not None for r in all_recs):
         reco["aggressive"].sort(key=lambda x: (-(x.get("final_score") or x["score"]), -x["rr"]))
         reco["steady"].sort(key=lambda x: (-(x.get("final_score") or x["score"]), -x["rr"]))
     for r in all_recs:
         r.pop("_ai_ctx", None)
+        r.pop("_kl", None)
+        c = r.get("code")
+        if c and bt.get("per_stock", {}).get(c):
+            r["hist"] = bt["per_stock"][c]
 
     print("推荐：稳健 %d / 进攻 %d（候选 %d，过滤 %d）" % (
         len(reco["steady"]), len(reco["aggressive"]),
@@ -138,6 +162,11 @@ def main():
                      "filtered": reco.get("filtered", 0), "scanned": len(rows)},
         },
         "quotes": {r["code"]: slim_quote(r) for r in rows},
+        "backtest": {
+            "strategy": bt.get("strategy"),
+            "per_stock": bt.get("per_stock", {}),
+            "horizon": bt.get("horizon", 5),
+        },
     }
 
     os.makedirs(OUT_DIR, exist_ok=True)
