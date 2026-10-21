@@ -182,10 +182,22 @@ def suggest_weights(min_samples=MIN_SAMPLES):
     高分组（该维度得分前 50%）平均收益 - 低分组平均收益 = 该维度的超额贡献
     """
     db = _load(TRACK_PATH, {"entries": []})
-    entries = [e for e in (db.get("entries") or [])
+    all_e = db.get("entries") or []
+    # 优先用已结算样本
+    entries = [e for e in all_e
                if e.get("status") in ("hit_target", "hit_stop", "expired")
                and isinstance(e.get("final_ret"), (int, float))
                and e.get("dims")]
+    # 样本不够时，用"持有满 1 天"的浮动收益补充（标注为含浮盈）
+    floating = 0
+    if len(entries) < min_samples:
+        for e in all_e:
+            if e.get("status") == "holding" and (e.get("days") or 0) >= 1 \
+                    and isinstance(e.get("ret_now"), (int, float)) and e.get("dims"):
+                e2 = dict(e)
+                e2["final_ret"] = e.get("ret_now")
+                entries.append(e2)
+                floating += 1
     if len(entries) < min_samples:
         return None, {"reason": "样本不足（%d/%d）" % (len(entries), min_samples)}
 
@@ -218,7 +230,7 @@ def suggest_weights(min_samples=MIN_SAMPLES):
             "edge": round(edge, 2),
             "weight": new_w[dim],
         }
-    return new_w, {"samples": len(entries), "detail": detail}
+    return new_w, {"samples": len(entries), "floating": floating, "detail": detail}
 
 
 def apply_calibration():
