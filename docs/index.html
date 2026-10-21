@@ -804,13 +804,24 @@ function rtUrl(target){
   return proxy + sep + "url=" + encodeURIComponent(target);
 }
 
+var rtErr = "";
+var rtTest = "";
+
 function rtRefresh(){
   if(!rtProxy() || !DATA) return;
   var syms = rtSymbols();
   if(!syms.length) return;
   var target = "https://qt.gtimg.cn/q=" + syms.slice(0, 60).join(",");
-  fetch(rtUrl(target), {cache:"no-store"})
-    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); })
+  var ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+  var to = ctrl ? setTimeout(function(){ ctrl.abort(); }, 9000) : null;
+  fetch(rtUrl(target), {cache:"no-store", signal: ctrl ? ctrl.signal : undefined})
+    .then(function(r){
+      if(to) clearTimeout(to);
+      if(!r.ok){
+        return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + (t||"").slice(0,60)); });
+      }
+      return r.text();
+    })
     .then(function(txt){
       var re = /v_(\w+)="([^"]*)"/g, m, cnt = 0;
       while((m = re.exec(txt))){
@@ -824,10 +835,16 @@ function rtRefresh(){
         cnt++;
       }
       rtOk = cnt > 0; rtLast = Date.now();
+      rtErr = cnt > 0 ? "" : "返回内容不是行情数据";
       if(rtOk) updateRtPrices();
       setRtStatus();
     })
-    .catch(function(){ rtOk = false; setRtStatus(); });
+    .catch(function(e){
+      if(to) clearTimeout(to);
+      rtOk = false;
+      rtErr = (e && e.name === "AbortError") ? "请求超时（9秒）" : (e && e.message ? e.message : "网络错误");
+      setRtStatus();
+    });
 }
 
 function updateRtPrices(){
@@ -861,6 +878,7 @@ function setRtStatus(){
   }else{
     dot.className = "liveDot";
     txt.textContent = "实时失败";
+    txt.title = rtErr || "";
   }
 }
 
@@ -938,7 +956,7 @@ function addWatch(code){
 }
 $("rtEntry").onclick = function(){
   $("rtProxy").value = rtProxy();
-  $("rtErr").textContent = "";
+  $("rtErr").textContent = rtErr ? ("上次错误：" + rtErr) : "";
   $("maskRT").classList.add("show");
 };
 $("btnSaveRT").onclick = function(){
