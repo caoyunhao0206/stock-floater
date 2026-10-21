@@ -1244,3 +1244,53 @@ def fetch_holder_changes(days=7, min_rate=0.3):
         })
     out.sort(key=lambda a: (-abs(a["delta"]), a["date"]))
     return out
+
+
+def fetch_pledge_risk(min_ratio=30, limit=20, days=120):
+    """
+    高质押风险股（中登数据）
+    注意：该表按日快照，需先按日期过滤再按代码取最新，否则会取到多年前的极值
+    """
+    import datetime as _dt
+    begin = (_dt.date.today() - _dt.timedelta(days=days)).isoformat()
+    params = {
+        "reportName": "RPT_CSDC_LIST", "columns": "ALL",
+        "pageNumber": "1", "pageSize": "300", "source": "WEB", "client": "WEB",
+        "filter": "(TRADE_DATE>='%s')" % begin,
+        "sortColumns": "PLEDGE_RATIO", "sortTypes": "-1",
+    }
+    try:
+        r = requests.get(DC_URL, params=params,
+                         headers={**UA, "Referer": "https://data.eastmoney.com/"}, timeout=(5, 15))
+        data = ((r.json().get("result") or {}).get("data")) or []
+    except Exception as e:  # noqa: BLE001
+        log.debug("质押数据失败: %s", e)
+        return []
+    seen, rows = set(), []
+    for x in data:                     # 已按比例降序，同代码保留第一条（最高）
+        code = str(x.get("SECURITY_CODE") or "")
+        if not code or code in seen:
+            continue
+        try:
+            ratio = float(x.get("PLEDGE_RATIO") or 0)
+        except (TypeError, ValueError):
+            continue
+        if ratio < min_ratio:
+            continue
+        seen.add(code)
+        try:
+            bal = float(x.get("REPURCHASE_BALANCE") or 0)      # 万元
+        except (TypeError, ValueError):
+            bal = 0.0
+        rows.append({
+            "code": code,
+            "name": x.get("SECURITY_NAME_ABBR") or "",
+            "date": (x.get("TRADE_DATE") or "")[:10],
+            "ratio": round(ratio, 2),
+            "balance": round(bal / 10000, 2),                  # 亿元
+            "industry": x.get("INDUSTRY") or "",
+            "level": "极高" if ratio >= 60 else ("高" if ratio >= 45 else "偏高"),
+        })
+        if len(rows) >= limit:
+            break
+    return rows
