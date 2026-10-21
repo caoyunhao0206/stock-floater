@@ -1,0 +1,5 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+requests>=2.31
+plyer>=2.1
+pywebview>=4.4
