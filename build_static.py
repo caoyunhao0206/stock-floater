@@ -562,6 +562,7 @@ def main():
             "strategy": bt.get("strategy"),
             "per_stock": bt.get("per_stock", {}),
             "horizon": bt.get("horizon", 5),
+            "equity": bt.get("equity"),
         },
     }
 
