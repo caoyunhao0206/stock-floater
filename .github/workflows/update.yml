@@ -1,4 +1,5 @@
 name: update-market-data
+# 调度说明：GitHub 免费层 cron 可能有 5-20 分钟延迟，workflow_dispatch 可手动触发
 
 on:
   schedule:
