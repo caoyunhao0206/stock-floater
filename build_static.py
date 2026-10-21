@@ -467,6 +467,16 @@ def main():
     except Exception as e:  # noqa: BLE001
         print("LOF 扫描失败:", e)
 
+    # ---- 事件：解禁 / 增减持 ----
+    events = {"lift": [], "holder": []}
+    try:
+        events["lift"] = sources.fetch_lift_schedule(30, 10000)
+        events["holder"] = sources.fetch_holder_changes(7, 0.3)
+        print("事件：未来 30 日解禁 %d 只，近 7 日增减持 %d 条" % (
+            len(events["lift"]), len(events["holder"])))
+    except Exception as e:  # noqa: BLE001
+        print("事件数据失败:", e)
+
     # ---- 可转债 ----
     cb = {"items": [], "groups": {}, "scanned": 0}
     try:
@@ -594,6 +604,7 @@ def main():
         "sectors": sectors,
         "limit_up": limit_up,
         "watch_detail": watch_detail,
+        "events": events,
         "lof": lof,
         "cb": cb,
         "holder": holder,
