@@ -18,11 +18,17 @@
     "news": 8.0,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 13.95
+   },
    "base": 13.95,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 13.95,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -42,11 +48,17 @@
     "news": 6.4,
     "value": 2.3
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 17.61
+   },
    "base": 17.61,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 17.61,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -66,11 +78,17 @@
     "news": 7.5,
     "value": 6.8
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 11.19
+   },
    "base": 11.19,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 11.19,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -90,11 +108,17 @@
     "news": 9.3,
     "value": 3.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 145.86
+   },
    "base": 145.86,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 145.86,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -114,11 +138,17 @@
     "news": 8,
     "value": 3.3
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 14.5
+   },
    "base": 14.5,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 14.5,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -138,11 +168,17 @@
     "news": 2.1,
     "value": 1.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 39.64
+   },
    "base": 39.64,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 39.64,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -162,11 +198,17 @@
     "news": 4.8,
     "value": 2.6
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 40.27
+   },
    "base": 40.27,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 40.27,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -186,11 +228,17 @@
     "news": 5.8,
     "value": 1.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 15.35
+   },
    "base": 15.35,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 15.35,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -210,11 +258,17 @@
     "news": 7.9,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 7.5
+   },
    "base": 7.5,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 7.5,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -234,11 +288,17 @@
     "news": 8.1,
     "value": 10
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 35.0
+   },
    "base": 35.0,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 35.0,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -258,11 +318,17 @@
     "news": 7.9,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 5.18
+   },
    "base": 5.18,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 5.18,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -282,11 +348,17 @@
     "news": 6.9,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 81.2
+   },
    "base": 81.2,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 81.2,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -306,11 +378,17 @@
     "news": 7.0,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 4.51
+   },
    "base": 4.51,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 4.51,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -330,11 +408,17 @@
     "news": 5.0,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 11.49
+   },
    "base": 11.49,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 11.49,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -354,11 +438,17 @@
     "news": 6.8,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 16.79
+   },
    "base": 16.79,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 16.79,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -378,11 +468,17 @@
     "news": 3.0,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 5.6
+   },
    "base": 5.6,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 5.6,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-21",
@@ -402,11 +498,17 @@
     "news": 4.0,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-21": 8.25
+   },
    "base": 8.25,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 8.25,
+   "ret_now": 0.0
   }
  ],
  "stats": {
