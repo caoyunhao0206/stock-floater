@@ -419,6 +419,15 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
 
     total = sum(dims.values())
 
+    # ---- 形态加减分 ----
+    pats = ext.get("patterns") or []
+    bull = sum(1 for x in pats if x.get("dir") == 1)
+    bear = sum(1 for x in pats if x.get("dir") == -1)
+    if bull:
+        total += min(6, bull * 2.5)
+    if bear:
+        total -= min(8, bear * 3)
+
     # ---- 风险扣分 ----
     penalties = []
     vol = ext.get("volatility")
@@ -440,6 +449,9 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
     if ext.get("vp_div") == -1:
         total -= 4
         penalties.append("量价背离（价新高量萎缩）")
+    for x in pats:
+        if x.get("dir") == -1:
+            penalties.append("形态：" + x.get("desc", x.get("name", "")))
 
     total = clamp(total, 0, 100)
     if total >= 80:
