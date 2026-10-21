@@ -198,7 +198,25 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 .lofWarn{background:rgba(255,212,94,.08);border:1px solid rgba(255,212,94,.28);
   border-radius:10px;padding:9px 10px;font-size:10px;line-height:1.65;color:#e8d8a8}
 
+/* 事件 */
+.evRow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:4px;font-size:10.5px}
+.evDate{color:var(--sub2);font-size:9.5px;width:34px;flex:none}
+.evName{font-weight:600;width:56px;flex:none}
+.evType{color:var(--sub2);font-size:9px;flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.evVal{font-variant-numeric:tabular-nums;width:62px;text-align:right;flex:none}
+
 /* 可转债 */
+.cbStock{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px;
+  padding-top:6px;border-top:1px dashed rgba(255,255,255,.08);font-size:9px;color:var(--sub)}
+.cbStock i{font-style:normal;display:block;color:var(--sub2);font-size:8.5px}
+.cbStock b{font-size:10.5px;font-variant-numeric:tabular-nums}
+.cbNews{list-style:none;margin-top:5px}
+.cbNews li{font-size:9.5px;line-height:1.55;padding-left:8px;position:relative;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbNews li::before{content:"·";position:absolute;left:1px;color:var(--sub2)}
+.cbNews a{color:var(--sub);text-decoration:none}
 .cbScore{display:flex;align-items:center;gap:5px;flex:none;width:52px}
 .cbScore b{font-size:13px;font-variant-numeric:tabular-nums}
 .cbBar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
@@ -500,7 +518,7 @@ function loadData(){
       DATA = d;
       $("liveDot").className = "liveDot ok";
       $("liveTxt").textContent = "已同步";
-      $("pTime").textContent = "更新于 " + fmtFull(d.updated_ts) + " · 扫描 " + ((d.market.stats||{}).total||0) + " 只";
+      $("pTime").textContent = "更新于 " + fmtFull(d.updated_ts) + " · 扫描 " + (((d.market||{}).stats||{}).total||0) + " 只";
       renderPulse();
       render();
     })
@@ -517,18 +535,20 @@ function loadData(){
 function renderPulse(){
   var st = (DATA.market||{}).stats || {};
   if(!st.total) return;
-  var upPct = st.up/st.total*100;
-  // 温度分：涨跌宽度 60% + 涨停占比 25% + 平均涨幅 15%
-  var breadthScore = Math.min(100, Math.max(0, st.breadth));
-  var limitScore = Math.min(100, st.limit_up / Math.max(1, st.total) * 100 * 40);
-  var avgScore = Math.min(100, Math.max(0, 50 + st.avg_change * 18));
+  var breadth = Number(st.breadth) || 0;
+  var limitUp = Number(st.limit_up) || 0;
+  var avgChg = Number(st.avg_change) || 0;
+  var breadthScore = Math.min(100, Math.max(0, breadth));
+  var limitScore = Math.min(100, limitUp / Math.max(1, st.total) * 100 * 40);
+  var avgScore = Math.min(100, Math.max(0, 50 + avgChg * 18));
   var temp = Math.round(breadthScore*0.6 + limitScore*0.25 + avgScore*0.15);
+  if(!isFinite(temp)) temp = 50;
   $("tempNum").textContent = temp;
   $("tempLabel").textContent = temp>=70?"火热":(temp>=55?"偏暖":(temp>=45?"中性":(temp>=30?"偏冷":"冰冷")));
-  $("pUp").textContent = st.up;
-  $("pDown").textContent = st.down;
-  $("pLimit").textContent = st.limit_up;
-  $("pAmt").textContent = (st.amount/10000).toFixed(2) + "万亿";
+  $("pUp").textContent = st.up || 0;
+  $("pDown").textContent = st.down || 0;
+  $("pLimit").textContent = st.limit_up || 0;
+  $("pAmt").textContent = ((Number(st.amount) || 0) / 10000).toFixed(2) + "万亿";
   drawRing($("tempRing"), temp);
 }
 
@@ -1126,7 +1146,9 @@ function renderLof(){
       +   '<div><i>场内价</i><b>' + fmt(x.price, 3) + '</b></div>'
       +   '<div><i>净值' + (x.nav_date ? ' ' + x.nav_date.slice(5) : '') + '</i><b>' + fmt(x.nav, 4) + '</b></div>'
       +   '<div><i>成交额</i><b>' + fmt(x.amount / 10000, 2) + '亿</b></div>'
-      +   '<div><i>净值日涨跌</i><b class="' + cls(x.nav_chg) + '">' + sign(x.nav_chg) + '%</b></div>'
+      +   '<div><i>净值日涨跌</i><b class="' + cls(x.nav_chg) + '">'
+      +     (x.nav_chg === null || x.nav_chg === undefined ? "--" : sign(x.nav_chg) + "%")
+      +   '</b></div>'
       + '</div></div>';
   }
 
@@ -1185,10 +1207,34 @@ function cbRow(x){
     +   ' · 强赎比 <b class="' + (x.redeem_ratio >= 1.2 ? "up" : "") + '">' + fmt(x.redeem_ratio, 2) + '</b>'
     +   (x.years !== null && x.years !== undefined ? ' · 剩余 <b>' + fmt(x.years, 1) + '年</b>' : '')
     + '</div>'
+    + cbStock(x)
     + warn
     + '<div class="chartBar"><button data-cbai="' + esc(x.code) + '">AI 研判</button></div>'
     + '<div id="cbao-' + esc(x.code) + '"></div>'
     + '</div>';
+}
+
+function cbStock(x){
+  var st = x.stock || {};
+  if(!st.trend && !x.bond_floor) return "";
+  var tCol = st.trend === "上升" ? "down" : (st.trend === "下降" ? "up" : "");
+  var bp = x.bond_premium;
+  var bpCol = (bp !== null && bp !== undefined) ? (bp <= 15 ? "down" : (bp >= 50 ? "up" : "")) : "";
+  var rows = [];
+  rows.push('<div><i>债底</i><b>' + (x.bond_floor ? fmt(x.bond_floor, 1) : "--")
+    + (bp !== null && bp !== undefined ? ' <span class="' + bpCol + '" style="font-size:9px">' + sign(bp) + '%</span>' : '')
+    + '</b></div>');
+  rows.push('<div><i>正股趋势</i><b class="' + tCol + '">' + (st.trend || "--") + '</b></div>');
+  rows.push('<div><i>正股20日</i><b class="' + cls(st.chg20) + '">'
+    + (st.chg20 !== null && st.chg20 !== undefined ? sign(st.chg20) + "%" : "--") + '</b></div>');
+  rows.push('<div><i>正股距60日高</i><b>' + (st.from_high60 !== null && st.from_high60 !== undefined ? sign(st.from_high60) + "%" : "--") + '</b></div>');
+
+  var news = (x.news || []).slice(0, 2).map(function(n){
+    return '<li><a href="' + esc(n.url) + '" target="_blank" rel="noopener">' + esc(n.title) + '</a></li>';
+  }).join("");
+
+  return '<div class="cbStock">' + rows.join("") + '</div>'
+    + (news ? '<ul class="cbNews">' + news + '</ul>' : '');
 }
 
 function cbHtml(){
@@ -1317,7 +1363,7 @@ function renderMarket(){
     +   '<div><span>平盘</span><b>'+st.flat+'</b></div>'
     +   '<div><span>涨停</span><b class="up">'+st.limit_up+'</b></div>'
     +   '<div><span>跌停</span><b class="down">'+st.limit_down+'</b></div>'
-    +   '<div><span>成交额</span><b>'+(st.amount/10000).toFixed(2)+'万亿</b></div>'
+    +   '<div><span>成交额</span><b>'+(Number(st.amount||0)/10000).toFixed(2)+'万亿</b></div>'
     +   '<div><span>平均涨幅</span><b class="'+cls(st.avg_change)+'">'+sign(st.avg_change)+'%</b></div>'
     +   '<div><span>上涨占比</span><b>'+st.breadth+'%</b></div>'
     + '</div></div>'
@@ -1327,6 +1373,7 @@ function renderMarket(){
     + '</div>';
   html += '<div class="rank"><h4>涨幅榜</h4>' + rankRows(m.gainers||[], false) + '</div>';
   html += '<div class="rank am"><h4>成交额榜</h4>' + rankRows(m.amount_top||[], true) + '</div>';
+  html += eventBlocks();
   $("main").innerHTML = html;
   drawMarketRing(st);
 }
@@ -1372,6 +1419,44 @@ function rankRows(list, isAmount){
 }
 
 /* 自选 */
+function eventBlocks(){
+  var ev = DATA.events || {};
+  var lift = ev.lift || [], hold = ev.holder || [];
+  if(!lift.length && !hold.length) return "";
+
+  var h = '';
+  if(lift.length){
+    h += '<div class="rank"><h4>未来 30 日解禁 <span style="font-size:9px;color:var(--sub2);font-weight:400">市值 ≥ 1 亿</span></h4>';
+    h += lift.slice(0, 10).map(function(x){
+      return '<div class="evRow">'
+        + '<span class="evDate">' + esc((x.date || "").slice(5)) + '</span>'
+        + '<span class="evName">' + esc(x.code) + '</span>'
+        + '<span class="evType">' + esc((x.type || "").replace("首发原股东限售股份","首发解禁")
+            .replace("定向增发机构配售股份","定增解禁").slice(0, 8)) + '</span>'
+        + '<span class="evVal up">' + fmt(x.cap, 1) + '亿</span>'
+        + '</div>';
+    }).join("");
+    h += '<div class="hint" style="margin-top:6px">解禁不等于抛售，但大额解禁前后股价压力通常加大，'
+      + '尤其「定增解禁」成本低、减持意愿强。</div></div>';
+  }
+
+  if(hold.length){
+    h += '<div class="rank"><h4>近 7 日股东增减持 <span style="font-size:9px;color:var(--sub2);font-weight:400">按占总股本排序</span></h4>';
+    h += hold.slice(0, 10).map(function(x){
+      var col = x.delta > 0 ? "down" : "up";
+      return '<div class="evRow">'
+        + '<span class="evDate">' + esc((x.date || "").slice(5)) + '</span>'
+        + '<span class="evName">' + esc(x.code) + '</span>'
+        + '<span class="evType">' + esc(x.holder || "").slice(0, 10) + '</span>'
+        + '<span class="evVal ' + col + '">' + (x.delta > 0 ? "+" : "") + fmt(x.delta, 3) + '%</span>'
+        + '</div>';
+    }).join("");
+    h += '<div class="hint" style="margin-top:6px">数值为「占总股本」的变动幅度；'
+      + '大股东减持 1% 以上需要公告，连续减持值得警惕，增持则多为信心信号。</div></div>';
+  }
+  return h;
+}
+
 function renderWatch(){
   var pos = positionCard();
   if(!watches.length){
@@ -1688,6 +1773,20 @@ function buildCbPrompt(x){
     + "  转股价：" + x.transfer_price + "  强赎比：" + x.redeem_ratio + "（≥1.3 触发强赎）\n"
     + "今日成交额：" + (x.amount >= 10000 ? (x.amount/10000).toFixed(2) + "亿" : x.amount + "万")
     + "  今日涨跌：" + x.change_pct + "%\n"
+    + "纯债价值（债底）：" + (x.bond_floor || "未知")
+    + "  债底溢价率：" + (x.bond_premium !== null && x.bond_premium !== undefined ? x.bond_premium + "%" : "未知") + "\n"
+    + (function(){
+        var st = x.stock || {};
+        if(!st.trend) return "正股走势：数据缺失\n";
+        return "正股走势：" + st.trend + "，5日 " + (st.chg5||0) + "%，20日 " + (st.chg20||0)
+          + "%，60日 " + (st.chg60||0) + "%，距60日高点 " + (st.from_high60||0) + "%"
+          + "，量比 " + (st.vol_ratio||"-") + "，现价" + (st.above_ma20 ? "站上" : "跌破") + "20日线\n";
+      })()
+    + (function(){
+        var ns = x.news || [];
+        if(!ns.length) return "近期消息：无\n";
+        return "近期消息：\n" + ns.map(function(n){ return "- " + n.title; }).join("\n") + "\n";
+      })()
     + (x.warnings && x.warnings.length ? "系统提示：" + x.warnings.join("；") + "\n" : "")
     + "\n请综合判断：转股溢价率是否合理、纯债底保护、强赎风险、信用风险、剩余期限、正股趋势。\n"
     + "只输出 JSON：{\"rating\":\"推荐/观察/回避\",\"score\":0到100,\"confidence\":0到100,"
