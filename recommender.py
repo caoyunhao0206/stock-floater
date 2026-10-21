@@ -139,10 +139,10 @@ def _deep(row, kind, index_closes):
     if adv["grade"] not in ("A+", "A", "B+", "B"):
         return None
 
-    return _shape(row, quote, adv, extras, news, kind)
+    return _shape(row, quote, adv, extras, news, kind, kl)
 
 
-def _shape(row, quote, adv, extras, news, kind):
+def _shape(row, quote, adv, extras, news, kind, kl=None):
     price = row["price"]
     ext = adv.get("ext") or {}
     ind = adv.get("indicators") or {}
@@ -261,7 +261,14 @@ def _shape(row, quote, adv, extras, news, kind):
             "mfi": ext.get("mfi"), "wr": ext.get("wr"),
             "obv_slope": ext.get("obv_slope"), "bias20": ext.get("bias20"),
             "from_high20": fh,
+            "ma_slope20": ext.get("ma_slope20"),
+            "boll_width": ext.get("boll_width"),
+            "vol_price_corr": ext.get("vol_price_corr"),
+            "limit_up60": ext.get("limit_up60"),
+            "up_ratio20": ext.get("up_ratio20"),
+            "max_dd60": ext.get("max_dd60"),
         },
+        "patterns": ext.get("patterns") or [],
         "reports": {
             "count": (extras.get("reports") or {}).get("count", 0),
             "ratings": (extras.get("reports") or {}).get("ratings", {}),
@@ -274,6 +281,7 @@ def _shape(row, quote, adv, extras, news, kind):
         "news_score": news.get("score", 0),
         "news_verified": news.get("verified", 0),
         "sources": news.get("sources", []),
+        "_kl": kl,  # 供回测使用（返回前端前会剔除）
         # 供 AI 复评使用（返回前端前会剔除）
         "_ai_ctx": {
             "code": row["code"], "name": row["name"],
@@ -317,4 +325,5 @@ def build(rows, index_closes=None, per_list=10, agg_pool=34, steady_pool=34):
         "steady": steady[:per_list],
         "pool": len(tasks), "hit": len(results),
         "filtered": len(tasks) - len(results),
+        "candidates": [r["symbol"] for r in (agg + st)],
     }
