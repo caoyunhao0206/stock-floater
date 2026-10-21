@@ -179,6 +179,49 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 
 .footHint{font-size:9.5px;color:var(--sub2);text-align:center;padding:4px 0 2px}
 
+/* 板块 */
+.secRow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:5px}
+.secRow .nm{font-size:12px;font-weight:600;width:66px;flex:none}
+.secRow .bar{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.secRow .bar u{position:absolute;top:0;bottom:0;border-radius:3px}
+.secRow .val{font-size:12px;font-variant-numeric:tabular-nums;width:52px;text-align:right;flex:none}
+.secRow .sub{font-size:9px;color:var(--sub2);width:70px;text-align:right;flex:none}
+.secToggle{display:flex;gap:6px;margin-bottom:8px}
+.secToggle button{flex:1;height:30px;border-radius:8px;font-size:11px;color:var(--sub);
+  background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.secToggle button.on{color:#fff;background:rgba(76,141,255,.18);border-color:rgba(76,141,255,.5)}
+.hBtn{width:26px;height:26px;flex:none;border-radius:8px;display:grid;place-items:center;
+  background:rgba(140,110,255,.14);border:1px solid rgba(140,110,255,.35);margin-left:4px}
+.hBtn svg{width:14px;height:14px;fill:none;stroke:#c3b0ff;stroke-width:1.8;stroke-linecap:round}
+
+/* 涨停 */
+.luTop{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.luTop div{background:rgba(0,0,0,.22);border-radius:9px;padding:7px 9px}
+.luTop i{font-style:normal;font-size:9px;color:var(--sub2);display:block}
+.luTop b{font-size:15px;font-variant-numeric:tabular-nums}
+.luRow{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:9px;
+  background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:4px}
+.luRow .bd{font-size:9px;padding:1px 5px;border-radius:4px;background:rgba(255,77,94,.14);
+  color:#ff8a94;border:1px solid rgba(255,77,94,.35);flex:none;font-weight:700}
+.luRow .bd.first{background:rgba(255,212,94,.14);color:#ffd45e;border-color:rgba(255,212,94,.4)}
+.luRow .nm{font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.luRow .oneword{font-size:9px;color:#8fc0ff;border:1px solid rgba(76,141,255,.3);border-radius:4px;padding:0 4px;flex:none}
+.luRow .amt{font-size:10px;color:var(--sub2);width:62px;text-align:right;flex:none}
+
+/* 持仓总览 */
+.posCard{background:linear-gradient(135deg,rgba(255,212,94,.09),rgba(76,141,255,.04));
+  border:1px solid rgba(255,212,94,.22);border-radius:16px;padding:12px;margin-bottom:10px}
+.posTop{display:flex;align-items:baseline;gap:8px}
+.posTop b{font-size:22px;font-variant-numeric:tabular-nums}
+.posTop span{font-size:10px;color:var(--sub2)}
+.posGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.posGrid div{background:rgba(0,0,0,.2);border-radius:8px;padding:5px 8px}
+.posGrid i{font-style:normal;font-size:9px;color:var(--sub2);display:block}
+.posGrid b{font-size:12px;font-variant-numeric:tabular-nums}
+.posBar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:8px;background:rgba(255,255,255,.06)}
+.posBar u{display:block;height:100%}
+
 /* 回测卡 */
 .btCard{background:linear-gradient(135deg,rgba(76,141,255,.10),rgba(167,139,250,.05));
   border:1px solid rgba(76,141,255,.20);border-radius:16px;padding:12px}
@@ -301,6 +344,7 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
       <div class="logo"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 4-6 5 5"/></svg></div>
       <span class="hTitle">A股盯盘助手</span>
       <span class="live" id="rtEntry" style="cursor:pointer"><span class="liveDot" id="liveDot"></span><span id="liveTxt">连接中</span></span>
+      <button id="btnUserAI" class="hBtn" title="AI 研判设置"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></button>
     </div>
 
     <div class="pulse">
@@ -322,7 +366,9 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
   </header>
 
   <nav>
-    <button data-tab="reco" class="on">智能推荐 <b id="badge" style="display:none"></b></button>
+    <button data-tab="reco" class="on">推荐 <b id="badge" style="display:none"></b></button>
+    <button data-tab="sector">板块</button>
+    <button data-tab="limit">涨停</button>
     <button data-tab="market">全市场</button>
     <button data-tab="watch">自选</button>
   </nav>
@@ -344,6 +390,23 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
   <div class="err" id="rtErr"></div>
   <button class="btn" id="btnSaveRT">保存并连接</button>
   <button class="btn ghost" id="btnTestRT">测试连接</button>
+</div></div>
+
+<div class="mask" id="maskD"><div class="modal" style="max-height:82vh;overflow-y:auto">
+  <div class="mTitle" id="dTitle">个股详情 <button data-close="maskD">×</button></div>
+  <div id="dBody"></div>
+</div></div>
+
+<div class="mask" id="maskAI"><div class="modal">
+  <div class="mTitle">AI 研判设置 <button data-close="maskAI">×</button></div>
+  <div class="hint">填你自己的 OpenAI 兼容接口，Key 只存在<b>本机浏览器</b>，不上传任何服务器。填好后可在推荐详情里点「AI 复评」。</div>
+  <div class="field"><label>API 地址</label><input id="uAiBase" placeholder="https://api.deepseek.com/v1"></div>
+  <div class="field"><label>API Key</label><input id="uAiKey" type="password" placeholder="sk-..."></div>
+  <div class="field"><label>模型</label><input id="uAiModel" placeholder="deepseek-chat"></div>
+  <div class="err" id="uAiMsg"></div>
+  <button class="btn" id="btnSaveAI">保存</button>
+  <button class="btn ghost" id="btnTestAI2">测试连接</button>
+  <div class="hint">常用：DeepSeek <b>api.deepseek.com/v1</b> / 通义 <b>dashscope.aliyuncs.com/compatible-mode/v1</b> / Kimi <b>api.moonshot.cn/v1</b></div>
 </div></div>
 
 <div class="mask" id="maskW"><div class="modal">
@@ -441,6 +504,8 @@ function drawRing(cv, val){
 function render(){
   if(!DATA) return;
   if(tab === "reco") renderReco();
+  else if(tab === "sector") renderSector();
+  else if(tab === "limit") renderLimitUp();
   else if(tab === "market") renderMarket();
   else renderWatch();
 }
@@ -467,6 +532,10 @@ function renderReco(){
     html += '<div class="footHint">扫描 '+(m.scanned||0)+' 只 · 初筛 '+(m.pool||0)+' 只 · 过筛 '+(m.hit||0)+' 只 · 仅供参考，不构成投资建议</div>';
   }
   $("main").innerHTML = html;
+  Object.keys(RECO_MAP).forEach(function(c){
+    var cached = aiCacheGet(c);
+    if(cached) renderAiResult(c, cached);
+  });
   if(openCode){
     var el = $("main").querySelector('.rc[data-code="'+openCode+'"]');
     if(el){ el.classList.add("open"); drawRadarFor(openCode); }
@@ -571,6 +640,12 @@ function detail(x, kind){
       + (x.ai.news_check?'<p style="margin-top:5px;color:var(--sub);font-size:10.5px">消息面：'+esc(x.ai.news_check)+'</p>':"")
       + '</div>';
   }
+  // 用户自填 AI：未配置服务端 AI 时，提供本地复评入口
+  aiHtml += '<div class="secT" style="margin-top:6px">我的 AI 研判</div>'
+    + '<div id="uai-'+esc(x.code)+'">'+(function(){
+        var c = aiCacheGet(x.code);
+        return c ? "" : '<button class="btn ghost" data-uai="'+esc(x.code)+'" style="height:32px;font-size:11px">用我的 API 复评这只</button>';
+      })()+'</div>';
 
   var instHtml = "";
   if(x.reports && x.reports.count){
@@ -707,6 +782,157 @@ function drawRadarFor(code){
 
 
 /* 全市场 */
+/* ---------------- 板块热度 ---------------- */
+var secTab = "up";
+
+function renderSector(){
+  var s = DATA.sectors || {};
+  var up = s.by_change || [], mon = s.by_money || [];
+  if(!up.length){
+    $("main").innerHTML = '<div class="empty">暂无板块数据<br><span style="font-size:10px">数据源恢复后自动出现</span></div>';
+    return;
+  }
+  var list = secTab === "up" ? up.slice(0, 16) : (secTab === "down" ? up.slice(-10).reverse() : mon.slice(0, 16));
+  var maxAbs = 1;
+  list.forEach(function(x){
+    maxAbs = Math.max(maxAbs, Math.abs(secTab === "money" ? x.main_in : x.change_pct));
+  });
+  var html = '<div class="secToggle">'
+    + '<button data-sec="up" class="'+(secTab==="up"?"on":"")+'">涨幅榜</button>'
+    + '<button data-sec="down" class="'+(secTab==="down"?"on":"")+'">跌幅榜</button>'
+    + '<button data-sec="money" class="'+(secTab==="money"?"on":"")+'">资金榜</button>'
+    + '</div>';
+  html += '<div class="hint" style="margin-bottom:8px">申万一级 31 个行业 · 点击行业看领涨股</div>';
+  html += list.map(function(x){
+    var v = secTab === "money" ? x.main_in : x.change_pct;
+    var w = Math.min(100, Math.abs(v) / maxAbs * 100);
+    var col = v >= 0 ? "var(--up)" : "var(--down)";
+    var sub = secTab === "money"
+      ? ("5日 " + sign(x.main_in5) + "亿")
+      : ("领涨 " + esc(x.lead || "-") + " " + sign(x.lead_pct) + "%");
+    return '<div class="secRow">'
+      + '<span class="nm">' + esc(x.name) + '</span>'
+      + '<div class="bar"><u style="width:' + w.toFixed(0) + '%;background:' + col + (v >= 0 ? ';left:0' : ';right:0') + '"></u></div>'
+      + '<span class="val" style="color:' + col + '">' + sign(v) + (secTab === "money" ? "亿" : "%") + '</span>'
+      + '<span class="sub">' + sub + '</span>'
+      + '</div>';
+  }).join("");
+  html += '<div class="hint" style="margin-top:10px">资金榜为主力净流入（超大单+大单），单位亿元。板块强度可辅助判断个股所在赛道是否被资金关注。</div>';
+  $("main").innerHTML = html;
+}
+
+/* ---------------- 涨停复盘 ---------------- */
+function renderLimitUp(){
+  var lu = DATA.limit_up || [];
+  var st = (DATA.market || {}).stats || {};
+  if(!lu.length){
+    $("main").innerHTML = '<div class="empty">今日暂无涨停数据<br><span style="font-size:10px">收盘后或数据源可用时显示</span></div>';
+    return;
+  }
+  var maxB = 0, oneWord = 0, total = lu.length;
+  lu.forEach(function(x){ maxB = Math.max(maxB, x.boards || 1); if(x.one_word) oneWord++; });
+  var html = '<div class="luTop">'
+    + '<div><i>涨停家数</i><b class="up">' + total + '</b></div>'
+    + '<div><i>最高连板</i><b>' + maxB + ' 板</b></div>'
+    + '<div><i>一字板</i><b>' + oneWord + '</b></div>'
+    + '</div>';
+  html += '<div class="hint" style="margin-bottom:8px">全市场 ' + (st.total||0) + ' 只中筛出 · 按连板数与成交额排序</div>';
+  html += lu.map(function(x){
+    var bcls = (x.boards || 1) >= maxB ? "bd first" : "bd";
+    return '<div class="luRow">'
+      + '<span class="' + bcls + '">' + (x.boards > 1 ? x.boards + "板" : "首板") + '</span>'
+      + '<span class="nm">' + esc(x.name) + '</span>'
+      + (x.one_word ? '<span class="oneword">一字</span>' : '')
+      + '<span class="amt">' + x.amount + '亿</span>'
+      + '<span class="val" style="font-size:12px;color:var(--up);width:48px;text-align:right">+' + fmt(x.change_pct, 1) + '%</span>'
+      + '</div>';
+  }).join("");
+  html += '<div class="hint" style="margin-top:10px">连板高度反映市场情绪：高度越高、封板越早，说明做多意愿越强；一字板多但换手极低，次日容易开板。</div>';
+  $("main").innerHTML = html;
+}
+
+/* ---------------- 持仓总览 ---------------- */
+function positionCard(){
+  var cost = 0, value = 0, items = [];
+  watches.forEach(function(w){
+    if(!w.cost || !w.shares) return;
+    var q = (DATA.quotes || {})[w.code];
+    if(!q) return;
+    cost += w.cost * w.shares;
+    value += q.p * w.shares;
+    items.push({code: w.code, name: q.n, mv: q.p * w.shares, pnl: (q.p - w.cost) * w.shares});
+  });
+  if(!items.length) return "";
+  var pnl = value - cost;
+  var pct = cost > 0 ? pnl / cost * 100 : 0;
+  items.sort(function(a, b){ return b.mv - a.mv; });
+  var palette = ["#4c8dff", "#a78bfa", "#ffd45e", "#3ddc97", "#ff8a94", "#8fc0ff", "#e879f9"];
+  var bar = items.slice(0, 7).map(function(x, i){
+    var w = value > 0 ? x.mv / value * 100 : 0;
+    return '<u style="width:' + w.toFixed(1) + '%;background:' + palette[i % palette.length] + '"></u>';
+  }).join("");
+  return '<div class="posCard">'
+    + '<div class="posTop"><b class="' + cls(pnl) + '">' + (pnl >= 0 ? "+" : "") + fmt(pnl, 0) + '</b>'
+    + '<span>元总盈亏 · ' + sign(pct) + '%</span></div>'
+    + '<div class="posGrid">'
+    +   '<div><i>总市值</i><b>' + fmt(value / 10000, 2) + '万</b></div>'
+    +   '<div><i>总成本</i><b>' + fmt(cost / 10000, 2) + '万</b></div>'
+    +   '<div><i>持仓数</i><b>' + items.length + ' 只</b></div>'
+    +   '<div><i>最大仓位</i><b>' + (value > 0 ? (items[0].mv / value * 100).toFixed(0) : 0) + '%</b></div>'
+    + '</div>'
+    + '<div class="posBar">' + bar + '</div>'
+    + '<div class="hint" style="margin-top:6px">仓位分布：' + items.slice(0, 4).map(function(x){
+        return esc(x.name) + " " + (x.mv / value * 100).toFixed(0) + "%";
+      }).join(" · ") + '</div>'
+    + '</div>';
+}
+
+/* ---------------- 个股详情（自选股深度） ---------------- */
+function openDetail(code){
+  var d = (DATA.watch_detail || {})[code];
+  if(!d){
+    alert("该股暂无深度数据\n\n深度分析只对自选股生成（在 watchlist.json 里配置）。\n加进去后下一轮更新即可看到。");
+    return;
+  }
+  var a = d.advice || {}, q = d.quote || {}, ind = a.indicators || {}, ext = a.ext || {};
+  var dims = a.dims || {};
+  var dimDefs = [["趋势", dims.trend, 25], ["动能", dims.momentum, 20], ["量能", dims.volume, 20],
+                 ["资金", dims.fund, 15], ["消息", dims.news, 10], ["估值", dims.value, 10]];
+  var dimHtml = dimDefs.map(function(x){
+    var pct = x[2] ? Math.max(0, Math.min(100, (x[1] || 0) / x[2] * 100)) : 0;
+    return '<div class="dimRow"><i>' + x[0] + '</i><div class="dimBar"><u style="width:' + pct.toFixed(0) + '%"></u></div>'
+      + '<span style="width:40px;text-align:right">' + (x[1] !== undefined ? x[1] : "-") + '/' + x[2] + '</span></div>';
+  }).join("");
+  var pats = (ext.patterns || []).map(function(x){
+    return '<span class="pat' + (x.dir === -1 ? ' bear' : '') + '">' + esc(x.name) + '</span>';
+  }).join(" ");
+  var news = ((d.news || {}).items || []).slice(0, 6).map(function(x){
+    return '<li><a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>'
+      + '<div class="newsMeta"><span class="srcTag">' + esc(x.source || "") + '</span>'
+      + (x.verified ? '<span class="srcTag" style="color:var(--down);border-color:rgba(61,220,151,.4)">多源核实</span>' : '')
+      + '</div></li>';
+  }).join("");
+  var body = '<div class="sec"><div class="secT">' + esc(d.name) + ' ' + esc(code) + ' · ' + esc(a.grade_label || a.grade || "") + ' ' + (a.score100 || "-") + ' 分</div>'
+    + '<div class="kv"><div><span>现价</span><span class="' + cls(q.change_pct) + '">' + fmt(q.price) + ' ' + sign(q.change_pct) + '%</span></div>'
+    + '<div><span>建议</span><span>' + esc(a.action_label || "") + '</span></div>'
+    + '<div><span>支撑/压力</span><span>' + fmt(a.support) + ' / ' + fmt(a.pressure) + '</span></div>'
+    + '<div><span>止损/目标</span><span>' + fmt(a.stop_loss) + ' / ' + fmt(a.take_profit) + '</span></div>'
+    + '<div><span>250日分位</span><span>' + (ext.position250 !== null && ext.position250 !== undefined ? ext.position250 + '%' : '--') + '</span></div>'
+    + '<div><span>5日/20日均量</span><span>' + (ext.vol_ratio_5_20 || '--') + '</span></div>'
+    + '<div><span>上涨日量占比</span><span>' + (ext.up_vol_share !== null && ext.up_vol_share !== undefined ? ext.up_vol_share + '%' : '--') + '</span></div>'
+    + '<div><span>ATR位置</span><span>' + (ext.atr_pos !== null && ext.atr_pos !== undefined ? ext.atr_pos : '--') + '</span></div>'
+    + '</div>' + (pats ? '<div class="tags" style="margin-top:6px">' + pats + '</div>' : '') + '</div>'
+    + '<div class="sec"><div class="secT">六维评分</div>' + dimHtml + '</div>'
+    + '<div class="sec"><div class="secT">理由</div><ul class="reasons p">'
+    + (a.reasons || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>'
+    + '<div class="secT" style="margin-top:4px">风险</div><ul class="reasons n">'
+    + (a.penalties || []).concat(a.warnings || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>'
+    + '<div class="sec"><div class="secT">相关消息（' + ((d.news || {}).sources || []).join(" / ") + '）</div><ul class="news">' + (news || '<li>暂无</li>') + '</ul></div>';
+  $("dTitle").textContent = d.name + " 体检报告";
+  $("dBody").innerHTML = body;
+  $("maskD").classList.add("show");
+}
+
 function renderMarket(){
   var m = DATA.market || {}, st = m.stats || {};
   if(!st.total){ $("main").innerHTML = '<div class="empty">暂无数据</div>'; return; }
@@ -774,11 +1000,13 @@ function rankRows(list, isAmount){
 
 /* 自选 */
 function renderWatch(){
+  var pos = positionCard();
   if(!watches.length){
     $("main").innerHTML = '<div class="empty"><b>还没有自选股</b>点下方「+ 自选股」添加<br>或在推荐、榜单里点一只直接加入</div>';
     return;
   }
-  var html = watches.map(function(w){
+  var html = pos;
+  html += watches.map(function(w){
     var q = (DATA.quotes||{})[w.code];
     if(!q){
       return '<div class="wCard"><div class="wTop"><span class="wName">'+esc(w.code)+'</span>'
@@ -800,7 +1028,8 @@ function renderWatch(){
       +   '<div>换手率<b>'+fmt(q.t,1)+'%</b></div>'
       +   '<div>成交额<b>'+fmt(q.a,1)+'亿</b></div>'
       + '</div>'
-      + '<div class="wAct"><button data-edit="'+esc(w.code)+'">改持仓</button>'
+      + '<div class="wAct"><button data-detail="'+esc(w.code)+'">体检</button>'
+      + '<button data-edit="'+esc(w.code)+'">改持仓</button>'
       + '<button data-del="'+esc(w.code)+'">删除</button></div>'
       + '</div>';
   }).join("");
@@ -963,6 +1192,113 @@ function setRtStatus(){
   }
 }
 
+/* ---------- 用户自填 AI（仅存本机） ---------- */
+var UAI_KEY = "sf_user_ai";
+
+function userAI(){
+  try{ return JSON.parse(localStorage.getItem(UAI_KEY) || "{}"); }catch(e){ return {}; }
+}
+
+function aiCacheGet(code){
+  try{
+    var c = JSON.parse(localStorage.getItem("sf_ai_cache") || "{}");
+    var it = c[code];
+    if(it && Date.now() - it.ts < 6 * 3600 * 1000) return it.data;
+  }catch(e){}
+  return null;
+}
+
+function aiCacheSet(code, data){
+  try{
+    var c = JSON.parse(localStorage.getItem("sf_ai_cache") || "{}");
+    c[code] = {ts: Date.now(), data: data};
+    var keys = Object.keys(c);
+    if(keys.length > 40){ keys.slice(0, 10).forEach(function(k){ delete c[k]; }); }
+    localStorage.setItem("sf_ai_cache", JSON.stringify(c));
+  }catch(e){}
+}
+
+function buildAiPrompt(x){
+  var ind = x.indicators || {}, dims = x.dims || {};
+  var news = (x.news || []).slice(0, 6).map(function(n){
+    return "- [" + (n.source || "") + "] " + n.title;
+  }).join("\n");
+  var pats = (x.patterns || []).map(function(p){ return p.name; }).join("、");
+  return "你是A股研究员。下面是一只股票的结构化数据，请判断未来 5-10 个交易日的走势。\n\n"
+    + "股票：" + x.name + "（" + x.code + "）\n"
+    + "现价：" + x.price + "  涨跌：" + x.change_pct + "%\n"
+    + "推荐买入：" + x.buy_price + "  买入区间：" + (x.buy_zone || []).join("~")
+    + "  目标：" + x.target + "  止损：" + x.stop + "  盈亏比：" + x.rr + "\n"
+    + "六维评分：" + x.score + "（趋势" + (dims.trend||0) + "/25 动能" + (dims.momentum||0)
+    + "/20 量能" + (dims.volume||0) + "/20 资金" + (dims.fund||0) + "/15 消息" + (dims.news||0)
+    + "/10 估值" + (dims.value||0) + "/10）\n"
+    + "均线：MA5 " + (ind.ma5||"-") + "  MA10 " + (ind.ma10||"-") + "  MA20 " + (ind.ma20||"-")
+    + "  MA60 " + (ind.ma60||"-") + "\n"
+    + "MACD：" + ((ind.macd||{}).hist !== undefined ? (ind.macd||{}).hist : "-")
+    + "  RSI6：" + (ind.rsi6||"-") + "  KDJ-K：" + (ind.kdj_k||"-")
+    + "  BOLL：" + (ind.boll_low||"-") + "~" + (ind.boll_up||"-") + "\n"
+    + "形态：" + (pats || "无") + "\n"
+    + "支撑：" + x.support + "  压力：" + x.pressure + "\n"
+    + "近期消息：\n" + (news || "无") + "\n\n"
+    + "只输出 JSON，不要解释：{\"rating\":\"看多/中性/看空\",\"score\":-100到100,\"confidence\":0到100,"
+    + "\"one_line\":\"一句话结论\",\"thesis\":[\"理由1\",\"理由2\"],\"risks\":[\"风险1\"],\"advice\":\"具体操作建议\"}";
+}
+
+function userAiReview(code, btn){
+  var cfg = userAI();
+  if(!cfg.key || !cfg.base){
+    $("maskAI").classList.add("show");
+    $("uAiBase").value = cfg.base || "";
+    $("uAiKey").value = cfg.key || "";
+    $("uAiModel").value = cfg.model || "";
+    $("uAiMsg").textContent = "请先填写 API 配置";
+    return;
+  }
+  var x = RECO_MAP[code] || (DATA.watch_detail || {})[code];
+  if(!x){ return; }
+  var cached = aiCacheGet(code);
+  if(cached){ renderAiResult(code, cached); return; }
+
+  var old = btn.textContent;
+  btn.textContent = "AI 分析中…"; btn.disabled = true;
+  fetch(cfg.base.replace(/\/+$/, "") + "/chat/completions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Authorization": "Bearer " + cfg.key},
+    body: JSON.stringify({
+      model: cfg.model || "deepseek-chat",
+      messages: [{role: "user", content: buildAiPrompt(x)}],
+      temperature: 0.3, max_tokens: 700
+    })
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + t.slice(0, 80)); });
+    return r.json();
+  }).then(function(j){
+    var txt = (((j.choices || [])[0] || {}).message || {}).content || "";
+    var m = txt.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error("模型未返回 JSON");
+    var data = JSON.parse(m[0]);
+    aiCacheSet(code, data);
+    renderAiResult(code, data);
+  }).catch(function(e){
+    btn.textContent = old; btn.disabled = false;
+    alert("AI 调用失败：" + e.message + "\n\n可在「AI 研判设置」里检查地址、Key、模型名。");
+  });
+}
+
+function renderAiResult(code, d){
+  var box = document.getElementById("uai-" + code);
+  if(!box){ return; }
+  var thesis = (d.thesis || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
+  var risks = (d.risks || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
+  box.innerHTML = '<div class="aiBox"><h5>' + esc(d.rating || "") + ' · 置信度 ' + (d.confidence || 0)
+    + '% · 评分 ' + (d.score || 0) + '</h5>'
+    + (d.one_line ? '<p>' + esc(d.one_line) + '</p>' : '')
+    + (thesis ? '<ul>' + thesis + '</ul>' : '')
+    + (risks ? '<p style="margin-top:4px;color:#ff9b9b;font-size:10.5px">风险：' + risks.replace(/<\/?li>/g, " ") + '</p>' : '')
+    + (d.advice ? '<p style="margin-top:4px;color:var(--sub);font-size:10.5px">操作：' + esc(d.advice) + '</p>' : '')
+    + '</div>';
+}
+
 function isTradingTime(){
   var d = new Date();
   var w = d.getDay();
@@ -980,6 +1316,12 @@ function rtStart(){
 
 /* ---------------- 交互 ---------------- */
 $("main").addEventListener("click", function(e){
+  var uai = e.target.getAttribute("data-uai");
+  if(uai){ userAiReview(uai, e.target); return; }
+  var sec = e.target.getAttribute("data-sec");
+  if(sec){ secTab = sec; renderSector(); return; }
+  var det = e.target.getAttribute("data-detail");
+  if(det){ openDetail(det); return; }
   var del = e.target.getAttribute("data-del");
   var edit = e.target.getAttribute("data-edit");
   var add = e.target.getAttribute("data-add");
@@ -1085,6 +1427,52 @@ $("btnTestRT").onclick = function(){
   });
 };
 
+$("btnUserAI").onclick = function(){
+  var cfg = userAI();
+  $("uAiBase").value = cfg.base || "";
+  $("uAiKey").value = cfg.key || "";
+  $("uAiModel").value = cfg.model || "";
+  $("uAiMsg").textContent = "";
+  $("uAiMsg").style.color = "";
+  $("maskAI").classList.add("show");
+};
+$("btnSaveAI").onclick = function(){
+  var base = $("uAiBase").value.trim().replace(/\/+$/, "");
+  var key = $("uAiKey").value.trim();
+  var model = $("uAiModel").value.trim();
+  if(base && !/^https?:\/\//.test(base)){ $("uAiMsg").textContent = "地址需以 http(s):// 开头"; return; }
+  if(!base || !key){ $("uAiMsg").textContent = "地址和 Key 都要填"; return; }
+  localStorage.setItem(UAI_KEY, JSON.stringify({base: base, key: key, model: model}));
+  $("uAiMsg").textContent = "已保存到本机浏览器";
+  $("uAiMsg").style.color = "var(--down)";
+  setTimeout(function(){ $("maskAI").classList.remove("show"); }, 600);
+};
+$("btnTestAI2").onclick = function(){
+  var base = $("uAiBase").value.trim().replace(/\/+$/, "");
+  var key = $("uAiKey").value.trim();
+  var model = $("uAiModel").value.trim() || "deepseek-chat";
+  if(!base || !key){ $("uAiMsg").textContent = "地址和 Key 都要填"; return; }
+  $("uAiMsg").style.color = "";
+  $("uAiMsg").textContent = "测试中…";
+  var b = this; b.disabled = true;
+  fetch(base + "/chat/completions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Authorization": "Bearer " + key},
+    body: JSON.stringify({model: model, messages: [{role: "user", content: "回复ok"}], max_tokens: 10})
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + t.slice(0, 60)); });
+    return r.json();
+  }).then(function(j){
+    var c = (((j.choices || [])[0] || {}).message || {}).content || "";
+    $("uAiMsg").textContent = "连接成功，模型回复：" + c.slice(0, 20);
+    $("uAiMsg").style.color = "var(--down)";
+    b.disabled = false;
+  }).catch(function(e){
+    $("uAiMsg").textContent = "失败：" + e.message;
+    $("uAiMsg").style.color = "";
+    b.disabled = false;
+  });
+};
 $("btnAdd").onclick = function(){ openWatch(null); };
 $("btnSaveW").onclick = function(){
   var code = $("wCode").value.trim().replace(/\D/g,"");
