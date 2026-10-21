@@ -179,6 +179,16 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 
 .footHint{font-size:9.5px;color:var(--sub2);text-align:center;padding:4px 0 2px}
 
+/* 图表 */
+.chartBox{height:210px;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.25);
+  border:1px solid var(--line);margin-top:6px;position:relative}
+.chartBox.sm{height:150px}
+.chartBar{display:flex;gap:6px;margin-top:6px}
+.chartBar button{flex:1;height:28px;border-radius:7px;font-size:10.5px;color:var(--sub);
+  background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.chartBar button.on{color:#fff;background:rgba(76,141,255,.2);border-color:rgba(76,141,255,.5)}
+.chartTip{position:absolute;top:6px;left:8px;font-size:9px;color:var(--sub2);pointer-events:none;z-index:2}
+
 /* 板块 */
 .secRow{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;
   background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:5px}
@@ -427,6 +437,7 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
   <button class="btn" id="btnSaveW">保存</button>
 </div></div>
 
+<script src="lib/lightweight-charts.js"></script>
 <script>
 (function(){
 "use strict";
@@ -506,6 +517,110 @@ function drawRing(cv, val){
   ctx.strokeStyle = grad; ctx.stroke();
 }
 
+/* ---------------- 图表（lightweight-charts） ---------------- */
+var KL_CACHE = null, KL_LOADING = false;
+
+function loadKlines(cb){
+  if(KL_CACHE){ cb(KL_CACHE); return; }
+  if(KL_LOADING){ setTimeout(function(){ loadKlines(cb); }, 300); return; }
+  KL_LOADING = true;
+  fetch("data/klines.json?_=" + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){ KL_CACHE = d; KL_LOADING = false; cb(d); })
+    .catch(function(){ KL_LOADING = false; cb({}); });
+}
+
+function mkChart(el, opts){
+  if(!window.LightweightCharts){ return null; }
+  var base = {
+    layout: {background: {color: "transparent"}, textColor: "#8b96a6", fontSize: 9,
+             attributionLogo: false},
+    grid: {vertLines: {color: "rgba(255,255,255,.04)"}, horzLines: {color: "rgba(255,255,255,.04)"}},
+    rightPriceScale: {borderColor: "rgba(255,255,255,.08)", scaleMargins: {top: .1, bottom: .25}},
+    timeScale: {borderColor: "rgba(255,255,255,.08)", timeVisible: false, fixLeftEdge: true, fixRightEdge: true},
+    crosshair: {mode: 0},
+    handleScroll: false, handleScale: false,
+    width: el.clientWidth || 320, height: el.clientHeight || 210
+  };
+  var o = Object.assign({}, base, opts || {});
+  return LightweightCharts.createChart(el, o);
+}
+
+function drawKline(el, rows, marks){
+  el.innerHTML = "";
+  var chart = mkChart(el);
+  if(!chart) { el.innerHTML = '<div style="padding:20px;text-align:center;color:#7d8899;font-size:11px">图表库未加载</div>'; return; }
+  var C = LightweightCharts;
+  var candle = chart.addSeries(C.CandlestickSeries, {
+    upColor: "#ff4d5e", downColor: "#3ddc97", borderVisible: false,
+    wickUpColor: "#ff4d5e", wickDownColor: "#3ddc97"
+  });
+  candle.setData(rows.map(function(r){
+    return {time: r[0], open: r[1], close: r[2], low: r[3], high: r[4]};
+  }));
+
+  // 均线
+  [[5, "#ffd45e"], [20, "#4c8dff"]].forEach(function(p){
+    var n = p[0], col = p[1], pts = [];
+    for(var i = n - 1; i < rows.length; i++){
+      var s = 0;
+      for(var j = 0; j < n; j++) s += rows[i - j][2];
+      pts.push({time: rows[i][0], value: +(s / n).toFixed(3)});
+    }
+    var ma = chart.addSeries(C.LineSeries, {color: col, lineWidth: 1, priceLineVisible: false, lastValueVisible: false});
+    ma.setData(pts);
+  });
+
+  // 买卖标记
+  if(marks && marks.length){
+    candle.setMarkers(marks);
+  }
+
+  // 成交量
+  var vol = chart.addSeries(C.HistogramSeries, {
+    priceFormat: {type: "volume"}, priceScaleId: "vol", lastValueVisible: false, priceLineVisible: false
+  });
+  chart.priceScale("vol").applyOptions({scaleMargins: {top: .8, bottom: 0}});
+  vol.setData(rows.map(function(r){
+    return {time: r[0], value: r[5] || 0,
+            color: r[2] >= r[1] ? "rgba(255,77,94,.45)" : "rgba(61,220,151,.45)"};
+  }));
+  chart.timeScale().fitContent();
+  return chart;
+}
+
+function drawEquity(el, eq){
+  el.innerHTML = "";
+  var chart = mkChart(el, {rightPriceScale: {borderColor: "rgba(255,255,255,.08)", scaleMargins: {top: .12, bottom: .12}}});
+  if(!chart) return;
+  var C = LightweightCharts;
+  var s1 = chart.addSeries(C.LineSeries, {color: "#4c8dff", lineWidth: 2, priceLineVisible: false});
+  s1.setData(eq.dates.map(function(d, i){ return {time: d, value: eq.nav[i]}; }));
+  if(eq.bench){
+    var s2 = chart.addSeries(C.LineSeries, {color: "#8b96a6", lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false});
+    s2.setData(eq.dates.map(function(d, i){ return {time: d, value: eq.bench[i]}; }));
+  }
+  chart.timeScale().fitContent();
+  return chart;
+}
+
+function drawCompare(el, series){
+  el.innerHTML = "";
+  var chart = mkChart(el);
+  if(!chart) return;
+  var C = LightweightCharts;
+  var colors = ["#4c8dff", "#ffd45e", "#3ddc97", "#ff8a94", "#a78bfa", "#8fc0ff"];
+  series.forEach(function(s, i){
+    var line = chart.addSeries(C.LineSeries, {
+      color: colors[i % colors.length], lineWidth: 1.5, priceLineVisible: false,
+      lastValueVisible: false
+    });
+    line.setData(s.pts);
+  });
+  chart.timeScale().fitContent();
+  return chart;
+}
+
 /* ---------------- 渲染 ---------------- */
 function render(){
   if(!DATA) return;
@@ -546,6 +661,24 @@ function renderReco(){
     var el = $("main").querySelector('.rc[data-code="'+openCode+'"]');
     if(el){ el.classList.add("open"); drawRadarFor(openCode); }
   }
+}
+
+function equityBlock(){
+  var eq = (DATA.backtest || {}).equity;
+  if(!eq || !eq.dates) return "";
+  var s = eq.stat || {};
+  return '<div class="btTrack">'
+    + '<div class="btTHead">策略净值 <span>近 ' + (s.days || 0) + ' 个交易日 · 等权持有 5 日</span></div>'
+    + '<div class="btGrid">'
+    +   '<div><i>策略收益</i><b class="' + cls(s.total) + '">' + sign(s.total) + '%</b></div>'
+    +   '<div><i>基准收益</i><b class="' + cls(s.bench) + '">' + sign(s.bench) + '%</b></div>'
+    +   '<div><i>最大回撤</i><b class="down">' + (s.mdd || 0) + '%</b></div>'
+    +   '<div><i>夏普比率</i><b>' + (s.sharpe || 0) + '</b></div>'
+    + '</div>'
+    + '<div class="chartBar"><button data-equity="1">查看净值曲线</button></div>'
+    + '<div id="eqBox"></div>'
+    + '<div class="btNote">蓝线为策略净值，灰虚线为候选池等权基准。模拟不含手续费与滑点，仅作参考。</div>'
+    + '</div>';
 }
 
 function backtestCard(){
@@ -604,6 +737,7 @@ function backtestCard(){
     + '<div class="btNote">历史信号 ' + (st.samples || 0) + ' 次 / ' + (st.stocks || 0) + ' 只股票。胜率低于 50% 是趋势策略常态，靠盈亏比获利。</div>'
     + weightHtml
     + trackHtml
+    + equityBlock()
     + '</div>';
 }
 
@@ -723,6 +857,8 @@ function detail(x, kind){
     + '<div class="dimList">'+dimHtml+'</div></div>'
     + aiHtml
     + extBlock(x)
+    + klineBlock(x)
+    + chipBlock(x)
     + '<div class="secT">推荐理由</div><ul class="reasons p">'+reasons+'</ul>'
     + '<div class="secT">风险提示</div><ul class="reasons n">'+risks+'</ul>'
     + '<div class="grid2">'
@@ -734,6 +870,33 @@ function detail(x, kind){
     + instHtml
     + '<div class="secT">相关消息</div><ul class="news">'+news+'</ul>'
     + '</div>';
+}
+
+function klineBlock(x){
+  return '<div class="secT" style="margin-top:6px">走势图</div>'
+    + '<div class="chartBar"><button data-kline="' + esc(x.code) + '">查看日K线（含均线/成交量）</button></div>'
+    + '<div id="kc-' + esc(x.code) + '"></div>';
+}
+
+function chipBlock(x){
+  var hd = (DATA.holder || {})[x.code];
+  var bt = (DATA.block_trade || {})[x.code];
+  if(!hd && !bt) return "";
+  var rows = [];
+  if(hd){
+    var col = hd.ratio <= -5 ? "var(--down)" : (hd.ratio >= 5 ? "var(--up)" : "");
+    rows.push(['<span>股东户数</span><span>' + hd.num.toLocaleString() + ' 户</span>']);
+    rows.push(['<span>较上期</span><span class="' + col + '">' + sign(hd.ratio) + '%（' + esc(hd.signal) + '）</span>']);
+    rows.push(['<span>数据截止</span><span>' + esc(hd.date) + '</span>']);
+  }
+  if(bt){
+    var bc = bt.avg_premium > 2 ? "var(--down)" : (bt.avg_premium < -5 ? "var(--up)" : "");
+    rows.push(['<span>大宗交易</span><span>' + bt.count + ' 笔 / ' + bt.total_vol.toLocaleString() + ' 股</span>']);
+    rows.push(['<span>平均溢价</span><span class="' + bc + '">' + sign(bt.avg_premium) + '%（' + esc(bt.signal) + '）</span>']);
+  }
+  return '<div class="secT" style="margin-top:6px">筹码与事件</div>'
+    + '<div class="kv">' + rows.map(function(r){ return '<div>' + r[0] + r[1] + '</div>'; }).join("") + '</div>'
+    + '<div class="btNote">股东户数为季度披露，户数下降通常意味着筹码集中；大宗溢价成交说明有资金愿意以高于市价接货。</div>';
 }
 
 function extBlock(x){
@@ -1054,6 +1217,10 @@ function renderWatch(){
     return;
   }
   var html = pos;
+  if(watches.length >= 2){
+    html += '<div class="chartBar" style="margin-bottom:8px">'
+      + '<button data-compare="1">自选股走势对比</button></div><div id="cmpBox"></div>';
+  }
   html += watches.map(function(w){
     var q = (DATA.quotes||{})[w.code];
     if(!q){
@@ -1364,6 +1531,71 @@ function rtStart(){
 
 /* ---------------- 交互 ---------------- */
 $("main").addEventListener("click", function(e){
+  var cmp = e.target.getAttribute("data-compare");
+  if(cmp){
+    var cb = document.getElementById("cmpBox");
+    if(cb){
+      if(cb.dataset.done === "1"){ cb.innerHTML = ""; cb.dataset.done = ""; e.target.textContent = "自选股走势对比"; return; }
+      e.target.textContent = "加载中…";
+      loadKlines(function(all){
+        var picks = watches.filter(function(w){ return all[w.code]; }).slice(0, 6);
+        if(!picks.length){ e.target.textContent = "暂无K线数据"; return; }
+        var series = picks.map(function(w){
+          var rows = all[w.code].k;
+          var base = rows[0][2] || 1;
+          return {name: all[w.code].n,
+                  pts: rows.map(function(r){ return {time: r[0], value: +(r[2] / base * 100).toFixed(2)}; })};
+        });
+        cb.innerHTML = '<div class="chartBox" id="cmpChart"></div>'
+          + '<div class="hint" style="margin-top:6px">' + series.map(function(s, i){
+              var cols = ["#4c8dff", "#ffd45e", "#3ddc97", "#ff8a94", "#a78bfa", "#8fc0ff"];
+              return '<span style="color:' + cols[i % cols.length] + ';margin-right:8px">' + esc(s.name) + '</span>';
+            }).join("") + '</div>';
+        drawCompare(document.getElementById("cmpChart"), series);
+        cb.dataset.done = "1";
+        e.target.textContent = "收起对比";
+      });
+    }
+    return;
+  }
+  var eqBtn = e.target.getAttribute("data-equity");
+  if(eqBtn){
+    var eb = document.getElementById("eqBox");
+    if(eb){
+      if(eb.dataset.done === "1"){ eb.innerHTML = ""; eb.dataset.done = ""; e.target.textContent = "查看净值曲线"; return; }
+      eb.innerHTML = '<div class="chartBox sm" id="eqChart"></div>';
+      drawEquity(document.getElementById("eqChart"), DATA.backtest.equity);
+      eb.dataset.done = "1";
+      e.target.textContent = "收起净值曲线";
+    }
+    return;
+  }
+  var kln = e.target.getAttribute("data-kline");
+  if(kln){
+    var box = document.getElementById("kc-" + kln);
+    if(box){
+      if(box.dataset.done === "1"){ box.innerHTML = ""; box.dataset.done = ""; e.target.textContent = "查看日K线（含均线/成交量）"; return; }
+      e.target.textContent = "加载中…";
+      loadKlines(function(all){
+        var item = all[kln];
+        if(!item){ e.target.textContent = "暂无K线数据"; return; }
+        box.innerHTML = '<div class="chartBox" id="kbox-' + kln + '"></div>';
+        var el = document.getElementById("kbox-" + kln);
+        var x = RECO_MAP[kln];
+        var marks = [];
+        if(x && x.buy_price && item.k.length){
+          var last = item.k[item.k.length - 1][0];
+          marks.push({time: last, position: "belowBar", color: "#ffd45e", shape: "arrowUp", text: "买 " + x.buy_price});
+          if(x.stop) marks.push({time: last, position: "aboveBar", color: "#3ddc97", shape: "arrowDown", text: "损 " + x.stop});
+          if(x.target) marks.push({time: last, position: "aboveBar", color: "#ff4d5e", shape: "arrowUp", text: "标 " + x.target});
+        }
+        drawKline(el, item.k, marks);
+        box.dataset.done = "1";
+        e.target.textContent = "收起K线";
+      });
+    }
+    return;
+  }
   var uai = e.target.getAttribute("data-uai");
   if(uai){ userAiReview(uai, e.target); return; }
   var sec = e.target.getAttribute("data-sec");
