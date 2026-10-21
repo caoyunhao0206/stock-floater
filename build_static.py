@@ -25,9 +25,13 @@ AI_MODEL = (os.environ.get("AI_MODEL") or "deepseek-chat").strip()
 AI_TOP_N = int(os.environ.get("AI_TOP_N", "5") or 5)
 
 
+AI_STATUS = {"ok": 0, "tried": 0, "error": ""}
+
+
 def ai_review(items):
     """对评分最高的若干只做 AI 复评（无 Key 则跳过）"""
     if not AI_KEY:
+        AI_STATUS["error"] = "未配置"
         return 0
     try:
         import ai
@@ -51,6 +55,7 @@ def ai_review(items):
             print("AI 失败 %s: %s" % (rec.get("code"), e))
             return rec["code"], None
 
+    AI_STATUS["tried"] = len(cand)
     with ThreadPoolExecutor(max_workers=3) as ex:
         for code, res in ex.map(work, cand):
             if not res:
@@ -74,7 +79,12 @@ def ai_review(items):
             except (TypeError, ValueError):
                 target["final_score"] = target["score"]
             ok += 1
-    print("AI 复评完成 %d 只" % ok)
+    AI_STATUS["ok"] = ok
+    if ok:
+        print("AI 复评完成 %d 只" % ok)
+    else:
+        AI_STATUS["error"] = "全部调用失败（额度或密钥问题）"
+        print("AI 复评失败：0/%d" % len(cand))
     return ok
 
 
@@ -230,6 +240,31 @@ def push_all(data, reco):
     print("推送完成：%d 条 | 今日已发 %s" % (sent, st.get("counts", {})))
 
 
+def check_ai_health(data):
+    """AI 连续两轮失败 -> 推送告警（同一天只提醒一次）"""
+    st = _load_json(PUSH_STATE, {})
+    ai = data.get("ai_status") or {}
+    tried, ok = ai.get("tried") or 0, ai.get("ok") or 0
+    if tried == 0:
+        return
+    today = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
+    if ok == 0:
+        fails = st.get("ai_fail_streak", 0) + 1
+        st["ai_fail_streak"] = fails
+        if fails >= 2 and st.get("ai_alert_date") != today:
+            if wechat_send("【AI 告警】连续 %d 轮调用失败" % fails,
+                           "推荐榜的 AI 复评已连续 %d 轮全部失败。\n"
+                           "常见原因：额度用尽、Key 失效、中转站故障。\n"
+                           "页面仍可正常使用，规则评分不受影响；也可在网页设置里填自己的 API 直连。" % fails):
+                st["ai_alert_date"] = today
+                print("AI 告警已推送")
+    else:
+        if st.get("ai_fail_streak"):
+            print("AI 已恢复正常（之前连续失败 %d 轮）" % st["ai_fail_streak"])
+        st["ai_fail_streak"] = 0
+    _save_json(PUSH_STATE, st)
+
+
 def main():
     t0 = time.time()
     print("开始全市场扫描…")
@@ -282,6 +317,97 @@ def main():
         len(reco["steady"]), len(reco["aggressive"]),
         reco.get("pool", 0), reco.get("filtered", 0)))
 
+    # ---- 板块热度 ----
+    sectors = {}
+    try:
+        sec_up = sources.fetch_sectors("price", 30)
+        sec_money = sources.fetch_sectors("zljlr", 20)
+        sectors = {"by_change": sec_up, "by_money": sec_money}
+        print("板块：%d 个行业，涨幅第一 %s，资金第一 %s" % (
+            len(sec_up), sec_up[0]["name"] if sec_up else "-",
+            sec_money[0]["name"] if sec_money else "-"))
+    except Exception as e:  # noqa: BLE001
+        print("板块数据失败:", e)
+
+    # ---- 涨停复盘 ----
+    limit_up = []
+    try:
+        ups = [r for r in rows if (r["change_pct"] or 0) >= 9.8
+               and not r["name"].startswith(("N", "C", "ST"))]
+        ups.sort(key=lambda x: -(x["amount"] or 0))
+        ups = ups[:40]
+        import indicators as _I
+
+        def _boards(r):
+            try:
+                k = sources.fetch_kline(r["symbol"], 40)
+                if len(k) < 6:
+                    return 0
+                cnt = 0
+                for i in range(len(k) - 1, 0, -1):
+                    prev = k[i - 1]["close"]
+                    if prev > 0 and (k[i]["close"] / prev - 1) * 100 >= 9.5:
+                        cnt += 1
+                    else:
+                        break
+                return cnt
+            except Exception:  # noqa: BLE001
+                return 0
+
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            boards = list(ex.map(_boards, ups))
+        for r, b in zip(ups, boards):
+            prev = r["prev_close"] or 0
+            one_word = bool(prev and r["open"] >= prev * 1.095 and r["low"] >= prev * 1.095)
+            limit_up.append({
+                "code": r["code"], "name": r["name"], "price": r["price"],
+                "change_pct": r["change_pct"], "boards": b,
+                "one_word": one_word,
+                "turnover": r["turnover"], "amount": round((r["amount"] or 0) / 1e8, 2),
+                "nmc": round((r["nmc"] or 0) / 10000, 1),
+            })
+        limit_up.sort(key=lambda x: (-x["boards"], -x["amount"]))
+        print("涨停：%d 只，最高 %d 连板" % (
+            len(limit_up), limit_up[0]["boards"] if limit_up else 0))
+    except Exception as e:  # noqa: BLE001
+        print("涨停复盘失败:", e)
+
+    # ---- 自选股深度（用于页面个股详情）----
+    watch_detail = {}
+    try:
+        wl = _load_json(WATCHLIST_FILE, [])
+        codes = [str(w.get("code", "")).strip() for w in wl if w.get("code")]
+        import engine as _E
+
+        def _deep(code6):
+            if len(code6) != 6:
+                return None, None
+            sym = ("sh" if code6[0] == "6" else "sz") + code6
+            try:
+                q = sources.fetch_quotes([sym]).get(sym)
+                if not q:
+                    return None, None
+                k = sources.fetch_kline(sym, 260)
+                nm = q.get("name") or code6
+                ns = sources.fetch_news_multi(sym, code6, nm, 8)
+                ex = {"reports": sources.fetch_reports(code6),
+                      "forecast": sources.fetch_forecast(code6),
+                      "billboard": sources.fetch_billboard(code6)}
+                adv = _E.build_advice(q, k, [], ns["items"], 0, 0, extras=ex, index_closes=idx)
+                news = {k2: ns[k2] for k2 in ("items", "score", "pos", "neg", "sources", "verified")}
+                return q, {"code": code6, "name": nm, "quote": q,
+                           "advice": adv, "news": news, "extras": ex}
+            except Exception:  # noqa: BLE001
+                return None, None
+
+        with ThreadPoolExecutor(max_workers=4) as ex2:
+            for q, d in ex2.map(_deep, codes[:12]):
+                if d:
+                    watch_detail[d["code"]] = d
+        print("自选深度：%d 只" % len(watch_detail))
+    except Exception as e:  # noqa: BLE001
+        print("自选深度失败:", e)
+
     gainers = [r for r in rows if not r["name"].startswith(("N", "C"))]
     gainers.sort(key=lambda x: -x["change_pct"])
     amount_top = sorted(rows, key=lambda x: -(x["amount"] or 0))
@@ -302,6 +428,11 @@ def main():
                      "filtered": reco.get("filtered", 0), "scanned": len(rows)},
         },
         "quotes": {r["code"]: slim_quote(r) for r in rows},
+        "sectors": sectors,
+        "limit_up": limit_up,
+        "watch_detail": watch_detail,
+        "ai_status": {"ok": AI_STATUS.get("ok", 0), "tried": AI_STATUS.get("tried", 0),
+                      "error": AI_STATUS.get("error", "")},
         "backtest": {
             "strategy": bt.get("strategy"),
             "per_stock": bt.get("per_stock", {}),
@@ -317,6 +448,11 @@ def main():
         push_all(out, reco)
     except Exception as e:  # noqa: BLE001
         print("推送流程异常:", e)
+
+    try:
+        check_ai_health(out)
+    except Exception as e:  # noqa: BLE001
+        print("AI 健康检查异常:", e)
 
     size = os.path.getsize(path) / 1024
     print("已生成 %s（%.0f KB，总耗时 %.1fs）" % (path, size, time.time() - t0))
