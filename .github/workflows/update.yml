@@ -1,0 +1,48 @@
+name: update-market-data
+
+on:
+  schedule:
+    # 北京时间 9:00-15:55，每 5 分钟（UTC 1:00-7:55），仅工作日
+    - cron: "*/5 1-7 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install deps
+        run: pip install -r requirements-server.txt
+
+      - name: Build data
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_BASE_URL: ${{ vars.AI_BASE_URL }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+        run: python build_static.py
+
+      - name: Commit data
+        run: |
+          git config user.name "stock-floater-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/data/all.json
+          if git diff --staged --quiet; then
+            echo "数据无变化，跳过提交"
+          else
+            git commit -m "data: $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
