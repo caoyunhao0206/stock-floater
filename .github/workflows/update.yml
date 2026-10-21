@@ -69,6 +69,6 @@ jobs:
               echo "收盘或未开盘（当前 $NOW），结束循环"
               break
             fi
-            echo "等待 4 分钟后进入下一轮…"
-            sleep 240
+            echo "等待 3 分钟后进入下一轮…"
+            sleep 180
           done
