@@ -292,6 +292,12 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
     adx = ext.get("adx")
     if adx is not None:
         t += 4 if adx >= 25 else (2 if adx >= 18 else 0)
+    pos250 = ext.get("position250")
+    if pos250 is not None:
+        if 30 <= pos250 <= 75:
+            t += 2
+        elif pos250 > 92:
+            t -= 2
     w = ext.get("weekly") or {}
     t += (2 if w.get("above_ma5") else 0) + (2 if w.get("ma5_above_ma10") else 0) + (1 if w.get("slope_up") else 0)
     dims["trend"] = round(min(25, t), 1)
@@ -361,7 +367,17 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
     fh = ext.get("from_high20")
     if fh is not None and fh > -1.5 and vr and vr > 1.3:
         v += 3
-    dims["volume"] = round(min(20, v), 1)
+    # 量能结构：短均量抬升 + 上涨日放量
+    vr520 = ext.get("vol_ratio_5_20")
+    if vr520 is not None:
+        if 1.1 <= vr520 <= 2.0:
+            v += 2
+        elif vr520 > 3:
+            v -= 1
+    uvs = ext.get("up_vol_share")
+    if uvs is not None and uvs >= 60:
+        v += 1.5
+    dims["volume"] = round(min(20, max(0, v)), 1)
 
     # ---- 资金 15 ----
     dims["fund"] = round(clamp((fund_val + 25) / 50 * 15, 0, 15), 1)
@@ -452,6 +468,14 @@ def score_v2(quote, ind, ext, flows, senti, extras, fund_val):
     for x in pats:
         if x.get("dir") == -1:
             penalties.append("形态：" + x.get("desc", x.get("name", "")))
+    ap = ext.get("atr_pos")
+    if ap is not None and ap > 1.05 and rsi and rsi > 70:
+        total -= 3
+        penalties.append("价格处于 ATR 通道上沿，短线回踩概率大")
+    gp = ext.get("gap")
+    if gp and gp.get("dir") == -1:
+        total -= 2
+        penalties.append("向下跳空 %.1f%%，注意缺口压力" % abs(gp.get("pct") or 0))
 
     total = clamp(total, 0, 100)
     if total >= 80:
