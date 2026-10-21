@@ -179,6 +179,20 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 
 .footHint{font-size:9.5px;color:var(--sub2);text-align:center;padding:4px 0 2px}
 
+/* 回测卡 */
+.btCard{background:linear-gradient(135deg,rgba(76,141,255,.10),rgba(167,139,250,.05));
+  border:1px solid rgba(76,141,255,.20);border-radius:16px;padding:12px}
+.btHead{font-size:11px;color:var(--txt);font-weight:600;display:flex;align-items:baseline;gap:6px}
+.btHead span{font-size:9px;color:var(--sub2);font-weight:400}
+.btGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.btGrid div{background:rgba(0,0,0,.22);border-radius:8px;padding:6px 8px}
+.btGrid i{font-style:normal;font-size:9px;color:var(--sub2);display:block}
+.btGrid b{font-size:14px;font-variant-numeric:tabular-nums}
+.btNote{font-size:9px;color:var(--sub2);margin-top:8px;line-height:1.5}
+.pat{font-size:9px;border-radius:5px;padding:1px 6px;border:1px solid rgba(76,141,255,.3);
+  color:#8fc0ff;background:rgba(76,141,255,.08)}
+.pat.bear{color:#ff8a94;border-color:rgba(255,77,94,.3);background:rgba(255,77,94,.07)}
+
 /* ---------- 全市场 ---------- */
 .mCard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px}
 .mTop{display:flex;align-items:center;gap:14px}
@@ -441,7 +455,7 @@ function renderReco(){
   RECO_MAP = {};
   steady.concat(aggr).forEach(function(x){ RECO_MAP[x.code] = x; });
 
-  var html = "";
+  var html = backtestCard();
   if(!n){
     html = '<div class="empty"><b>今天没有符合条件的机会</b>筛选标准：B 级以上 + 盈亏比 ≥ 1.3<br>宁缺毋滥，等下一轮扫描</div>';
   }else{
@@ -459,6 +473,23 @@ function renderReco(){
   }
 }
 
+function backtestCard(){
+  var bt = DATA.backtest || {};
+  var st = bt.strategy;
+  if(!st) return "";
+  var hz = st.horizon || 10;
+  return '<div class="btCard">'
+    + '<div class="btHead">策略历史回测<span>持有 '+hz+' 日 · 止盈 '+st.tp+'% / 止损 '+st.sl+'%</span></div>'
+    + '<div class="btGrid">'
+    +   '<div><i>胜率</i><b>'+st.win_rate+'%</b></div>'
+    +   '<div><i>盈亏比</i><b>'+st.rr+'</b></div>'
+    +   '<div><i>每笔均值</i><b class="'+cls(st.avg_ret)+'">'+sign(st.avg_ret)+'%</b></div>'
+    +   '<div><i>样本</i><b>'+st.samples+'</b></div>'
+    + '</div>'
+    + '<div class="btNote">历史信号 '+st.samples+' 次 / '+st.stocks+' 只股票。胜率低于 50% 是趋势策略常态，靠盈亏比获利；样本有限，仅供参考。</div>'
+    + '</div>';
+}
+
 function emptyBlock(t){
   return '<div class="empty" style="padding:18px;font-size:11px">'+t+'</div>';
 }
@@ -473,6 +504,12 @@ function card(x, kind){
   if(x.forecast && x.forecast.type==="pos") tags.push('<span class="hot">业绩预增</span>');
   if(x.reports && x.reports.count>=3) tags.push('<span>研报 '+x.reports.count+' 篇</span>');
   if(x.ai) tags.push('<span class="ai">AI '+esc(x.ai.rating||"")+'</span>');
+  (x.patterns||[]).slice(0,2).forEach(function(p){
+    tags.push('<span class="pat'+(p.dir===-1?' bear':'')+'">'+esc(p.name)+'</span>');
+  });
+  if(x.hist && x.hist.samples >= 3){
+    tags.push('<span>历史 '+x.hist.samples+' 次 · 胜率 '+x.hist.win_rate+'%</span>');
+  }
 
   // 区间条位置
   var lo = Math.min(x.stop, x.buy_price * 0.98);
@@ -562,6 +599,7 @@ function detail(x, kind){
     + '<div class="radarWrap"><canvas class="radar" data-code="'+esc(x.code)+'" width="264" height="264"></canvas>'
     + '<div class="dimList">'+dimHtml+'</div></div>'
     + aiHtml
+    + extBlock(x)
     + '<div class="secT">推荐理由</div><ul class="reasons p">'+reasons+'</ul>'
     + '<div class="secT">风险提示</div><ul class="reasons n">'+risks+'</ul>'
     + '<div class="grid2">'
@@ -573,6 +611,29 @@ function detail(x, kind){
     + instHtml
     + '<div class="secT">相关消息</div><ul class="news">'+news+'</ul>'
     + '</div>';
+}
+
+function extBlock(x){
+  var ind = x.indicators || {};
+  var pats = x.patterns || [];
+  var rows = [];
+  rows.push(['MA20 斜率', (ind.ma_slope20!==null&&ind.ma_slope20!==undefined)?(ind.ma_slope20>0?'+':'')+ind.ma_slope20+'%':'--']);
+  rows.push(['布林带宽', (ind.boll_width!==null&&ind.boll_width!==undefined)?ind.boll_width+'%':'--']);
+  rows.push(['量价相关', (ind.vol_price_corr!==null&&ind.vol_price_corr!==undefined)?ind.vol_price_corr:'--']);
+  rows.push(['60日涨停', (ind.limit_up60!==undefined)?ind.limit_up60+' 次':'--']);
+  rows.push(['20日上涨占比', (ind.up_ratio20!==null&&ind.up_ratio20!==undefined)?ind.up_ratio20+'%':'--']);
+  rows.push(['60日最大回撤', (ind.max_dd60!==null&&ind.max_dd60!==undefined)?ind.max_dd60+'%':'--']);
+  var kv = rows.map(function(r){
+    return '<div><span>'+r[0]+'</span><span>'+esc(String(r[1]))+'</span></div>';
+  }).join("");
+  var patHtml = pats.length ? '<div class="tags" style="margin-top:6px">'+pats.map(function(p){
+      return '<span class="pat'+(p.dir===-1?' bear':'')+'" title="'+esc(p.desc)+'">'+esc(p.name)+'</span>';
+    }).join("")+'</div>' : "";
+  var histHtml = "";
+  if(x.hist && x.hist.samples){
+    histHtml = '<div class="hint" style="margin-top:4px">该股历史信号 '+x.hist.samples+' 次，'+x.hist.horizon+'日胜率 '+x.hist.win_rate+'%，平均 '+sign(x.hist.avg_ret)+'%</div>';
+  }
+  return '<div class="secT">扩展指标</div><div class="kv">'+kv+'</div>'+patHtml+histHtml;
 }
 
 /* 六维雷达图 */
@@ -642,6 +703,8 @@ function drawRadarFor(code){
   }
   cv.setAttribute("data-drawn","1");
 }
+
+
 
 /* 全市场 */
 function renderMarket(){
