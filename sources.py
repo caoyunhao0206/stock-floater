@@ -6,9 +6,13 @@
 - 主力资金流：东方财富 push2
 - 个股新闻：新浪财经
 """
+import json
 import re
 import time
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+
 import requests
 
 log = logging.getLogger("floater.sources")
@@ -611,4 +615,148 @@ def fetch_block_trade(code, days=60):
         "total_vol": round(vol, 0),
         "items": items,
         "signal": ("溢价成交" if avg >= 2 else "折价成交" if avg <= -5 else "平价成交"),
+    }
+
+
+# ================= LOF 套利 =================
+
+FUND_LIST_URL = "http://fund.eastmoney.com/js/fundcode_search.js"
+FUND_NAV_URL = "https://api.fund.eastmoney.com/f10/lsjz"
+_FUND_POOL = {"ts": 0, "codes": []}
+
+
+def _fund_codes():
+    """全量基金代码表中的场内候选（16/50 开头），缓存 12 小时"""
+    if _FUND_POOL["codes"] and time.time() - _FUND_POOL["ts"] < 43200:
+        return _FUND_POOL["codes"]
+    try:
+        r = _get(FUND_LIST_URL, encoding="utf-8")
+        m = re.search(r"\[\[.*\]\]", r.text, re.S)
+        if not m:
+            return _FUND_POOL["codes"]
+        arr = json.loads(m.group(0))
+    except Exception:  # noqa: BLE001
+        return _FUND_POOL["codes"]
+    codes = [x[0] for x in arr
+             if isinstance(x, list) and x and re.match(r"^(16|50)\d{4}$", str(x[0]))]
+    _FUND_POOL["codes"] = codes
+    _FUND_POOL["ts"] = time.time()
+    return codes
+
+
+def fetch_lof_spot(min_amount=50.0):
+    """
+    LOF 场内行情（成交额 ≥ min_amount 万元）
+    返回 [{code, name, price, change_pct, amount(万), volume}]
+    """
+    codes = _fund_codes()
+    if not codes:
+        return []
+    syms = [("sh" if c.startswith("5") else "sz") + c for c in codes]
+    out = []
+    for i in range(0, len(syms), 60):
+        batch = syms[i:i + 60]
+        try:
+            r = _get("https://qt.gtimg.cn/q=" + ",".join(batch), encoding="gbk")
+        except Exception:  # noqa: BLE001
+            continue
+        for mm in re.finditer(r'v_(\w+)="([^"]*)"', r.text):
+            f = mm.group(2).split("~")
+            if len(f) < 40 or not f[1]:
+                continue
+            name = f[1]
+            is_fund = (f[0] == "51") or ("LOF" in name) or ("基金" in name)
+            if not is_fund:
+                continue
+            try:
+                price = float(f[3])
+                pct = float(f[32]) if f[32] else 0.0
+                amount = float(f[37]) if f[37] else 0.0
+            except (TypeError, ValueError):
+                continue
+            if price <= 0 or amount < min_amount:
+                continue
+            out.append({
+                "code": mm.group(1)[2:],
+                "name": name,
+                "price": price,
+                "change_pct": round(pct, 2),
+                "amount": round(amount, 0),      # 万元
+            })
+    out.sort(key=lambda x: -x["amount"])
+    return out
+
+
+def fetch_fund_nav(code):
+    """
+    最新单位净值 + 申购/赎回状态
+    返回 {date, nav, nav_chg, sg, sh, sg_ok}
+    """
+    h = dict(UA)
+    h["Referer"] = "https://fund.eastmoney.com/"
+    try:
+        r = requests.get(FUND_NAV_URL, params={"fundCode": code, "pageIndex": "1", "pageSize": "1"},
+                         headers=h, timeout=TIMEOUT)
+        j = json.loads(r.text)
+        data = ((j.get("Data") or {}).get("LSJZList")) or []
+    except Exception as e:  # noqa: BLE001
+        log.debug("净值获取失败 %s: %s", code, e)
+        return {}
+    if not data:
+        return {}
+    d = data[0]
+    try:
+        nav = float(d.get("DWJZ") or 0)
+    except (TypeError, ValueError):
+        return {}
+    if nav <= 0:
+        return {}
+    sg = (d.get("SGZT") or "").strip()
+    sh = (d.get("SHZT") or "").strip()
+    return {
+        "date": (d.get("FSRQ") or "")[:10],
+        "nav": nav,
+        "nav_chg": round(float(d.get("JZZZL") or 0), 2),
+        "sg": sg,
+        "sh": sh,
+        "sg_ok": ("暂停" not in sg) and bool(sg),
+        "sh_ok": ("暂停" not in sh) and bool(sh),
+    }
+
+
+def build_lof_arbitrage(min_amount=100.0, max_check=80, workers=6):
+    """
+    LOF 套利扫描：溢价率 = 场内价 / 最新净值 - 1
+    仅对成交额达标的标的查净值
+    """
+    spots = fetch_lof_spot(min_amount)
+    if not spots:
+        return {"items": [], "updated": "", "scanned": 0}
+    targets = spots[:max_check]
+
+    def _one(s):
+        nav = fetch_fund_nav(s["code"])
+        if not nav:
+            return None
+        premium = (s["price"] / nav["nav"] - 1) * 100
+        return {
+            "code": s["code"], "name": s["name"],
+            "price": s["price"], "change_pct": s["change_pct"],
+            "amount": s["amount"],
+            "nav": nav["nav"], "nav_date": nav["date"], "nav_chg": nav["nav_chg"],
+            "premium": round(premium, 2),
+            "sg": nav["sg"], "sh": nav["sh"],
+            "sg_ok": nav["sg_ok"], "sh_ok": nav["sh_ok"],
+        }
+
+    items = []
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        for it in ex.map(_one, targets):
+            if it:
+                items.append(it)
+    items.sort(key=lambda x: -x["premium"])
+    return {
+        "items": items,
+        "scanned": len(spots),
+        "updated": datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
