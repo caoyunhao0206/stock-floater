@@ -34,6 +34,7 @@ jobs:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ vars.AI_BASE_URL }}
           AI_MODEL: ${{ vars.AI_MODEL }}
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
         run: python build_static.py
 
       - name: Commit data
