@@ -179,6 +179,25 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 
 .footHint{font-size:9.5px;color:var(--sub2);text-align:center;padding:4px 0 2px}
 
+/* LOF 套利 */
+.lofCard{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;
+  padding:9px 10px;margin-bottom:5px}
+.lofTop{display:flex;align-items:center;gap:7px}
+.lofName{font-size:12px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lofCode{font-size:9px;color:var(--sub2);flex:none}
+.lofP{font-size:15px;font-variant-numeric:tabular-nums;font-weight:700;flex:none}
+.lofGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px;font-size:9.5px;color:var(--sub)}
+.lofGrid i{font-style:normal;display:block;color:var(--sub2);font-size:8.5px}
+.lofGrid b{font-size:10.5px;font-variant-numeric:tabular-nums}
+.lofTag{font-size:8.5px;padding:1px 5px;border-radius:4px;flex:none}
+.lofTag.ok{color:#3ddc97;background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.35)}
+.lofTag.no{color:#8b96a6;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.lofHead{display:flex;align-items:baseline;gap:6px;margin:12px 0 6px}
+.lofHead b{font-size:11.5px}
+.lofHead span{font-size:9px;color:var(--sub2)}
+.lofWarn{background:rgba(255,212,94,.08);border:1px solid rgba(255,212,94,.28);
+  border-radius:10px;padding:9px 10px;font-size:10px;line-height:1.65;color:#e8d8a8}
+
 /* 图表 */
 .chartBox{height:210px;border-radius:10px;overflow:hidden;background:rgba(0,0,0,.25);
   border:1px solid var(--line);margin-top:6px;position:relative}
@@ -385,7 +404,8 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
     <button data-tab="reco" class="on">推荐 <b id="badge" style="display:none"></b></button>
     <button data-tab="sector">板块</button>
     <button data-tab="limit">涨停</button>
-    <button data-tab="market">全市场</button>
+    <button data-tab="lof">套利</button>
+    <button data-tab="market">市场</button>
     <button data-tab="watch">自选</button>
   </nav>
 
@@ -627,6 +647,7 @@ function render(){
   if(tab === "reco") renderReco();
   else if(tab === "sector") renderSector();
   else if(tab === "limit") renderLimitUp();
+  else if(tab === "lof") renderLof();
   else if(tab === "market") renderMarket();
   else renderWatch();
 }
@@ -1059,6 +1080,63 @@ function renderLimitUp(){
       + '</div>';
   }).join("");
   html += '<div class="hint" style="margin-top:10px">连板高度反映市场情绪：高度越高、封板越早，说明做多意愿越强；一字板多但换手极低，次日容易开板。</div>';
+  $("main").innerHTML = html;
+}
+
+/* ---------------- LOF 套利 ---------------- */
+function renderLof(){
+  var d = DATA.lof || {};
+  var items = d.items || [];
+  if(!items.length){
+    $("main").innerHTML = '<div class="empty">暂无 LOF 数据<br><span style="font-size:10px">数据源恢复后自动出现</span></div>';
+    return;
+  }
+  var arb = items.filter(function(x){ return x.sg_ok && x.premium >= 0.5; }).slice(0, 10);
+  var disc = items.filter(function(x){ return x.sh_ok && x.premium <= -0.5; })
+                  .sort(function(a, b){ return a.premium - b.premium; }).slice(0, 8);
+  var watch = items.filter(function(x){ return !x.sg_ok && x.premium >= 2; }).slice(0, 8);
+
+  function row(x, kind){
+    var col = x.premium >= 0 ? "up" : "down";
+    var tagCol = x.sg_ok ? "ok" : "no";
+    var tagTxt = x.sg_ok ? "可申购" : (x.sg || "—");
+    return '<div class="lofCard">'
+      + '<div class="lofTop"><span class="lofName">' + esc(x.name) + '</span>'
+      + '<span class="lofCode">' + esc(x.code) + '</span>'
+      + '<span class="lofTag ' + tagCol + '">' + esc(tagTxt) + '</span>'
+      + '<span class="lofP ' + col + '">' + sign(x.premium) + '%</span></div>'
+      + '<div class="lofGrid">'
+      +   '<div><i>场内价</i><b>' + fmt(x.price, 3) + '</b></div>'
+      +   '<div><i>净值' + (x.nav_date ? ' ' + x.nav_date.slice(5) : '') + '</i><b>' + fmt(x.nav, 4) + '</b></div>'
+      +   '<div><i>成交额</i><b>' + fmt(x.amount / 10000, 2) + '亿</b></div>'
+      +   '<div><i>净值日涨跌</i><b class="' + cls(x.nav_chg) + '">' + sign(x.nav_chg) + '%</b></div>'
+      + '</div></div>';
+  }
+
+  var html = '<div class="lofWarn">'
+    + '<b>溢价率 = 场内价格 ÷ 最新净值 − 1</b>，净值取最近公布日（多为 T-1，QDII 可能 T-2），'
+    + '所以盘中的真实溢价率会随标的小幅偏移。<br>'
+    + '溢价套利路径：场外申购 → T+2 份额到场 → 场内卖出。成本约 0.3%~1.0%（申购费+佣金+冲击），'
+    + '<b>溢价低于 1% 基本无利可图</b>；期间溢价可能收敛，净值也可能下跌。'
+    + '</div>';
+
+  html += '<div class="lofHead"><b>可溢价套利</b><span>申购开放 · 溢价 ≥ 0.5%</span></div>';
+  html += arb.length ? arb.map(function(x){ return row(x, "arb"); }).join("")
+                     : '<div class="hint" style="padding:6px 2px">当前没有满足条件的标的</div>';
+
+  html += '<div class="lofHead"><b>可折价套利</b><span>赎回开放 · 折价 ≥ 0.5%（需先有场内持仓）</span></div>';
+  html += disc.length ? disc.map(function(x){ return row(x, "disc"); }).join("")
+                      : '<div class="hint" style="padding:6px 2px">当前没有满足条件的标的</div>';
+
+  if(watch.length){
+    html += '<div class="lofHead"><b>高溢价但无法申购</b><span>仅供观察，溢价随时可能回落</span></div>';
+    html += watch.map(function(x){ return row(x, "watch"); }).join("");
+    html += '<div class="hint" style="margin-top:6px">这类标的因暂停申购，套利盘进不来，溢价才会长期存在。'
+      + '在场内买入相当于按溢价接盘，一旦开放申购或情绪退潮，溢价会快速收敛。</div>';
+  }
+
+  html += '<div class="hint" style="margin-top:12px">扫描 ' + (d.scanned || 0) + ' 只成交额达标的 LOF，'
+    + '更新于 ' + esc((d.updated || "").slice(11)) + '。成交额过小的标的未纳入（冲击成本过高）。</div>';
   $("main").innerHTML = html;
 }
 
