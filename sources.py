@@ -858,9 +858,14 @@ def fetch_cb_list(min_amount=100.0):
                 years = round((d - _dt.date.today()).days / 365.0, 2)
         except Exception:  # noqa: BLE001
             pass
+        coupons = _parse_coupons(x.get("INTEREST_RATE_EXPLAIN"))
+        redeem_px = _parse_redeem_price(x.get("REDEEM_CLAUSE"))
+        floor = bond_floor_value(coupons, redeem_px, years)
         out.append({
             "code": code,
             "name": x.get("SECURITY_NAME_ABBR") or "",
+            "bond_floor": floor,
+            "bond_premium": round((q["price"] / floor - 1) * 100, 2) if floor else None,
             "price": round(q["price"], 2),
             "change_pct": round(q["pct"], 2),
             "amount": round(q["amount"], 0),
@@ -881,47 +886,65 @@ def fetch_cb_list(min_amount=100.0):
 
 
 def score_cb(cb):
-    """可转债评分 0~100：价格 30 + 溢价 30 + 双低 20 + 评级 10 + 年限 5 + 流动 5，强赎扣分"""
+    """
+    可转债评分 0~100
+    价格 25 + 转股溢价 25 + 双低 15 + 债底保护 10 + 正股趋势 10 + 评级 10 + 年限 3 + 流动 2
+    """
     s = 0.0
     p = cb["price"]
     if p <= 105:
-        s += 30
+        s += 25
     elif p <= 115:
-        s += 24
+        s += 20
     elif p <= 125:
-        s += 16
+        s += 13
     elif p <= 140:
-        s += 8
+        s += 6
     prem = cb["premium"]
     if prem <= 5:
-        s += 30
+        s += 25
     elif prem <= 15:
-        s += 24
+        s += 20
     elif prem <= 30:
-        s += 16
+        s += 13
     elif prem <= 50:
-        s += 8
+        s += 6
     else:
         s += 2
     dl = cb["double_low"]
     if dl <= 130:
-        s += 20
+        s += 15
     elif dl <= 150:
-        s += 14
+        s += 10
     elif dl <= 170:
-        s += 8
+        s += 5
     else:
-        s += 2
+        s += 1
+    # 债底保护：离债底越远，下跌保护越弱
+    bp = cb.get("bond_premium")
+    if bp is None:
+        s += 4
+    elif bp <= 10:
+        s += 10
+    elif bp <= 25:
+        s += 7
+    elif bp <= 50:
+        s += 4
+    else:
+        s += 1
+    # 正股趋势
+    trend = ((cb.get("stock") or {}).get("trend") or "")
+    s += {"上升": 10, "震荡": 5, "下降": 1}.get(trend, 3)
     s += RATING_SCORE.get((cb.get("rating") or "").upper(), 4)
     y = cb.get("years")
     if y is not None:
-        s += 5 if y >= 2 else (3 if y >= 1 else 0)
+        s += 3 if y >= 2 else (2 if y >= 1 else 0)
     else:
-        s += 2
+        s += 1
     if cb["amount"] >= 5000:
-        s += 5
+        s += 2
     elif cb["amount"] >= 1000:
-        s += 3
+        s += 1
     s -= cb.get("penalty", 0)
     return round(max(0, min(100, s)), 1)
 
@@ -958,6 +981,21 @@ def build_cb_scan(min_amount=100.0, top=40):
         it["warnings"] = reasons
         it["score"] = score_cb(it)
 
+    # 先按基础分粗排，前 60 只补正股数据（控制请求量）
+    items.sort(key=lambda a: -a["score"])
+    enrich_n = min(60, len(items))
+    def _enrich(cb):
+        try:
+            ex = fetch_cb_extra(cb, 2 if cb in items[:top] else 1)
+            cb.update(ex)
+        except Exception:  # noqa: BLE001
+            cb["stock"] = {}
+        return cb
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        items[:enrich_n] = list(ex.map(_enrich, items[:enrich_n]))
+    # 补完正股后重算分数
+    for it in items[:enrich_n]:
+        it["score"] = score_cb(it)
     items.sort(key=lambda a: -a["score"])
     picked = items[:top]
 
@@ -982,3 +1020,227 @@ def build_cb_scan(min_amount=100.0, top=40):
         "scanned": len(items),
         "updated": datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
+
+
+# ================= 可转债增强：正股 + 债底 + 新闻 =================
+
+def _parse_coupons(text):
+    """从「第一年0.40%、第二年0.60%…」解析各年票息"""
+    if not text:
+        return []
+    nums = re.findall(r"第[一二三四五六七八九十]年\s*([\d.]+)\s*%", text)
+    if not nums:
+        nums = re.findall(r"([\d.]+)\s*%", text)
+    out = []
+    for x in nums:
+        try:
+            out.append(float(x) / 100)
+        except ValueError:
+            continue
+    return out
+
+
+def _parse_redeem_price(text, default=108.0):
+    """从赎回条款里解析到期赎回价（面值的百分比）"""
+    if not text:
+        return default
+    m = re.search(r"面值的\s*([\d.]+)\s*%", text)
+    if m:
+        try:
+            return float(m.group(1))
+        except ValueError:
+            pass
+    return default
+
+
+def bond_floor_value(coupons, redeem_price=108.0, years=None, discount=0.04):
+    """
+    纯债价值：未来票息 + 到期赎回价，按 discount 折现
+    这是债底，转债价格跌破它通常意味着信用风险被定价
+    """
+    if not coupons:
+        return None
+    n = int(round(years)) if years else len(coupons)
+    n = max(1, min(n, len(coupons)))
+    pv = 0.0
+    for i in range(n):
+        c = coupons[i] if i < len(coupons) else (coupons[-1] if coupons else 0)
+        pv += (100 * c) / ((1 + discount) ** (i + 1))
+    pv += redeem_price / ((1 + discount) ** n)
+    return round(pv, 2)
+
+
+def fetch_stock_brief(code, days=70):
+    """正股简报：近月走势 + 均线位置 + 量能（供转债 AI 判断用）"""
+    if not code or len(str(code)) != 6:
+        return {}
+    sym = ("sh" if str(code)[0] == "6" else "sz") + str(code)
+    try:
+        kl = fetch_kline(sym, days)
+    except Exception:  # noqa: BLE001
+        return {}
+    if len(kl) < 25:
+        return {}
+    closes = [x["close"] for x in kl]
+    vols = [x.get("volume") or 0 for x in kl]
+    now = closes[-1]
+    ma5 = sum(closes[-5:]) / 5
+    ma20 = sum(closes[-20:]) / 20
+    ma60 = sum(closes[-60:]) / 60 if len(closes) >= 60 else None
+
+    def _chg(n):
+        if len(closes) <= n or closes[-1 - n] <= 0:
+            return None
+        return round((now / closes[-1 - n] - 1) * 100, 2)
+
+    v5 = sum(vols[-5:]) / 5 if len(vols) >= 5 else 0
+    v20 = sum(vols[-20:]) / 20 if len(vols) >= 20 else 0
+    trend = "震荡"
+    if ma60 and now > ma20 > ma60:
+        trend = "上升"
+    elif ma60 and now < ma20 < ma60:
+        trend = "下降"
+    return {
+        "code": str(code),
+        "price": round(now, 2),
+        "chg5": _chg(5),
+        "chg20": _chg(20),
+        "chg60": _chg(60),
+        "ma5": round(ma5, 2),
+        "ma20": round(ma20, 2),
+        "above_ma20": now > ma20,
+        "vol_ratio": round(v5 / v20, 2) if v20 > 0 else None,
+        "trend": trend,
+        "from_high60": round((now / max(closes[-60:]) - 1) * 100, 2)
+                       if len(closes) >= 20 else None,
+    }
+
+
+def fetch_cb_extra(cb, news_limit=3):
+    """
+    为单只转债补充：正股走势 / 正股新闻 / 纯债价值
+    cb 需含 stock_code、price、years
+    """
+    out = {}
+    try:
+        out["stock"] = fetch_stock_brief(cb.get("stock_code"), 70)
+    except Exception:  # noqa: BLE001
+        out["stock"] = {}
+    try:
+        sc = str(cb.get("stock_code") or "")
+        if sc:
+            sym = ("sh" if sc[0] == "6" else "sz") + sc
+            nm = ""
+            q = fetch_quotes([sym]).get(sym) or {}
+            nm = q.get("name") or ""
+            ns = fetch_news_multi(sym, sc, nm, news_limit + 2)
+            out["news"] = (ns.get("items") or [])[:news_limit]
+            out["news_score"] = ns.get("score")
+            out["sources"] = ns.get("sources") or []
+    except Exception:  # noqa: BLE001
+        out["news"] = []
+    return out
+
+
+# ================= 事件数据：解禁 / 增减持 =================
+
+def fetch_lift_schedule(days=30, min_cap=10000):
+    """
+    未来 N 日限售解禁（LIFT_MARKET_CAP 单位：万元）
+    min_cap: 最小解禁市值（万元），过滤小额解禁
+    """
+    import datetime as _dt
+    today = _dt.date.today()
+    end = today + _dt.timedelta(days=days)
+    params = {
+        "reportName": "RPT_LIFT_STAGE", "columns": "ALL",
+        "pageNumber": "1", "pageSize": "100", "source": "WEB", "client": "WEB",
+        "filter": "(FREE_DATE>='%s')(FREE_DATE<='%s')" % (today.isoformat(), end.isoformat()),
+        "sortColumns": "FREE_DATE", "sortTypes": "1",
+    }
+    try:
+        r = requests.get(DC_URL, params=params,
+                         headers={**UA, "Referer": "https://data.eastmoney.com/"}, timeout=(5, 15))
+        data = ((r.json().get("result") or {}).get("data")) or []
+    except Exception as e:  # noqa: BLE001
+        log.debug("解禁数据失败: %s", e)
+        return []
+    out = []
+    for x in data:
+        try:
+            cap = float(x.get("LIFT_MARKET_CAP") or 0)
+        except (TypeError, ValueError):
+            continue
+        if cap < min_cap:
+            continue
+        try:
+            shares = float(x.get("CURRENT_FREE_SHARES") or 0)
+        except (TypeError, ValueError):
+            shares = 0
+        out.append({
+            "code": str(x.get("SECURITY_CODE") or ""),
+            "date": (x.get("FREE_DATE") or "")[:10],
+            "shares": round(shares, 2),          # 万股
+            "cap": round(cap / 10000, 2),        # 亿元
+            "type": x.get("FREE_SHARES_TYPE") or "",
+            "holders": x.get("BATCH_HOLDER_NUM") or 0,
+        })
+    out.sort(key=lambda a: a["date"])
+    return out
+
+
+def fetch_holder_changes(days=7, min_rate=0.3):
+    """
+    近 N 日股东增减持（CHANGE_NUM_SYMBOL 负=减持，正=增持）
+    min_rate: 最小变动比例（占总股本 %）
+    """
+    import datetime as _dt
+    begin = (_dt.date.today() - _dt.timedelta(days=days)).isoformat()
+    params = {
+        "reportName": "RPT_SHARE_HOLDER_INCREASE", "columns": "ALL",
+        "pageNumber": "1", "pageSize": "100", "source": "WEB", "client": "WEB",
+        "filter": "(NOTICE_DATE>='%s')" % begin,
+        "sortColumns": "NOTICE_DATE", "sortTypes": "-1",
+    }
+    try:
+        r = requests.get(DC_URL, params=params,
+                         headers={**UA, "Referer": "https://data.eastmoney.com/"},
+                         timeout=(5, 15))
+        data = ((r.json().get("result") or {}).get("data")) or []
+    except Exception as e:  # noqa: BLE001
+        log.debug("增减持数据失败: %s", e)
+        return []
+    out = []
+    for x in data:
+        try:
+            rate = abs(float(x.get("CHANGE_RATE") or 0))
+        except (TypeError, ValueError):
+            continue
+        if rate < min_rate:
+            continue
+        raw = str(x.get("CHANGE_NUM_SYMBOL") or x.get("CHANGE_NUM") or "")
+        try:
+            num = float(raw)
+        except (TypeError, ValueError):
+            num = 0.0
+        # CHANGE_RATE 是「占其自身持股」的比例，需换算成占总股本的变化幅度
+        after = float(x.get("AFTER_CHANGE_RATE") or 0)
+        if num < 0 and rate < 100:
+            before = after / (1 - rate / 100.0)
+        elif num > 0:
+            before = after / (1 + rate / 100.0)
+        else:
+            before = after
+        delta = round(after - before, 3)
+        out.append({
+            "code": str(x.get("SECURITY_CODE") or ""),
+            "date": (x.get("NOTICE_DATE") or "")[:10],
+            "holder": (x.get("HOLDER_NAME") or "")[:18],
+            "num": round(num, 2),                # 万股，负=减持
+            "rate": round(rate, 2),              # 占其自身持股 %
+            "after": round(after, 2),            # 变动后占总股本 %
+            "delta": delta,                      # 占总股本变化（负=减持）
+            "dir": "增持" if num > 0 else "减持",
+        })
+    out.sort(key=lambda a: (-abs(a["delta"]), a["date"]))
+    return out
