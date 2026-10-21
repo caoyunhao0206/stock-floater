@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: stock-floater
+    env: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /api/state
+    autoDeploy: true
+    envVars:
+      - key: TZ
+        value: Asia/Shanghai
