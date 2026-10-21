@@ -1421,8 +1421,8 @@ function rankRows(list, isAmount){
 /* 自选 */
 function eventBlocks(){
   var ev = DATA.events || {};
-  var lift = ev.lift || [], hold = ev.holder || [];
-  if(!lift.length && !hold.length) return "";
+  var lift = ev.lift || [], hold = ev.holder || [], pl = ev.pledge || [];
+  if(!lift.length && !hold.length && !pl.length) return "";
 
   var h = '';
   if(lift.length){
@@ -1454,6 +1454,21 @@ function eventBlocks(){
     h += '<div class="hint" style="margin-top:6px">数值为「占总股本」的变动幅度；'
       + '大股东减持 1% 以上需要公告，连续减持值得警惕，增持则多为信心信号。</div></div>';
   }
+  if(pl.length){
+    h += '<div class="rank"><h4>高质押风险 <span style="font-size:9px;color:var(--sub2);font-weight:400">质押比例 ≥ 30%</span></h4>';
+    h += pl.slice(0, 10).map(function(x){
+      var col = x.ratio >= 60 ? "up" : "";
+      return '<div class="evRow">'
+        + '<span class="evDate">' + esc(x.code) + '</span>'
+        + '<span class="evName" style="width:66px">' + esc(x.name) + '</span>'
+        + '<span class="evType">' + esc(x.industry || "") + ' · ' + fmt(x.balance, 1) + '亿</span>'
+        + '<span class="evVal ' + col + '">' + fmt(x.ratio, 1) + '%</span>'
+        + '</div>';
+    }).join("");
+    h += '<div class="hint" style="margin-top:6px">质押比例越高，股价下跌时大股东越容易被强制平仓，'
+      + '是暴雷的先行指标。数据来自中登，季度更新（有滞后）。</div></div>';
+  }
+
   return h;
 }
 
