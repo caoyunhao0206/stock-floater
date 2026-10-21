@@ -219,7 +219,9 @@ def push_all(data, reco):
 
     # 4. 每日复盘（15:30 后，每天一次）
     now = datetime.now(timezone(timedelta(hours=8)))
-    if now.hour >= 15 and st.get("last_daily") != today:
+    mins = now.hour * 60 + now.minute
+    # 14:45 之后的第一轮视为尾盘复盘（15:00 收盘价与 14:45 差异极小）
+    if mins >= 14 * 60 + 45 and st.get("last_daily") != today:
         ms = data.get("market", {}).get("stats", {})
         bt = data.get("backtest", {}).get("strategy") or {}
         body = ("大盘：涨 %s / 跌 %s，涨停 %s 家，成交 %.2f 万亿\n"
@@ -229,7 +231,7 @@ def push_all(data, reco):
             (ms.get("amount") or 0) / 10000, len(recs),
             len([r for r in recs if r.get("grade") in ("A+", "A")]),
             bt.get("horizon", 10), bt.get("win_rate", "-"), bt.get("rr", "-"))
-        if wechat_send("【收盘复盘】" + today, body):
+        if wechat_send("【尾盘复盘】" + today, body):
             st["last_daily"] = today
             mark("daily")
             sent += 1
