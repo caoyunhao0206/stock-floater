@@ -247,12 +247,40 @@ footer button{height:34px;border-radius:10px;border:1px solid var(--line);color:
   font-weight:600;font-size:12.5px;width:100%}
 .err{color:var(--up);font-size:10.5px;min-height:13px}
 
+/* 锁屏 */
+#lock{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(700px 500px at 50% 30%,#16283c,#070b11 70%);padding:24px}
+#lock.hide{display:none}
+.lockBox{width:100%;max-width:300px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.lockIcon{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;
+  background:linear-gradient(140deg,#4c8dff,#a78bfa);box-shadow:0 10px 30px rgba(76,141,255,.4)}
+.lockIcon svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lockTitle{font-size:16px;font-weight:700;letter-spacing:.5px}
+.lockSub{font-size:11px;color:var(--sub);margin-top:-8px}
+.lockBox input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:12px;
+  color:var(--txt);padding:12px 14px;font:inherit;text-align:center;letter-spacing:3px;outline:none}
+.lockBox input:focus{border-color:var(--accent)}
+.lockBox button{width:100%;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,#4c8dff,#6f7bff);color:#fff;font-weight:600;font-size:13px}
+.lockErr{font-size:10.5px;color:var(--up);min-height:14px;text-align:center}
+
 /* 动效 */
 .rc,.wCard,.mCard,.rank{animation:rise .32s cubic-bezier(.22,.9,.3,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
+<div id="lock">
+  <div class="lockBox">
+    <div class="lockIcon"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+    <div class="lockTitle">A股盯盘助手</div>
+    <div class="lockSub">请输入访问密码</div>
+    <input id="lockInput" type="password" inputmode="numeric" maxlength="12" placeholder="••••">
+    <button id="lockBtn">进入</button>
+    <div class="lockErr" id="lockErr"></div>
+  </div>
+</div>
+
 <div id="app">
   <header>
     <div class="hTop">
@@ -718,8 +746,44 @@ function renderWatch(){
 
 /* ---------------- 实时行情（可选代理） ---------------- */
 var rtTimer = null, rtOk = false, rtLast = 0;
+var DEFAULT_PROXY = "https://shiny-dawn-0799.1214074368.workers.dev";
 
-function rtProxy(){ return localStorage.getItem("sf_proxy") || ""; }
+function rtProxy(){
+  var v = localStorage.getItem("sf_proxy");
+  if(v === null) return DEFAULT_PROXY;   // 未设置过 -> 用默认
+  return v;                              // 空字符串 = 用户主动关闭
+}
+
+/* ---------- 访问密码（前端门禁） ---------- */
+var PASS_CODE = "8888";                  // 想改密码，改这里
+var PASS_KEY = "sf_auth_v1";
+
+function passHash(s){
+  var h = 5381;
+  for(var i=0;i<s.length;i++){ h = ((h<<5) + h + s.charCodeAt(i)) >>> 0; }
+  return "h" + h.toString(36);
+}
+function isAuthed(){
+  try{ return localStorage.getItem(PASS_KEY) === passHash(PASS_CODE); }catch(e){ return false; }
+}
+function initLock(){
+  if(isAuthed()){ $("lock").classList.add("hide"); return; }
+  $("lockInput").focus();
+  function submit(){
+    var v = $("lockInput").value.trim();
+    if(v === PASS_CODE){
+      try{ localStorage.setItem(PASS_KEY, passHash(PASS_CODE)); }catch(e){}
+      $("lock").classList.add("hide");
+      $("lockErr").textContent = "";
+      rtStart(); loadData();
+    }else{
+      $("lockErr").textContent = "密码不对，再试一次";
+      $("lockInput").value = "";
+    }
+  }
+  $("lockBtn").onclick = submit;
+  $("lockInput").addEventListener("keydown", function(e){ if(e.key === "Enter") submit(); });
+}
 
 function rtSymbols(){
   var map = {};
@@ -930,12 +994,33 @@ Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function
 Array.prototype.forEach.call(document.querySelectorAll(".mask"), function(m){
   m.addEventListener("click", function(e){ if(e.target === m) m.classList.remove("show"); });
 });
-$("btnRefresh").onclick = loadData;
+$("btnRefresh").onclick = function(){
+  var b = this;
+  b.textContent = "刷新中…";
+  b.disabled = true;
+  var before = DATA ? DATA.updated_ts : 0;
+  fetch("data/all.json?_=" + Date.now(), {cache:"no-store"})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      DATA = d;
+      renderPulse(); render();
+      if(d.updated_ts === before){
+        $("pTime").textContent = "数据未更新 · 仍是 " + fmtFull(d.updated_ts) + "（GitHub 定时任务约 5 分钟一轮，可能延迟）";
+      }else{
+        $("pTime").textContent = "已更新到 " + fmtFull(d.updated_ts);
+      }
+      b.textContent = "刷新"; b.disabled = false;
+    })
+    .catch(function(){ b.textContent = "刷新"; b.disabled = false; });
+};
 
-loadData();
-setInterval(loadData, 60000);
-rtStart();
-setInterval(setRtStatus, 3000);
+initLock();
+if(isAuthed()){
+  loadData();
+  setInterval(loadData, 60000);
+  rtStart();
+  setInterval(setRtStatus, 3000);
+}
 })();
 </script>
 </body>
