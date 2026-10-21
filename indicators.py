@@ -293,8 +293,163 @@ def compute_all(kl, quote=None, index_closes=None):
         out["volatility"] = round(v, 1) if v is not None else None
         out["streak"] = streak(closes)
         out["vp_div"] = vol_price_divergence(kl)
+        out["ma_slope20"] = round(ma_slope(closes, 20, 5), 2) if ma_slope(closes, 20, 5) is not None else None
+        out["boll_width"] = round(boll_width(closes), 2) if boll_width(closes) is not None else None
+        out["vol_price_corr"] = round(vol_price_corr(kl), 3) if vol_price_corr(kl) is not None else None
+        out["limit_up60"] = limit_up_count(kl, 60)
+        out["up_ratio20"] = round(up_days_ratio(closes), 1) if up_days_ratio(closes) is not None else None
+        out["max_dd60"] = max_drawdown(closes, 60)
         if len(closes) >= 21:
             out["ma_slope20"] = round((sma(closes, 20) or 0) / (sum(closes[-25:-5]) / 20 + 1e-9) * 100 - 100, 2)
+        ind_tmp = {"ma5": sma(closes, 5), "ma20": sma(closes, 20)}
+        out["patterns"] = [{"name": a, "dir": b, "desc": c}
+                           for a, b, c in detect_patterns(kl, ind_tmp, quote)]
     except Exception:  # noqa: BLE001
         pass
+    return out
+
+
+# ================= 扩展指标 V2：形态、股性、量价结构 =================
+
+def ma_slope(closes, n=20, lookback=5):
+    """均线斜率（%）"""
+    if len(closes) < n + lookback:
+        return None
+    now = sum(closes[-n:]) / n
+    prev = sum(closes[-n - lookback:-lookback]) / n
+    if prev == 0:
+        return None
+    return (now / prev - 1) * 100
+
+
+def boll_width(closes, n=20):
+    """布林带宽：越窄越可能变盘"""
+    if len(closes) < n:
+        return None
+    seg = closes[-n:]
+    mid = sum(seg) / n
+    var = sum((x - mid) ** 2 for x in seg) / n
+    std = math.sqrt(var)
+    if mid == 0:
+        return None
+    return std * 4 / mid * 100
+
+
+def vol_price_corr(kl, n=20):
+    """量价相关系数（-1~1）"""
+    if len(kl) < n:
+        return None
+    seg = kl[-n:]
+    xs = [i["close"] for i in seg]
+    ys = [i["volume"] for i in seg]
+    mx = sum(xs) / n
+    my = sum(ys) / n
+    cov = sum((xs[i] - mx) * (ys[i] - my) for i in range(n)) / n
+    vx = math.sqrt(sum((x - mx) ** 2 for x in xs) / n)
+    vy = math.sqrt(sum((y - my) ** 2 for y in ys) / n)
+    if vx == 0 or vy == 0:
+        return None
+    return cov / (vx * vy)
+
+
+def limit_up_count(kl, n=60):
+    """近 N 日涨停次数（按价格涨幅判断，兼容 10%/20%）"""
+    if len(kl) < 2:
+        return 0
+    seg = kl[-n:] if len(kl) > n else kl
+    cnt = 0
+    for i in range(1, len(seg)):
+        prev = seg[i - 1]["close"]
+        if prev <= 0:
+            continue
+        chg = (seg[i]["close"] / prev - 1) * 100
+        if chg >= 9.5:
+            cnt += 1
+    return cnt
+
+
+def up_days_ratio(closes, n=20):
+    """近 N 日上涨天数占比"""
+    if len(closes) < n + 1:
+        return None
+    up = sum(1 for i in range(len(closes) - n, len(closes)) if closes[i] > closes[i - 1])
+    return up / n * 100
+
+
+def max_drawdown(closes, n=60):
+    """近 N 日最大回撤（%）"""
+    if len(closes) < 5:
+        return None
+    seg = closes[-n:] if len(closes) > n else closes
+    peak = seg[0]
+    mdd = 0.0
+    for v in seg:
+        if v > peak:
+            peak = v
+        if peak > 0:
+            mdd = min(mdd, (v / peak - 1) * 100)
+    return round(mdd, 2)
+
+
+def detect_patterns(kl, ind, quote=None):
+    """
+    形态识别，返回 [(标签, 方向, 说明)]
+    方向: 1 偏多 / -1 偏空 / 0 中性
+    """
+    out = []
+    if len(kl) < 25:
+        return out
+    closes = [x["close"] for x in kl]
+    vols = [x["volume"] for x in kl]
+    price = closes[-1]
+    ma5, ma20 = ind.get("ma5"), ind.get("ma20")
+    v20 = sum(vols[-20:]) / 20 if vols else 0
+    v5 = sum(vols[-5:]) / 5 if vols else 0
+    hi20 = max(x["high"] for x in kl[-20:])
+    lo20 = min(x["low"] for x in kl[-20:])
+
+    # 1. 突破 20 日新高（放量）
+    if price >= hi20 * 0.997 and v5 > v20 * 1.2:
+        out.append(("突破新高", 1, "放量突破 20 日高点"))
+
+    # 2. 回踩 MA20（趋势未破）
+    if ma20 and abs(price / ma20 - 1) <= 0.02:
+        sl = ma_slope(closes, 20, 5)
+        if sl and sl > 0:
+            out.append(("回踩均线", 1, "贴近 MA20 且均线向上"))
+
+    # 3. 缩量整理
+    if v5 and v20 and v5 < v20 * 0.72:
+        rng = (max(closes[-5:]) - min(closes[-5:])) / price * 100 if price else 99
+        if rng < 6:
+            out.append(("缩量整理", 0, "量能萎缩、振幅收窄，等待方向"))
+
+    # 4. 放量滞涨
+    vr = (quote or {}).get("volume_ratio")
+    chg = (quote or {}).get("change_pct") or 0
+    if vr and vr > 2 and abs(chg) < 1.2:
+        out.append(("放量滞涨", -1, "量能放大但价格没跟上，警惕出货"))
+
+    # 5. 加速上涨
+    if len(closes) >= 4:
+        r1 = closes[-1] / closes[-2] - 1
+        r2 = closes[-2] / closes[-3] - 1
+        r3 = closes[-3] / closes[-4] - 1
+        if r1 > r2 > r3 and r1 > 0.01 and (closes[-1] / closes[-4] - 1) > 0.06:
+            out.append(("加速上涨", 1, "涨幅逐日扩大，短线强势"))
+
+    # 6. 高位放量长上影（回落风险）
+    last = kl[-1]
+    body = abs(last["close"] - last["open"])
+    upper = last["high"] - max(last["close"], last["open"])
+    rng_all = last["high"] - last["low"]
+    if rng_all > 0 and upper > body * 2 and upper / rng_all > 0.55 and v5 > v20 * 1.3:
+        out.append(("长上影", -1, "放量冲高回落，上方抛压重"))
+
+    # 7. 底部放量反弹
+    if len(closes) >= 6:
+        drop = closes[-6] / closes[-3] - 1 if closes[-3] else 0
+        if drop < -0.05 and v5 > v20 * 1.25 and closes[-1] > closes[-2]:
+            out.append(("超跌反弹", 1, "急跌后放量止跌"))
+
     return out
