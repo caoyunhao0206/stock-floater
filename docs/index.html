@@ -1055,20 +1055,34 @@ $("btnSaveRT").onclick = function(){
   rtStart();
 };
 $("btnTestRT").onclick = function(){
+  var el = $("rtErr");
   var v = $("rtProxy").value.trim().replace(/\/+$/, "");
-  if(!v){ $("rtErr").textContent = "请先填代理地址"; return; }
-  $("rtErr").textContent = "测试中…";
-  var target = "https://qt.gtimg.cn/q=sh000001";
-  var url = v + (v.indexOf("?") >= 0 ? "&" : "?") + "url=" + encodeURIComponent(target);
-  fetch(url, {cache:"no-store"}).then(function(r){ return r.text(); }).then(function(t){
-    if(t && t.indexOf("v_sh000001") >= 0){
-      $("rtErr").textContent = "连接成功，可以保存";
-      $("rtErr").style.color = "var(--down)";
+  el.style.color = "";
+  el.textContent = "测试直连…";
+  function probe(url){
+    return fetch(url, {cache:"no-store", mode:"cors"}).then(function(r){
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return r.arrayBuffer();
+    }).then(function(b){ return rtDecode(b); });
+  }
+  probe(RT_DIRECT + "sh000001,sh600519").then(function(t){
+    var cnt = (t.match(/v_(sh|sz)\d{6}=/g) || []).length;
+    if(cnt > 0){
+      el.textContent = "直连正常，取到 " + cnt + " 只行情，无需代理";
+      el.style.color = "var(--down)";
     }else{
-      $("rtErr").textContent = "返回内容异常，检查代理代码";
-      $("rtErr").style.color = "";
+      throw new Error("no data");
     }
-  }).catch(function(){ $("rtErr").textContent = "连接失败，检查地址"; $("rtErr").style.color = ""; });
+  }).catch(function(){
+    if(!v){ el.textContent = "直连失败：你所在网络可能访问不了腾讯行情，可填代理地址重试"; return; }
+    el.textContent = "直连失败，正在测代理…";
+    probe(v + (v.indexOf("?") >= 0 ? "&" : "?") + "url=" + encodeURIComponent("https://qt.gtimg.cn/q=sh000001"))
+      .then(function(t){
+        if(t.indexOf("v_sh000001") >= 0){ el.textContent = "代理可用（直连不通，将自动走代理）"; el.style.color = "var(--down)"; }
+        else { el.textContent = "代理返回异常，检查 Worker 代码"; }
+      })
+      .catch(function(){ el.textContent = "直连和代理都失败，请检查网络"; });
+  });
 };
 
 $("btnAdd").onclick = function(){ openWatch(null); };
