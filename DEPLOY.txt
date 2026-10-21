@@ -1,0 +1,123 @@
+盯盘小助手 · 部署说明
+================================================
+
+三种运行方式，按稳定性从高到低：
+
+------------------------------------------------
+方式一：本地运行（最稳，推荐日常用）
+------------------------------------------------
+1. 安装 Python 3.9+（python.org 下载，安装时勾选 Add to PATH）
+2. 双击 stock-floater\start.bat
+   macOS / Linux：终端执行 bash start.sh
+3. 首次会自动装依赖，随后弹出置顶悬浮小窗
+4. 数据全部在你本机，不依赖任何外部服务，断网也能看已缓存的数据
+
+优点：稳定、快、隐私
+缺点：只能本机看，换设备访问不了
+
+------------------------------------------------
+方式二：Render 免费云部署（固定网址，7x24）
+------------------------------------------------
+前置：一个 GitHub 账号（免费注册 github.com）+ 一个 Render 账号
+     （render.com，用 GitHub 登录即可，不需要信用卡）
+
+步骤：
+1. 在 GitHub 新建一个仓库（Private 也行），
+   把 stock-floater 目录里的文件全部上传：
+   app.py sources.py engine.py indicators.py market.py
+   recommender.py ai.py pushers.py
+   static/ Dockerfile render.yaml requirements-server.txt .dockerignore
+
+   命令行方式（在 stock-floater 目录下执行）：
+     git init
+     git add .
+     git commit -m "init"
+     git branch -M main
+     git remote add origin https://github.com/你的用户名/stock-floater.git
+     git push -u origin main
+
+2. 打开 https://dashboard.render.com → New → Blueprint
+3. 选择刚才的仓库，Render 会自动读取 render.yaml
+4. 点 Apply，等待 3-5 分钟构建
+5. 完成后得到一个固定网址：https://stock-floater-xxxx.onrender.com
+   这个地址长期不变，直接打开就是完整应用（含推荐、全市场、AI）
+
+注意：
+- 免费层 15 分钟无访问会休眠，下次打开需 30-60 秒唤醒（页面会先白屏，等一会）
+- 免费层磁盘是临时的，重新部署后自选股配置会清空（设置里的 Key 也会丢，建议部署后用环境变量或每次重填）
+- 需要固定不休眠可升级 Render 付费层（约 $7/月），或用自己的服务器
+
+------------------------------------------------
+方式三：自己的云服务器（最可控）
+------------------------------------------------
+以 Ubuntu 22.04 为例：
+
+  # 1. 装依赖
+  apt update && apt install -y python3 python3-pip python3-venv nginx
+
+  # 2. 上传 stock-floater 目录到 /opt/stock-floater
+  cd /opt/stock-floater
+  python3 -m venv venv
+  ./venv/bin/pip install -r requirements-server.txt
+
+  # 3. 注册为 systemd 服务（开机自启、崩溃自动重启）
+  cat > /etc/systemd/system/stock-floater.service <<'EOF'
+  [Unit]
+  Description=Stock Floater
+  After=network.target
+
+  [Service]
+  WorkingDirectory=/opt/stock-floater
+  ExecStart=/opt/stock-floater/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8777
+  Restart=always
+  RestartSec=3
+  Environment=TZ=Asia/Shanghai
+
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+
+  systemctl daemon-reload
+  systemctl enable --now stock-floater
+
+  # 4. Nginx 反代 + HTTPS（可选但推荐）
+  #    /etc/nginx/sites-available/stock-floater:
+  #    server {
+  #        listen 80;
+  #        server_name 你的域名;
+  #        location / {
+  #            proxy_pass http://127.0.0.1:8777;
+  #            proxy_http_version 1.1;
+  #            proxy_set_header Host $host;
+  #            proxy_buffering off;   # SSE 实时推送需要
+  #        }
+  #    }
+  #    ln -s /etc/nginx/sites-available/stock-floater /etc/nginx/sites-enabled/
+  #    nginx -t && systemctl reload nginx
+  #    certbot --nginx -d 你的域名    # 自动签发 HTTPS
+
+------------------------------------------------
+数据文件说明
+------------------------------------------------
+data.json    自选股、设置、AI Key、信号历史（自动生成）
+              备份它即可迁移全部配置
+published.html  可分享的静态入口页（API 地址写在文件顶部）
+static/index.html  前端页面（同源访问时 API_BASE 留空即可）
+
+------------------------------------------------
+常见问题
+------------------------------------------------
+Q: 页面打开空白 / 没有数据？
+A: 点右上角「链接」图标，把当前可用的服务地址填进去再保存。
+   如果用的是 Render/自己的服务器，一般不需要改。
+
+Q: 推荐榜一直是"正在计算"？
+A: 首次启动需要 40-90 秒（全市场扫描 + 深度分析），刷新页面即可。
+
+Q: AI 复评没有结果？
+A: 设置里检查 Base URL / Key / 模型名，点"测试 AI 连接"看具体报错。
+   DeepSeek 填 https://api.deepseek.com/v1 ，模型 deepseek-chat。
+
+Q: 微信推送没收到？
+A: 点"发送测试推送"，按返回的报错排查。Server酱免费额度每天有限，
+   信号多时可能被限流，可换 PushPlus。
