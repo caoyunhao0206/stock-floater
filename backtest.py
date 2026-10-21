@@ -226,3 +226,100 @@ def backtest_stops(kl, horizon=10, threshold=65, tp=0.10, sl=0.05):
             got = (kl[i + horizon]["close"] / buy - 1) * 100
         rets.append(got)
     return rets
+
+
+def equity_curve(bt_recs, horizon=5, threshold=65, max_points=120):
+    """
+    简化组合净值：每天等权买入当日所有信号，持有 horizon 个交易日
+    返回 {dates:[], nav:[], bench:[], stat:{}}
+    """
+    # 1. 收集信号与价格序列
+    signals = {}          # date -> [code]
+    prices = {}           # code -> {date: close}
+    for rec in bt_recs:
+        kl = rec.get("_kl") or []
+        code = rec.get("code")
+        if len(kl) < 80 or not code:
+            continue
+        prices[code] = {x["date"]: x["close"] for x in kl}
+        for i in range(65, len(kl) - 1):
+            if quick_score(kl[:i + 1]) >= threshold:
+                signals.setdefault(kl[i]["date"], []).append(code)
+
+    if not signals or not prices:
+        return None
+
+    # 2. 日期轴（用出现最多的股票日期集合）
+    all_dates = sorted({d for p in prices.values() for d in p})
+    if len(all_dates) < 30:
+        return None
+    dates = all_dates[-max_points:] if len(all_dates) > max_points else all_dates
+
+    # 3. 逐日模拟
+    nav = [1.0]
+    daily_ret = []
+    holdings = []         # [(code, signal_idx)]
+    for i in range(1, len(all_dates)):
+        d, dprev = all_dates[i], all_dates[i - 1]
+        # 当日新信号入场
+        held = {c for c, _ in holdings}
+        for c in signals.get(dprev, []):
+            if c not in held:
+                holdings.append((c, i - 1))
+        # 到期离场
+        holdings = [(c, s) for (c, s) in holdings if i - s <= horizon]
+        rets = []
+        for c, _ in holdings:
+            p0, p1 = prices[c].get(dprev), prices[c].get(d)
+            if p0 and p1 and p0 > 0:
+                rets.append(p1 / p0 - 1)
+        r = sum(rets) / len(rets) if rets else 0.0
+        daily_ret.append(r)
+        nav.append(nav[-1] * (1 + r))
+
+    # 3b. 基准：等权全样本
+    bench = [1.0]
+    for i in range(1, len(all_dates)):
+        d, dprev = all_dates[i], all_dates[i - 1]
+        rr = []
+        for c, p in prices.items():
+            p0, p1 = p.get(dprev), p.get(d)
+            if p0 and p1 and p0 > 0:
+                rr.append(p1 / p0 - 1)
+        avg_b = (sum(rr) / len(rr)) if rr else 0.0
+        bench.append(bench[-1] * (1 + avg_b))
+
+    # 4. 截取展示区间
+    lo = len(all_dates) - len(dates)
+    out_dates = all_dates[lo:]
+    base_nav = nav[lo] or 1.0
+    base_bench = bench[lo] or 1.0
+    out_nav = [v / base_nav for v in nav[lo:]]
+    out_bench = [v / base_bench for v in bench[lo:]]
+
+    # 5. 统计
+    total = out_nav[-1] - 1
+    bench_total = out_bench[-1] - 1
+    peak, mdd = 1.0, 0.0
+    for v in out_nav:
+        peak = max(peak, v)
+        mdd = min(mdd, v / peak - 1)
+    dr = daily_ret[lo - 1:] if lo > 0 else daily_ret
+    mean = sum(dr) / len(dr) if dr else 0
+    var = sum((x - mean) ** 2 for x in dr) / len(dr) if dr else 0
+    std = var ** 0.5
+    sharpe = (mean / std * (252 ** 0.5)) if std > 0 else 0
+
+    return {
+        "dates": out_dates,
+        "nav": [round(v, 4) for v in out_nav],
+        "bench": [round(v, 4) for v in out_bench],
+        "stat": {
+            "total": round(total * 100, 2),
+            "bench": round(bench_total * 100, 2),
+            "excess": round((total - bench_total) * 100, 2),
+            "mdd": round(mdd * 100, 2),
+            "sharpe": round(sharpe, 2),
+            "days": len(out_dates),
+        },
+    }
