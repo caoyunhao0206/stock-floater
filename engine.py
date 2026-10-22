@@ -620,6 +620,7 @@ def build_advice(quote, kl, flows, news_items, cost=0.0, shares=0,
     return {
         "action": action,
         "action_label": ACTION_LABEL[action],
+        "price": price,
         "score": round(total, 1),
         "score100": sc["total"],
         "grade": sc["grade"],
@@ -727,3 +728,137 @@ def build_signals(code, name, advice, quote, last_action):
             "body": "；".join(advice["news_neg"][:2]) or "新闻情绪偏冷",
         })
     return sigs
+
+
+# ================= 持仓视角建议 =================
+
+POSITION_LABEL = {
+    "hold": "继续持有",
+    "add": "逢低加仓",
+    "reduce": "分批减仓",
+    "sell": "止损离场",
+    "take": "分批止盈",
+    "watch": "持有观察",
+}
+
+
+def position_advice(adv, cost, shares):
+    """
+    在技术面建议之上叠加成本与盈亏，给出「继续持有 / 减仓 / 卖出」的明确结论
+    adv: build_advice 的返回值；cost/shares: 持仓成本与股数（<=0 表示未持仓）
+    """
+    price = float(adv.get("price") or 0)
+    if price <= 0:
+        cl = adv.get("closes") or []
+        price = float(cl[-1]) if cl else 0.0
+    score = float(adv.get("score100") or 0)
+    tech = adv.get("action") or "hold"
+    support = adv.get("support") or 0
+    pressure = adv.get("pressure") or 0
+    a_stop = adv.get("stop_loss") or 0
+    a_tp = adv.get("take_profit") or 0
+
+    has_pos = bool(cost and cost > 0 and shares and shares > 0)
+    pnl_pct = ((price / cost - 1) * 100) if has_pos and cost > 0 else None
+    pnl_amt = ((price - cost) * shares) if has_pos else None
+
+    # 止损：技术位 / 成本位 / 盈利后的移动止损，取最靠上的（最先触发）
+    cand = []
+    if a_stop and 0 < a_stop < price:
+        cand.append(a_stop)
+    if has_pos:
+        cand.append(cost * 0.92)                 # 成本下方 8%
+        if pnl_pct is not None and pnl_pct >= 5:
+            cand.append(cost * 1.005)            # 盈利后保本
+        if pnl_pct is not None and pnl_pct >= 15:
+            cand.append(cost * 1.06)             # 锁定 6% 利润
+    stop = max(cand) if cand else price * 0.93
+    stop = max(min(stop, price * 0.97), price * 0.85)   # 限制在 -3% ~ -15%
+
+    # 止盈：技术目标 / 压力位 / 成本+20%，取最远的（目标价），但限制合理区间
+    cand2 = [price * 1.10]
+    if a_tp and a_tp > price:
+        cand2.append(a_tp)
+    if pressure and pressure > price:
+        cand2.append(pressure)
+    # 只有已盈利时才把「成本+20%」当目标；深套时按技术位定，不画遥不可及的饼
+    if has_pos and pnl_pct is not None and pnl_pct >= 0:
+        cand2.append(cost * 1.20)
+    tp = max(cand2)
+    # 持仓建议的止盈要可执行：最多 +20%，深套时优先给到解套价附近
+    cap = price * (1.20 if has_pos else 1.15)
+    tp = min(tp, cap)
+    if has_pos and pnl_pct is not None and pnl_pct <= -8:
+        tp = min(tp, max(price * 1.12, cost * 1.02))
+    tp = max(tp, price * 1.04)
+
+    verdict, detail, urgency = "watch", [], "normal"
+
+    if not has_pos:
+        if score >= 70:
+            verdict, urgency = "add", "opportunity"
+            detail.append("评分 %.0f 分，技术面偏强，可考虑建仓" % score)
+        elif score >= 55:
+            verdict = "watch"
+            detail.append("评分 %.0f 分，中性偏强，等回调到支撑位再看" % score)
+        else:
+            verdict = "watch"
+            detail.append("评分 %.0f 分，技术面偏弱，暂不建议建仓" % score)
+    else:
+        # 持仓状态
+        if pnl_pct is not None and pnl_pct <= -10 and score < 45:
+            verdict, urgency = "sell", "high"
+            detail.append("浮亏 %.1f%% 且评分仅 %.0f 分，技术面已走坏，建议止损离场" % (pnl_pct, score))
+        elif pnl_pct is not None and pnl_pct <= -10 and score >= 55:
+            verdict = "hold"
+            detail.append("浮亏 %.1f%%，但评分 %.0f 分，技术面尚未破坏，可持有等待修复" % (pnl_pct, score))
+        elif pnl_pct is not None and pnl_pct <= -5 and score < 50:
+            verdict = "reduce"
+            detail.append("浮亏 %.1f%% 且评分 %.0f 分偏低，建议先减仓控制风险" % (pnl_pct, score))
+        elif pnl_pct is not None and pnl_pct >= 25 and score < 55:
+            verdict, urgency = "take", "high"
+            detail.append("已盈利 %.1f%%，但评分降到 %.0f 分，建议分批止盈锁定收益" % (pnl_pct, score))
+        elif pnl_pct is not None and pnl_pct >= 15 and score < 50:
+            verdict = "take"
+            detail.append("盈利 %.1f%%、评分 %.0f 分，动能减弱，可部分止盈" % (pnl_pct, score))
+        elif score >= 70:
+            verdict = "hold"
+            detail.append("评分 %.0f 分，趋势与量能配合，可继续持有" % score)
+        elif score >= 55:
+            verdict = "hold"
+            detail.append("评分 %.0f 分，中性偏强，持有为主" % score)
+        elif score >= 45:
+            verdict = "reduce"
+            detail.append("评分 %.0f 分，动能不足，建议逢高减仓" % score)
+        else:
+            verdict = "sell"
+            detail.append("评分仅 %.0f 分，多项指标转弱，建议卖出" % score)
+
+    # 深套且技术面中性：给出解套路径
+    if has_pos and pnl_pct is not None and pnl_pct <= -8 and verdict in ("hold", "watch"):
+        detail.append("反弹至 %.2f（成本 %.0f%%）附近可先减一半，降低持仓压力" % (cost * 0.95, 95))
+
+    # 技术面补充
+    if tech in ("sell", "reduce") and verdict == "hold":
+        detail.append("技术面提示%s，需留意" % ACTION_LABEL.get(tech, "走弱"))
+    if tech in ("buy", "add") and verdict in ("sell", "reduce"):
+        detail.append("技术面仍有支撑，可等反弹再减")
+
+    # 距离提示
+    if price and stop:
+        detail.append("止损位 %.2f（距现价 %.1f%%）" % (stop, (stop / price - 1) * 100))
+    if price and tp:
+        detail.append("止盈位 %.2f（距现价 %+.1f%%）" % (tp, (tp / price - 1) * 100))
+
+    return {
+        "verdict": verdict,
+        "verdict_label": POSITION_LABEL.get(verdict, "持有观察"),
+        "urgency": urgency,
+        "pnl_pct": round(pnl_pct, 2) if pnl_pct is not None else None,
+        "pnl_amt": round(pnl_amt, 0) if pnl_amt is not None else None,
+        "stop": round(stop, 2),
+        "take_profit": round(tp, 2),
+        "stop_dist": round((stop / price - 1) * 100, 2) if price else None,
+        "tp_dist": round((tp / price - 1) * 100, 2) if price else None,
+        "reasons": detail[:4],
+    }
