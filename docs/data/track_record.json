@@ -19,16 +19,16 @@
     "value": 7.5
    },
    "prices": {
-    "2026-10-22": 13.83
+    "2026-10-22": 13.76
    },
    "base": 13.95,
    "ret": {
-    "t1": -0.86
+    "t1": -1.36
    },
    "status": "holding",
    "days": 1,
-   "last": 13.83,
-   "ret_now": -0.86
+   "last": 13.76,
+   "ret_now": -1.36
   },
   {
    "date": "2026-10-21",
@@ -49,16 +49,16 @@
     "value": 2.3
    },
    "prices": {
-    "2026-10-22": 17.21
+    "2026-10-22": 16.6
    },
    "base": 17.61,
    "ret": {
-    "t1": -2.27
+    "t1": -5.74
    },
    "status": "holding",
    "days": 1,
-   "last": 17.21,
-   "ret_now": -2.27
+   "last": 16.6,
+   "ret_now": -5.74
   },
   {
    "date": "2026-10-21",
@@ -79,16 +79,16 @@
     "value": 6.8
    },
    "prices": {
-    "2026-10-22": 10.36
+    "2026-10-22": 10.46
    },
    "base": 11.19,
    "ret": {
-    "t1": -7.42
+    "t1": -6.52
    },
    "status": "holding",
    "days": 1,
-   "last": 10.36,
-   "ret_now": -7.42
+   "last": 10.46,
+   "ret_now": -6.52
   },
   {
    "date": "2026-10-21",
@@ -109,16 +109,16 @@
     "value": 3.5
    },
    "prices": {
-    "2026-10-22": 143.78
+    "2026-10-22": 146.21
    },
    "base": 145.86,
    "ret": {
-    "t1": -1.43
+    "t1": 0.24
    },
    "status": "holding",
    "days": 1,
-   "last": 143.78,
-   "ret_now": -1.43
+   "last": 146.21,
+   "ret_now": 0.24
   },
   {
    "date": "2026-10-21",
@@ -169,16 +169,16 @@
     "value": 1.0
    },
    "prices": {
-    "2026-10-22": 40.04
+    "2026-10-22": 39.26
    },
    "base": 39.64,
    "ret": {
-    "t1": 1.01
+    "t1": -0.96
    },
    "status": "holding",
    "days": 1,
-   "last": 40.04,
-   "ret_now": 1.01
+   "last": 39.26,
+   "ret_now": -0.96
   },
   {
    "date": "2026-10-21",
@@ -199,16 +199,16 @@
     "value": 2.6
    },
    "prices": {
-    "2026-10-22": 39.83
+    "2026-10-22": 39.8
    },
    "base": 40.27,
    "ret": {
-    "t1": -1.09
+    "t1": -1.17
    },
    "status": "holding",
    "days": 1,
-   "last": 39.83,
-   "ret_now": -1.09
+   "last": 39.8,
+   "ret_now": -1.17
   },
   {
    "date": "2026-10-21",
@@ -229,16 +229,16 @@
     "value": 1.0
    },
    "prices": {
-    "2026-10-22": 14.82
+    "2026-10-22": 14.78
    },
    "base": 15.35,
    "ret": {
-    "t1": -3.45
+    "t1": -3.71
    },
    "status": "holding",
    "days": 1,
-   "last": 14.82,
-   "ret_now": -3.45
+   "last": 14.78,
+   "ret_now": -3.71
   },
   {
    "date": "2026-10-21",
@@ -259,16 +259,16 @@
     "value": 9.0
    },
    "prices": {
-    "2026-10-22": 7.4
+    "2026-10-22": 7.42
    },
    "base": 7.5,
    "ret": {
-    "t1": -1.33
+    "t1": -1.07
    },
    "status": "holding",
    "days": 1,
-   "last": 7.4,
-   "ret_now": -1.33
+   "last": 7.42,
+   "ret_now": -1.07
   },
   {
    "date": "2026-10-21",
@@ -289,16 +289,16 @@
     "value": 10
    },
    "prices": {
-    "2026-10-22": 34.59
+    "2026-10-22": 34.46
    },
    "base": 35.0,
    "ret": {
-    "t1": -1.17
+    "t1": -1.54
    },
    "status": "holding",
    "days": 1,
-   "last": 34.59,
-   "ret_now": -1.17
+   "last": 34.46,
+   "ret_now": -1.54
   },
   {
    "date": "2026-10-21",
@@ -349,16 +349,16 @@
     "value": 9.0
    },
    "prices": {
-    "2026-10-22": 80.35
+    "2026-10-22": 80.81
    },
    "base": 81.2,
    "ret": {
-    "t1": -1.05
+    "t1": -0.48
    },
    "status": "holding",
    "days": 1,
-   "last": 80.35,
-   "ret_now": -1.05
+   "last": 80.81,
+   "ret_now": -0.48
   },
   {
    "date": "2026-10-21",
@@ -379,16 +379,16 @@
     "value": 9.0
    },
    "prices": {
-    "2026-10-22": 4.46
+    "2026-10-22": 4.45
    },
    "base": 4.51,
    "ret": {
-    "t1": -1.11
+    "t1": -1.33
    },
    "status": "holding",
    "days": 1,
-   "last": 4.46,
-   "ret_now": -1.11
+   "last": 4.45,
+   "ret_now": -1.33
   },
   {
    "date": "2026-10-21",
@@ -409,16 +409,16 @@
     "value": 9.0
    },
    "prices": {
-    "2026-10-22": 11.41
+    "2026-10-22": 11.39
    },
    "base": 11.49,
    "ret": {
-    "t1": -0.7
+    "t1": -0.87
    },
    "status": "holding",
    "days": 1,
-   "last": 11.41,
-   "ret_now": -0.7
+   "last": 11.39,
+   "ret_now": -0.87
   },
   {
    "date": "2026-10-21",
@@ -439,16 +439,16 @@
     "value": 7.5
    },
    "prices": {
-    "2026-10-22": 16.68
+    "2026-10-22": 16.57
    },
    "base": 16.79,
    "ret": {
-    "t1": -0.66
+    "t1": -1.31
    },
    "status": "holding",
    "days": 1,
-   "last": 16.68,
-   "ret_now": -0.66
+   "last": 16.57,
+   "ret_now": -1.31
   },
   {
    "date": "2026-10-21",
@@ -499,16 +499,16 @@
     "value": 9.0
    },
    "prices": {
-    "2026-10-22": 8.13
+    "2026-10-22": 8.14
    },
    "base": 8.25,
    "ret": {
-    "t1": -1.45
+    "t1": -1.33
    },
    "status": "holding",
    "days": 1,
-   "last": 8.13,
-   "ret_now": -1.45
+   "last": 8.14,
+   "ret_now": -1.33
   },
   {
    "date": "2026-10-22",
@@ -528,11 +528,17 @@
     "news": 7.1,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 53.05
+   },
    "base": 53.97,
-   "ret": {},
+   "ret": {
+    "t1": -1.7
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 53.05,
+   "ret_now": -1.7
   },
   {
    "date": "2026-10-22",
@@ -552,11 +558,17 @@
     "news": 9,
     "value": 4.1
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 16.53
+   },
    "base": 16.09,
-   "ret": {},
+   "ret": {
+    "t1": 2.73
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 16.53,
+   "ret_now": 2.73
   },
   {
    "date": "2026-10-22",
@@ -576,11 +588,17 @@
     "news": 7.4,
     "value": 2.3
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 10.25
+   },
    "base": 10.44,
-   "ret": {},
+   "ret": {
+    "t1": -1.82
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 10.25,
+   "ret_now": -1.82
   },
   {
    "date": "2026-10-22",
@@ -600,11 +618,17 @@
     "news": 4.7,
     "value": 1.6
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 15.6
+   },
    "base": 15.63,
-   "ret": {},
+   "ret": {
+    "t1": -0.19
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 15.6,
+   "ret_now": -0.19
   },
   {
    "date": "2026-10-22",
@@ -624,11 +648,17 @@
     "news": 5.3,
     "value": 1.6
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 35.35
+   },
    "base": 34.41,
-   "ret": {},
+   "ret": {
+    "t1": 2.73
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 35.35,
+   "ret_now": 2.73
   },
   {
    "date": "2026-10-22",
@@ -648,11 +678,17 @@
     "news": 3.3,
     "value": 1.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 14.98
+   },
    "base": 15.0,
-   "ret": {},
+   "ret": {
+    "t1": -0.13
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 14.98,
+   "ret_now": -0.13
   },
   {
    "date": "2026-10-22",
@@ -672,11 +708,17 @@
     "news": 3.7,
     "value": 5.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 8.4
+   },
    "base": 8.16,
-   "ret": {},
+   "ret": {
+    "t1": 2.94
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 8.4,
+   "ret_now": 2.94
   },
   {
    "date": "2026-10-22",
@@ -696,11 +738,17 @@
     "news": 6.9,
     "value": 3.3
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 34.38
+   },
    "base": 34.3,
-   "ret": {},
+   "ret": {
+    "t1": 0.23
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 34.38,
+   "ret_now": 0.23
   },
   {
    "date": "2026-10-22",
@@ -720,11 +768,17 @@
     "news": 3.7,
     "value": 3.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 7.73
+   },
    "base": 7.7,
-   "ret": {},
+   "ret": {
+    "t1": 0.39
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 7.73,
+   "ret_now": 0.39
   },
   {
    "date": "2026-10-22",
@@ -744,11 +798,17 @@
     "news": 7.1,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 10.39
+   },
    "base": 10.36,
-   "ret": {},
+   "ret": {
+    "t1": 0.29
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 10.39,
+   "ret_now": 0.29
   },
   {
    "date": "2026-10-22",
@@ -768,11 +828,17 @@
     "news": 9,
     "value": 4.1
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 16.53
+   },
    "base": 16.09,
-   "ret": {},
+   "ret": {
+    "t1": 2.73
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 16.53,
+   "ret_now": 2.73
   },
   {
    "date": "2026-10-22",
@@ -792,11 +858,17 @@
     "news": 3.9,
     "value": 4.8
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 26.09
+   },
    "base": 25.89,
-   "ret": {},
+   "ret": {
+    "t1": 0.77
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 26.09,
+   "ret_now": 0.77
   },
   {
    "date": "2026-10-22",
@@ -816,11 +888,17 @@
     "news": 7.8,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 13.76
+   },
    "base": 13.83,
-   "ret": {},
+   "ret": {
+    "t1": -0.51
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 13.76,
+   "ret_now": -0.51
   },
   {
    "date": "2026-10-22",
@@ -840,11 +918,17 @@
     "news": 6.5,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 22.02
+   },
    "base": 22.05,
-   "ret": {},
+   "ret": {
+    "t1": -0.14
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 22.02,
+   "ret_now": -0.14
   },
   {
    "date": "2026-10-22",
@@ -864,11 +948,17 @@
     "news": 5.4,
     "value": 6.8
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 47.25
+   },
    "base": 48.1,
-   "ret": {},
+   "ret": {
+    "t1": -1.77
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 47.25,
+   "ret_now": -1.77
   },
   {
    "date": "2026-10-22",
@@ -888,17 +978,191 @@
     "news": 5.8,
     "value": 7.1
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 84.23
+   },
    "base": 83.8,
+   "ret": {
+    "t1": 0.51
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 84.23,
+   "ret_now": 0.51
+  },
+  {
+   "date": "2026-10-22",
+   "code": "600838",
+   "name": "上海九百",
+   "kind": "aggressive",
+   "buy": 8.38,
+   "target": 9.81,
+   "stop": 7.93,
+   "score": 64.0,
+   "grade": "B+",
+   "dims": {
+    "trend": 15.0,
+    "momentum": 15.0,
+    "volume": 12.0,
+    "fund": 11.8,
+    "news": 8.4,
+    "value": 2.3
+   },
+   "prices": {},
+   "base": 9.34,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "002376",
+   "name": "新北洋",
+   "kind": "aggressive",
+   "buy": 7.09,
+   "target": 8.39,
+   "stop": 6.63,
+   "score": 63.5,
+   "grade": "B+",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 9.0,
+    "volume": 11.5,
+    "fund": 15,
+    "news": 8,
+    "value": 3.0
+   },
+   "prices": {},
+   "base": 7.99,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "002112",
+   "name": "三变科技",
+   "kind": "aggressive",
+   "buy": 13.35,
+   "target": 14.95,
+   "stop": 12.83,
+   "score": 58.8,
+   "grade": "B",
+   "dims": {
+    "trend": 7.0,
+    "momentum": 17.0,
+    "volume": 15.0,
+    "fund": 11.6,
+    "news": 7.1,
+    "value": 1.6
+   },
+   "prices": {},
+   "base": 14.83,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "301413",
+   "name": "安培龙",
+   "kind": "aggressive",
+   "buy": 56.58,
+   "target": 66.18,
+   "stop": 50.92,
+   "score": 57.6,
+   "grade": "B",
+   "dims": {
+    "trend": 10.0,
+    "momentum": 15.0,
+    "volume": 15.0,
+    "fund": 12.1,
+    "news": 3.5,
+    "value": 2.0
+   },
+   "prices": {},
+   "base": 56.58,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "000065",
+   "name": "北方国际",
+   "kind": "steady",
+   "buy": 9.68,
+   "target": 10.48,
+   "stop": 9.34,
+   "score": 63.8,
+   "grade": "B+",
+   "dims": {
+    "trend": 18.0,
+    "momentum": 10.0,
+    "volume": 12.0,
+    "fund": 9.5,
+    "news": 5.3,
+    "value": 9.0
+   },
+   "prices": {},
+   "base": 10.13,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "688608",
+   "name": "恒玄科技",
+   "kind": "steady",
+   "buy": 107.49,
+   "target": 127.97,
+   "stop": 103.73,
+   "score": 61.7,
+   "grade": "B",
+   "dims": {
+    "trend": 9.0,
+    "momentum": 17.0,
+    "volume": 12.5,
+    "fund": 11.4,
+    "news": 10,
+    "value": 6.8
+   },
+   "prices": {},
+   "base": 113.91,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "002472",
+   "name": "双环传动",
+   "kind": "steady",
+   "buy": 36.91,
+   "target": 42.44,
+   "stop": 35.62,
+   "score": 56.2,
+   "grade": "B",
+   "dims": {
+    "trend": 11.0,
+    "momentum": 14.0,
+    "volume": 9.0,
+    "fund": 11.9,
+    "news": 6.5,
+    "value": 6.8
+   },
+   "prices": {},
+   "base": 39.51,
    "ret": {},
    "status": "holding",
    "days": 0
   }
  ],
  "stats": {
-  "total": 33,
+  "total": 40,
   "settled": 0,
-  "holding": 33,
+  "holding": 40,
   "win": 0,
   "win_rate": null,
   "avg_ret": null,
