@@ -550,10 +550,13 @@ def main():
     watch_detail = {}
     try:
         wl = _load_json(WATCHLIST_FILE, [])
-        codes = [str(w.get("code", "")).strip() for w in wl if w.get("code")]
+        codes = [w for w in wl if w.get("code")]
         import engine as _E
 
-        def _deep(code6):
+        def _deep(item):
+            code6 = item.get("code", "")
+            cost = float(item.get("cost") or 0)
+            shares = int(item.get("shares") or 0)
             if len(code6) != 6:
                 return None, None
             sym = ("sh" if code6[0] == "6" else "sz") + code6
@@ -567,10 +570,13 @@ def main():
                 ex = {"reports": sources.fetch_reports(code6),
                       "forecast": sources.fetch_forecast(code6),
                       "billboard": sources.fetch_billboard(code6)}
-                adv = _E.build_advice(q, k, [], ns["items"], 0, 0, extras=ex, index_closes=idx)
+                adv = _E.build_advice(q, k, [], ns["items"], cost, shares, extras=ex, index_closes=idx)
+                pos = _E.position_advice(adv, cost, shares)
                 news = {k2: ns[k2] for k2 in ("items", "score", "pos", "neg", "sources", "verified")}
                 return q, {"code": code6, "name": nm, "quote": q,
-                           "advice": adv, "news": news, "extras": ex}
+                           "advice": adv, "position": pos,
+                           "cost": cost, "shares": shares,
+                           "news": news, "extras": ex}
             except Exception:  # noqa: BLE001
                 return None, None
 
