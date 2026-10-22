@@ -217,6 +217,9 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 .posScore{font-size:9.5px;color:var(--sub2)}
 .posUrgent{margin-left:auto;font-size:8.5px;color:#ff6b78;border:1px solid rgba(255,77,94,.45);
   border-radius:4px;padding:0 5px}
+.posLocal{margin-left:auto;font-size:8.5px;color:#8fc0ff;border:1px solid rgba(76,141,255,.4);
+  border-radius:4px;padding:0 5px}
+.posUrgent + .posLocal{margin-left:4px}
 .posPriceRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
 .posPriceRow div{background:rgba(0,0,0,.22);border-radius:7px;padding:4px 7px;display:flex;align-items:baseline;gap:5px}
 .posPriceRow i{font-style:normal;font-size:8.5px;color:var(--sub2);flex:none}
@@ -1337,11 +1340,28 @@ function positionCard(){
 /* ---------------- 个股详情（自选股深度） ---------------- */
 function openDetail(code){
   var d = (DATA.watch_detail || {})[code];
-  if(!d){
-    alert("该股暂无深度数据\n\n深度分析只对自选股生成（在 watchlist.json 里配置）。\n加进去后下一轮更新即可看到。");
-    return;
-  }
-  var a = d.advice || {}, q = d.quote || {}, ind = a.indicators || {}, ext = a.ext || {};
+  if(d){ renderDetail(d, false); return; }
+  openLocalDetail(code);
+}
+
+function openLocalDetail(code){
+  $("dTitle").textContent = "体检报告";
+  $("dBody").innerHTML = '<div class="empty">正在拉取 250 日K线并计算六维评分…<br>'
+    + '<span style="opacity:.6">首次约 1~2 秒，之后 8 分钟内直接复用</span></div>';
+  $("maskD").classList.add("show");
+  hcRun(code, function(data, err){
+    if(!data){
+      $("dBody").innerHTML = '<div class="empty"><b>暂时拿不到K线</b><br>' + esc(err || "")
+        + '<br><br>可以点「同步到云端」，下一轮构建后就有服务器端报告（含新闻面、研报、龙虎榜）</div>';
+      return;
+    }
+    renderDetail(data, true);
+  });
+}
+
+function renderDetail(d, isLocal){
+  if(!isLocal) d = posWithLocalCost(d.code, d);
+  var a = d.advice || {}, q = d.quote || {}, ext = a.ext || {};
   var dims = a.dims || {};
   var dimDefs = [["趋势", dims.trend, 25], ["动能", dims.momentum, 20], ["量能", dims.volume, 20],
                  ["资金", dims.fund, 15], ["消息", dims.news, 10], ["估值", dims.value, 10]];
@@ -1359,7 +1379,12 @@ function openDetail(code){
       + (x.verified ? '<span class="srcTag" style="color:var(--down);border-color:rgba(61,220,151,.4)">多源核实</span>' : '')
       + '</div></li>';
   }).join("");
-  var body = '<div class="sec"><div class="secT">' + esc(d.name) + ' ' + esc(code) + ' · ' + esc(a.grade_label || a.grade || "") + ' ' + (a.score100 || "-") + ' 分</div>'
+  var body = (isLocal
+      ? '<div class="lofWarn" style="color:#cfe3ff;background:rgba(76,141,255,.08);border-color:rgba(76,141,255,.3);margin-bottom:6px">'
+        + '<b>本地快检</b>：用最近 250 日K线实时计算，评分口径与服务器一致；'
+        + '消息面按无数据折算（3/10），同步到云端后会用新闻、研报、龙虎榜补全。</div>'
+      : "")
+    + '<div class="sec"><div class="secT">' + esc(d.name) + ' ' + esc(d.code) + ' · ' + esc(a.grade_label || a.grade || "") + ' ' + (a.score100 || "-") + ' 分</div>'
     + '<div class="kv"><div><span>现价</span><span class="' + cls(q.change_pct) + '">' + fmt(q.price) + ' ' + sign(q.change_pct) + '%</span></div>'
     + '<div><span>建议</span><span>' + esc(a.action_label || "") + '</span></div>'
     + '<div><span>支撑/压力</span><span>' + fmt(a.support) + ' / ' + fmt(a.pressure) + '</span></div>'
@@ -1369,13 +1394,17 @@ function openDetail(code){
     + '<div><span>上涨日量占比</span><span>' + (ext.up_vol_share !== null && ext.up_vol_share !== undefined ? ext.up_vol_share + '%' : '--') + '</span></div>'
     + '<div><span>ATR位置</span><span>' + (ext.atr_pos !== null && ext.atr_pos !== undefined ? ext.atr_pos : '--') + '</span></div>'
     + '</div>' + (pats ? '<div class="tags" style="margin-top:6px">' + pats + '</div>' : '') + '</div>'
+    + (d.position ? posBoxHtml(d.code, d) : '')
     + '<div class="sec"><div class="secT">六维评分</div>' + dimHtml + '</div>'
     + '<div class="sec"><div class="secT">理由</div><ul class="reasons p">'
     + (a.reasons || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul>'
     + '<div class="secT" style="margin-top:4px">风险</div><ul class="reasons n">'
     + (a.penalties || []).concat(a.warnings || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>'
-    + '<div class="sec"><div class="secT">相关消息（' + ((d.news || {}).sources || []).join(" / ") + '）</div><ul class="news">' + (news || '<li>暂无</li>') + '</ul></div>';
-  $("dTitle").textContent = d.name + " 体检报告";
+    + (isLocal
+        ? '<div class="sec"><div class="secT">相关消息</div><div class="hint">本地体检不含新闻。'
+          + '点「同步到云端」后，服务器会抓 5 个新闻源做交叉核实，并给出消息面评分和 AI 复评。</div></div>'
+        : '<div class="sec"><div class="secT">相关消息（' + ((d.news || {}).sources || []).join(" / ") + '）</div><ul class="news">' + (news || '<li>暂无</li>') + '</ul></div>');
+  $("dTitle").textContent = d.name + (isLocal ? " 本地体检" : " 体检报告");
   $("dBody").innerHTML = body;
   $("maskD").classList.add("show");
 }
@@ -1500,12 +1529,824 @@ function eventBlocks(){
   return h;
 }
 
+/* ================= 本地即时体检引擎 =================
+   云端 watch_detail 只覆盖 watchlist.json 里的股票，
+   本地新增的自选在同步前没有深度数据。这里用新浪日K(JSONP)
+   在前端即时算一套同口径的评分，保证「体检」随时可用。
+   口径与 engine.py 对齐：趋势25/动能20/量能20/资金15/消息10/估值10。
+   差异：本地无新闻、研报、龙虎榜，消息维度取中性 5 分，界面上会标注。 */
+var HC_TTL = 8 * 60 * 1000;
+var HC_CACHE = {};
+var HC_WAIT = {};
+
+function hcSym(code){
+  if(/^[48]/.test(code)) return "bj" + code;
+  return (/^6/.test(code) ? "sh" : "sz") + code;
+}
+function hcR(x, n){
+  n = n || 0;
+  var p = Math.pow(10, n);
+  return (x === null || x === undefined || isNaN(x)) ? null : Math.round(x * p) / p;
+}
+function hcClamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+
+/* --- 新浪日K，JSONP 绕开跨域 --- */
+function hcKline(code, cb){
+  var sym = hcSym(code), n = 250, name = "_" + sym + "_240_" + n;
+  var url = "https://money.finance.sina.com.cn/quotes_service/api/jsonp_v2.php/var%20"
+    + name + "=/CN_MarketData.getKLineData?symbol=" + sym + "&scale=240&ma=no&datalen=" + n;
+  var sc = document.createElement("script"), done = false;
+  function finish(){
+    if(done) return;
+    done = true;
+    var rows = null;
+    try{ rows = window[name]; }catch(e){}
+    try{ delete window[name]; }catch(e2){ window[name] = null; }
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
+    if(!rows || !rows.length) return cb(null);
+    var out = [];
+    for(var i = 0; i < rows.length; i++){
+      var r = rows[i];
+      out.push({day: r.day, open: +r.open, high: +r.high, low: +r.low,
+                close: +r.close, volume: +r.volume});
+    }
+    cb(out);
+  }
+  sc.onload = finish;
+  sc.onerror = finish;
+  sc.src = url;
+  document.body.appendChild(sc);
+  setTimeout(finish, 9000);
+}
+
+/* --- 基础指标 --- */
+function hcMa(a, n){
+  if(!a || a.length < n) return null;
+  var s = 0;
+  for(var i = a.length - n; i < a.length; i++) s += a[i];
+  return s / n;
+}
+
+function hcMacd(closes){
+  if(closes.length < 35) return null;
+  var k12 = 2 / 13, k26 = 2 / 27, k9 = 2 / 10;
+  var e12 = closes[0], e26 = closes[0], difs = [], deas = [];
+  for(var i = 0; i < closes.length; i++){
+    e12 = closes[i] * k12 + e12 * (1 - k12);
+    e26 = closes[i] * k26 + e26 * (1 - k26);
+    difs.push(e12 - e26);
+  }
+  var dea = difs[0];
+  for(var j = 0; j < difs.length; j++){
+    dea = difs[j] * k9 + dea * (1 - k9);
+    deas.push(dea);
+  }
+  var L = difs.length, dif = difs[L - 1], de = deas[L - 1];
+  return {
+    dif: dif, dea: de, hist: 2 * (dif - de),
+    hist_prev: 2 * (difs[L - 2] - deas[L - 2]),
+    golden: difs[L - 2] <= deas[L - 2] && dif > de,
+    dead: difs[L - 2] >= deas[L - 2] && dif < de
+  };
+}
+
+function hcRsi(closes, n){
+  n = n || 6;
+  if(closes.length < n + 2) return null;
+  var gains = 0, losses = 0, i, d;
+  for(i = 1; i <= n; i++){
+    d = closes[i] - closes[i - 1];
+    if(d >= 0) gains += d; else losses -= d;
+  }
+  var ag = gains / n, al = losses / n;
+  for(i = n + 1; i < closes.length; i++){
+    d = closes[i] - closes[i - 1];
+    ag = (ag * (n - 1) + (d > 0 ? d : 0)) / n;
+    al = (al * (n - 1) + (d < 0 ? -d : 0)) / n;
+  }
+  if(al === 0) return 100;
+  return 100 - 100 / (1 + ag / al);
+}
+
+function hcKdj(kl, n){
+  n = n || 9;
+  if(kl.length < n + 2) return null;
+  var k = 50, d = 50;
+  for(var i = 0; i < kl.length; i++){
+    var lo = Infinity, hi = -Infinity;
+    for(var j = Math.max(0, i - n + 1); j <= i; j++){
+      if(kl[j].low < lo) lo = kl[j].low;
+      if(kl[j].high > hi) hi = kl[j].high;
+    }
+    var c = kl[i].close;
+    var rsv = (hi === lo) ? 50 : (c - lo) / (hi - lo) * 100;
+    k = 2 / 3 * k + 1 / 3 * rsv;
+    d = 2 / 3 * d + 1 / 3 * k;
+  }
+  return {k: k, d: d, j: 3 * k - 2 * d};
+}
+
+function hcBoll(closes, n, kk){
+  n = n || 20; kk = kk || 2;
+  if(closes.length < n) return null;
+  var seg = closes.slice(-n), mid = 0, i;
+  for(i = 0; i < n; i++) mid += seg[i];
+  mid /= n;
+  var v = 0;
+  for(i = 0; i < n; i++) v += Math.pow(seg[i] - mid, 2);
+  var std = Math.sqrt(v / n);
+  return {up: mid + kk * std, mid: mid, low: mid - kk * std, std: std};
+}
+
+function hcAtr(kl, n){
+  n = n || 14;
+  if(kl.length < n + 1) return null;
+  var trs = [], i;
+  for(i = 1; i < kl.length; i++){
+    var h = kl[i].high, l = kl[i].low, pc = kl[i - 1].close;
+    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+  }
+  return hcMa(trs, n);
+}
+
+function hcCci(kl, n){
+  n = n || 14;
+  if(kl.length < n) return null;
+  var seg = kl.slice(-n), tps = [], i, s = 0;
+  for(i = 0; i < n; i++){
+    var tp = (seg[i].high + seg[i].low + seg[i].close) / 3;
+    tps.push(tp); s += tp;
+  }
+  var ma = s / n, md = 0;
+  for(i = 0; i < n; i++) md += Math.abs(tps[i] - ma);
+  md /= n;
+  if(md === 0) return 0;
+  return (tps[n - 1] - ma) / (0.015 * md);
+}
+
+function hcMfi(kl, n){
+  n = n || 14;
+  if(kl.length < n + 1) return null;
+  var pos = 0, neg = 0, i;
+  for(i = kl.length - n; i < kl.length; i++){
+    var tp = (kl[i].high + kl[i].low + kl[i].close) / 3;
+    var tp0 = (kl[i - 1].high + kl[i - 1].low + kl[i - 1].close) / 3;
+    var mf = tp * kl[i].volume;
+    if(tp > tp0) pos += mf;
+    else if(tp < tp0) neg += mf;
+  }
+  if(neg === 0) return 100;
+  return 100 - 100 / (1 + pos / neg);
+}
+
+function hcObv(kl, n){
+  n = n || 20;
+  if(kl.length < n + 1) return null;
+  var obv = 0, series = [], i;
+  for(i = 1; i < kl.length; i++){
+    if(kl[i].close > kl[i - 1].close) obv += kl[i].volume;
+    else if(kl[i].close < kl[i - 1].close) obv -= kl[i].volume;
+    series.push(obv);
+  }
+  var seg = series.slice(-n);
+  if(!seg.length || Math.abs(seg[0]) < 1e-9) return 0;
+  return (seg[seg.length - 1] - seg[0]) / (Math.abs(seg[0]) + 1e-9) * 100;
+}
+
+function hcDmi(kl, n){
+  n = n || 14;
+  if(kl.length < n * 2) return null;
+  var trs = [], pdm = [], ndm = [], i;
+  for(i = 1; i < kl.length; i++){
+    var h = kl[i].high, l = kl[i].low, pc = kl[i - 1].close;
+    trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+    var up = h - kl[i - 1].high, dn = kl[i - 1].low - l;
+    pdm.push((up > dn && up > 0) ? up : 0);
+    ndm.push((dn > up && dn > 0) ? dn : 0);
+  }
+  var a = hcMa(trs, n);
+  if(!a) return null;
+  var pdi = hcMa(pdm, n) / a * 100, ndi = hcMa(ndm, n) / a * 100;
+  return {pdi: pdi, mdi: ndi, adx: Math.abs(pdi - ndi) / (pdi + ndi + 1e-9) * 100};
+}
+
+function hcRoc(closes, n){
+  n = n || 12;
+  if(closes.length < n + 1) return null;
+  var base = closes[closes.length - n - 1];
+  if(!base) return null;
+  return (closes[closes.length - 1] / base - 1) * 100;
+}
+
+function hcWeekly(kl){
+  if(kl.length < 25) return null;
+  var weeks = [], i;
+  for(i = 0; i < kl.length; i += 5){
+    var chunk = kl.slice(i, i + 5);
+    if(chunk.length < 3) continue;
+    weeks.push(chunk[chunk.length - 1].close);
+  }
+  if(weeks.length < 6) return null;
+  var ma5 = hcMa(weeks, 5), ma10 = hcMa(weeks, 10);
+  var slope = weeks.length >= 3 ? weeks[weeks.length - 1] - weeks[weeks.length - 3] : 0;
+  return {
+    above_ma5: ma5 !== null && weeks[weeks.length - 1] > ma5,
+    ma5_above_ma10: !!(ma5 && ma10 && ma5 > ma10),
+    slope_up: slope > 0,
+    weeks: weeks.length
+  };
+}
+
+function hcVolatility(closes, n){
+  n = n || 20;
+  if(closes.length < n + 1) return null;
+  var rets = [], i;
+  for(i = closes.length - n; i < closes.length; i++){
+    if(closes[i - 1] > 0) rets.push(closes[i] / closes[i - 1] - 1);
+  }
+  if(rets.length < 5) return null;
+  var mean = 0;
+  for(i = 0; i < rets.length; i++) mean += rets[i];
+  mean /= rets.length;
+  var v = 0;
+  for(i = 0; i < rets.length; i++) v += Math.pow(rets[i] - mean, 2);
+  v = v / (rets.length - 1);
+  return Math.sqrt(v) * Math.sqrt(244) * 100;
+}
+
+function hcStreak(closes){
+  if(closes.length < 2) return 0;
+  var cnt = 0, last = closes[closes.length - 1];
+  for(var i = closes.length - 1; i > 0; i--){
+    if(closes[i] > closes[i - 1] && last >= closes[i - 1]) cnt++;
+    else if(closes[i] < closes[i - 1] && last <= closes[i - 1]) cnt--;
+    else break;
+  }
+  return cnt;
+}
+
+function hcVpDiv(kl, n){
+  n = n || 10;
+  if(kl.length < n + 5) return 0;
+  var recent = kl.slice(-n), prev = kl.slice(-2 * n, -n);
+  if(!prev.length) return 0;
+  var i, hiR = -Infinity, hiP = -Infinity, loR = Infinity, loP = Infinity;
+  var vR = 0, vP = 0;
+  for(i = 0; i < recent.length; i++){
+    if(recent[i].high > hiR) hiR = recent[i].high;
+    if(recent[i].low < loR) loR = recent[i].low;
+    vR += recent[i].volume;
+  }
+  for(i = 0; i < prev.length; i++){
+    if(prev[i].high > hiP) hiP = prev[i].high;
+    if(prev[i].low < loP) loP = prev[i].low;
+    vP += prev[i].volume;
+  }
+  vR /= recent.length;
+  vP = vP / prev.length || 1;
+  if(hiR > hiP && vR < vP * 0.85) return -1;
+  if(loR < loP && vR > vP * 1.15) return 1;
+  return 0;
+}
+
+function hcGap(kl){
+  if(kl.length < 2) return null;
+  var t = kl[kl.length - 1], p = kl[kl.length - 2];
+  if(p.high <= 0) return null;
+  if(t.low > p.high) return {dir: 1, pct: hcR((t.low / p.high - 1) * 100, 2)};
+  if(t.high < p.low) return {dir: -1, pct: hcR((t.high / p.low - 1) * 100, 2)};
+  return null;
+}
+
+function hcUpVolShare(kl, n){
+  n = n || 20;
+  if(kl.length < n + 1) return null;
+  var seg = kl.slice(-n), up = 0, all = 0;
+  for(var i = 1; i < seg.length; i++){
+    all += seg[i].volume;
+    if(seg[i].close > seg[i - 1].close) up += seg[i].volume;
+  }
+  if(all <= 0) return null;
+  return hcR(up / all * 100, 1);
+}
+
+function hcIndicators(kl){
+  var closes = [];
+  for(var i = 0; i < kl.length; i++) closes.push(kl[i].close);
+  return {
+    ma5: hcMa(closes, 5), ma10: hcMa(closes, 10),
+    ma20: hcMa(closes, 20), ma60: hcMa(closes, 60),
+    macd: hcMacd(closes), rsi6: hcRsi(closes, 6), rsi12: hcRsi(closes, 12),
+    kdj: hcKdj(kl), boll: hcBoll(closes), closes: closes
+  };
+}
+
+function hcExt(kl, q){
+  var closes = [], vols = [], i;
+  for(i = 0; i < kl.length; i++){ closes.push(kl[i].close); vols.push(kl[i].volume); }
+  var n = kl.length, price = Number(q.p) || closes[n - 1];
+  var out = {position250: null, adx: null, weekly: null, roc12: null, cci: null,
+             obv_slope: null, mfi: null, from_high20: null, vol_ratio_5_20: null,
+             up_vol_share: null, atr: null, atr_pct: null, atr_pos: null,
+             volatility: null, streak: 0, vp_div: 0, gap: null, patterns: []};
+
+  var seg = closes.slice(-250);
+  var lo = Math.min.apply(null, seg), hi = Math.max.apply(null, seg);
+  if(hi > lo) out.position250 = hcR((closes[n - 1] - lo) / (hi - lo) * 100, 1);
+
+  var d = hcDmi(kl);
+  if(d){ out.adx = hcR(d.adx, 1); out.pdi = hcR(d.pdi, 1); out.mdi = hcR(d.mdi, 1); }
+
+  out.weekly = hcWeekly(kl);
+  out.roc12 = hcR(hcRoc(closes, 12), 2);
+  out.cci = hcR(hcCci(kl), 1);
+  out.obv_slope = hcR(hcObv(kl), 1);
+  out.mfi = hcR(hcMfi(kl), 1);
+
+  var seg20 = kl.slice(-20), hi20 = -Infinity;
+  for(i = 0; i < seg20.length; i++) if(seg20[i].high > hi20) hi20 = seg20[i].high;
+  if(hi20 > 0) out.from_high20 = hcR((closes[n - 1] / hi20 - 1) * 100, 2);
+
+  var v20 = hcMa(vols, 20);
+  if(v20) out.vol_ratio_5_20 = hcR(hcMa(vols, 5) / v20, 2);
+  var c20 = closes.slice(-20);
+  var clo = Math.min.apply(null, c20), chi = Math.max.apply(null, c20);
+  out.pos20 = chi > clo ? (closes[n - 1] - clo) / (chi - clo) : 0.5;
+  out.up_vol_share = hcUpVolShare(kl);
+
+  var a14 = hcAtr(kl, 14);
+  if(a14 && a14 > 0){
+    out.atr = hcR(a14, 3);
+    if(price) out.atr_pct = hcR(a14 / price * 100, 2);
+    var base = hcMa(closes, 14);
+    out.atr_pos = hcR((closes[n - 1] - (base - a14)) / (2 * a14), 2);
+  }
+  var vol_ = hcVolatility(closes);
+  out.volatility = vol_ === null ? null : hcR(vol_, 1);
+  out.streak = hcStreak(closes);
+  out.vp_div = hcVpDiv(kl);
+  out.gap = hcGap(kl);
+  return out;
+}
+
+/* --- 形态识别（对齐 indicators.detect_patterns） --- */
+function hcPatterns(kl, ind, q){
+  var out = [];
+  if(kl.length < 25) return out;
+  var closes = [], vols = [], i;
+  for(i = 0; i < kl.length; i++){ closes.push(kl[i].close); vols.push(kl[i].volume); }
+  var price = closes[closes.length - 1], ma20 = ind.ma20;
+  var v20 = hcMa(vols, 20) || 0, v5 = hcMa(vols, 5) || 0;
+  var hi20 = -Infinity, lo20 = Infinity;
+  for(i = kl.length - 20; i < kl.length; i++){
+    if(kl[i].high > hi20) hi20 = kl[i].high;
+    if(kl[i].low < lo20) lo20 = kl[i].low;
+  }
+
+  if(price >= hi20 * 0.997 && v5 > v20 * 1.2) out.push({name: "突破新高", dir: 1, desc: "放量突破 20 日高点"});
+
+  if(ma20 && Math.abs(price / ma20 - 1) <= 0.02){
+    var prev20 = hcMa(closes.slice(0, -5), 20);
+    if(prev20 && prev20 > 0 && (hcMa(closes, 20) / prev20 - 1) * 100 > 0){
+      out.push({name: "回踩均线", dir: 1, desc: "贴近 MA20 且均线向上"});
+    }
+  }
+
+  if(v5 && v20 && v5 < v20 * 0.72){
+    var rng = price ? (Math.max.apply(null, closes.slice(-5)) - Math.min.apply(null, closes.slice(-5))) / price * 100 : 99;
+    if(rng < 6) out.push({name: "缩量整理", dir: 0, desc: "量能萎缩、振幅收窄，等待方向"});
+  }
+
+  var vr = Number(q.vr) || 0, chg = Number(q.c) || 0;
+  if(vr > 2 && Math.abs(chg) < 1.2) out.push({name: "放量滞涨", dir: -1, desc: "量能放大但价格没跟上，警惕出货"});
+
+  if(closes.length >= 4){
+    var r1 = closes[closes.length - 1] / closes[closes.length - 2] - 1;
+    var r2 = closes[closes.length - 2] / closes[closes.length - 3] - 1;
+    var r3 = closes[closes.length - 3] / closes[closes.length - 4] - 1;
+    if(r1 > r2 && r2 > r3 && r1 > 0.01 && (closes[closes.length - 1] / closes[closes.length - 4] - 1) > 0.06){
+      out.push({name: "加速上涨", dir: 1, desc: "涨幅逐日扩大，短线强势"});
+    }
+  }
+
+  var last = kl[kl.length - 1];
+  var body = Math.abs(last.close - last.open);
+  var upper = last.high - Math.max(last.close, last.open);
+  var rngAll = last.high - last.low;
+  if(rngAll > 0 && upper > body * 2 && upper / rngAll > 0.55 && v5 > v20 * 1.3){
+    out.push({name: "长上影", dir: -1, desc: "放量冲高回落，上方抛压重"});
+  }
+
+  if(closes.length >= 6){
+    var c3 = closes[closes.length - 3];
+    var drop = c3 ? closes[closes.length - 6] / c3 - 1 : 0;
+    if(drop < -0.05 && v5 > v20 * 1.25 && closes[closes.length - 1] > closes[closes.length - 2]){
+      out.push({name: "超跌反弹", dir: 1, desc: "急跌后放量止跌"});
+    }
+  }
+  return out;
+}
+
+/* --- 六维评分（对齐 engine.score_v2） --- */
+function hcScore(q, ind, ext, kl){
+  var price = Number(q.p) || 0;
+  var ma5 = ind.ma5, ma10 = ind.ma10, ma20 = ind.ma20, ma60 = ind.ma60;
+  var dims = {}, penalties = [], reasons = [], warnings = [];
+
+  /* 趋势 25 */
+  var t = 0;
+  if(ma5 && ma10 && ma20 && ma5 > ma10 && ma10 > ma20) t += 6;
+  else if(ma5 && ma10 && ma5 > ma10) t += 3;
+  if(ma20 && ma60 && ma20 > ma60) t += 4;
+  if(ma20 && price > ma20) t += 4;
+  if(ma60 && price > ma60) t += 2;
+  if(ext.adx !== null && ext.adx !== undefined){
+    t += ext.adx >= 25 ? 4 : (ext.adx >= 18 ? 2 : 0);
+  }
+  if(ext.position250 !== null && ext.position250 !== undefined){
+    if(ext.position250 >= 30 && ext.position250 <= 75) t += 2;
+    else if(ext.position250 > 92) t -= 2;
+  }
+  var w = ext.weekly || {};
+  t += (w.above_ma5 ? 2 : 0) + (w.ma5_above_ma10 ? 2 : 0) + (w.slope_up ? 1 : 0);
+  dims.trend = hcR(Math.min(25, t), 1);
+
+  /* 动能 20 */
+  var m = 0, md = ind.macd || {};
+  if((md.hist || 0) > 0){
+    m += 5;
+    if(md.hist > md.hist_prev) m += 3;
+  }
+  if(md.golden) m += 2;
+  var rsi = ind.rsi6;
+  if(rsi !== null && rsi !== undefined){
+    if(rsi >= 45 && rsi <= 65) m += 4;
+    else if(rsi >= 30 && rsi < 45) m += 3;
+    else if(rsi >= 20 && rsi < 30) m += 2;
+    else if(rsi > 65 && rsi <= 75) m += 1;
+    else if(rsi > 78) m -= 3;
+  }
+  if(ext.roc12 !== null && ext.roc12 !== undefined){
+    if(ext.roc12 > 0) m += 3;
+    if(ext.roc12 > 5) m += 2;
+  }
+  if(ext.cci !== null && ext.cci !== undefined){
+    if(ext.cci >= 0 && ext.cci <= 100) m += 3;
+    else if(ext.cci < -100) m += 1;
+    else if(ext.cci > 180) m -= 1;
+  }
+  dims.momentum = hcR(Math.max(0, Math.min(20, m)), 1);
+
+  /* 量能 20 —— 量比用「当日量 / 前5日均量」近似 */
+  var v = 0;
+  var vr = Number(q.vr) || 0;
+  if(vr){
+    if(vr >= 1.2 && vr <= 3) v += 4;
+    else if(vr > 3 && vr <= 5) v += 2;
+    else if(vr > 5) v += 1;
+  }
+  var to = Number(q.t) || 0;
+  if(to >= 2 && to <= 12) v += 4;
+  else if((to >= 1 && to < 2) || (to > 12 && to <= 20)) v += 2;
+  if(ext.obv_slope !== null && ext.obv_slope !== undefined){
+    if(ext.obv_slope > 0) v += 4;
+    if(ext.obv_slope > 20) v += 2;
+  }
+  if(ext.mfi !== null && ext.mfi !== undefined){
+    if(ext.mfi >= 50 && ext.mfi <= 80) v += 3;
+    else if(ext.mfi >= 20 && ext.mfi < 50) v += 2;
+    else if(ext.mfi < 20) v += 1;
+  }
+  if(ext.from_high20 !== null && ext.from_high20 > -1.5 && vr && vr > 1.3) v += 3;
+  if(ext.vol_ratio_5_20 !== null && ext.vol_ratio_5_20 !== undefined){
+    if(ext.vol_ratio_5_20 >= 1.1 && ext.vol_ratio_5_20 <= 2.0) v += 2;
+    else if(ext.vol_ratio_5_20 > 3) v -= 1;
+  }
+  if(ext.up_vol_share !== null && ext.up_vol_share >= 60) v += 1.5;
+  dims.volume = hcR(Math.min(20, Math.max(0, v)), 1);
+
+  /* 资金 15 —— 无资金流，用 engine.fund_score 的量价降级口径 */
+  var fs = 0;
+  var v520 = ext.vol_ratio_5_20;
+  if(v520 !== null && v520 !== undefined){
+    var chg = Number(q.c) || 0;
+    fs = hcClamp((v520 - 1) * 10, -10, 10);
+    if(chg > 0) fs += hcClamp(chg * 2, 0, 8);
+    else fs -= hcClamp(-chg * 2, 0, 8);
+    if(ext.pos20 !== undefined) fs += (ext.pos20 - 0.5) * 16;
+  }
+  dims.fund = hcR(hcClamp((fs + 25) / 50 * 15, 0, 15), 1);
+
+  /* 消息 10 —— 本地拿不到新闻，按 senti=0 折算，与云端「无消息数据」时一致 */
+  dims.news = 3;
+
+  /* 估值 10 */
+  var e = 0, pe = Number(q.pe) || 0, pb = Number(q.pb) || 0;
+  if(pe > 0){
+    if(pe <= 20) e += 7;
+    else if(pe <= 35) e += 5.5;
+    else if(pe <= 50) e += 3.5;
+    else if(pe <= 80) e += 2;
+    else e += 1;
+  }else e += 1;
+  if(pb > 0 && pb <= 2) e += 2;
+  else if(pb > 2 && pb <= 4) e += 1.3;
+  else if(pb > 4 && pb <= 6) e += 0.6;
+  dims.value = hcR(Math.min(10, e), 1);
+
+  /* 加权 */
+  var MAX = {trend: 25, momentum: 20, volume: 20, fund: 15, news: 10, value: 10};
+  var W = (DATA && DATA.weights) || {};
+  var num = 0, den = 0;
+  for(var k in MAX){
+    var wk = (W[k] === undefined ? 1 : W[k]);
+    num += (dims[k] || 0) * wk;
+    den += MAX[k] * wk;
+  }
+  var total = den ? (num / den * 100) : 0;
+
+  /* 形态加减分 */
+  var pats = hcPatterns(kl, ind, q);
+  ext.patterns = pats;
+  var bull = 0, bear = 0;
+  for(var pi = 0; pi < pats.length; pi++){
+    if(pats[pi].dir === 1) bull++;
+    else if(pats[pi].dir === -1) bear++;
+  }
+  if(bull) total += Math.min(6, bull * 2.5);
+  if(bear) total -= Math.min(8, bear * 3);
+  for(var pj = 0; pj < pats.length; pj++){
+    if(pats[pj].dir === -1) penalties.push("形态：" + pats[pj].desc);
+  }
+
+  /* 风险扣分 */
+  if(ext.volatility && ext.volatility > 70){
+    total -= 5;
+    penalties.push("波动率 " + Math.round(ext.volatility) + "% 偏高");
+  }
+  if(ext.from_high20 !== null && ext.from_high20 > -1.5 && rsi && rsi > 78){
+    total -= 6;
+    penalties.push("短线过热且贴近20日高点，追高风险");
+  }
+  if(ext.streak >= 5){
+    total -= 3;
+    penalties.push("连续上涨 " + ext.streak + " 天，短期透支");
+  }
+  if(ext.vp_div === -1){
+    total -= 4;
+    penalties.push("量价背离（价新高量萎缩）");
+  }
+  if(ext.atr_pos !== null && ext.atr_pos > 1.05 && rsi && rsi > 70){
+    total -= 3;
+    penalties.push("价格处于 ATR 通道上沿，短线回踩概率大");
+  }
+  if(ext.gap && ext.gap.dir === -1){
+    total -= 2;
+    penalties.push("向下跳空 " + Math.abs(ext.gap.pct) + "%，注意缺口压力");
+  }
+
+  total = hcClamp(total, 0, 100);
+  var grade = total >= 80 ? "A+" : total >= 72 ? "A" : total >= 62 ? "B+" :
+              total >= 52 ? "B" : total >= 42 ? "C" : "D";
+  var GL = {"A+": "A+ 强", "A": "A 优", "B+": "B+ 良", "B": "B 中", "C": "C 弱", "D": "D 差"};
+
+  /* 理由 / 风险 */
+  if(ma5 && ma10 && ma20 && ma5 > ma10 && ma10 > ma20) reasons.push("短期均线多头排列（MA5>MA10>MA20）");
+  if(ma5 && ma10 && ma20 && ma5 < ma10 && ma10 < ma20) warnings.push("短期均线空头排列（MA5<MA10<MA20）");
+  if(md.hist > 0 && md.hist > md.hist_prev) reasons.push("MACD 红柱放大，动能走强");
+  else if(md.golden) reasons.push("MACD 金叉");
+  if(md.hist < 0 && md.hist < md.hist_prev) warnings.push("MACD 绿柱放大，动能走弱");
+  else if(md.dead) warnings.push("MACD 死叉");
+  if(rsi && rsi < 30) reasons.push("RSI6=" + Math.round(rsi) + " 处于超卖区，反弹概率增大");
+  else if(rsi && rsi > 70) warnings.push("RSI6=" + Math.round(rsi) + " 处于超买区，注意回调");
+  var b = ind.boll;
+  if(b && b.up > b.low && price){
+    var bp = (price - b.low) / (b.up - b.low);
+    if(bp < 0.2) reasons.push("股价回落至布林带下轨附近");
+    else if(bp > 0.8) warnings.push("股价触及布林带上轨，追高风险");
+  }
+  if(ind.kdj && ind.kdj.k < 20 && ind.kdj.k > ind.kdj.d) reasons.push("KDJ 低位金叉");
+  if(ind.kdj && ind.kdj.k > 80 && ind.kdj.k < ind.kdj.d) warnings.push("KDJ 高位死叉");
+  if(v520 !== null && v520 !== undefined){
+    if(v520 >= 1.3) reasons.push("5日均量为20日 " + v520.toFixed(1) + " 倍，放量走强");
+    else if(v520 <= 0.75) warnings.push("5日均量仅为20日 " + v520.toFixed(1) + " 倍，缩量观望");
+  }
+
+  return {total: hcR(total, 1), grade: grade, grade_label: GL[grade],
+          dims: dims, penalties: penalties, reasons: reasons, warnings: warnings,
+          fund_score: hcR(fs, 1)};
+}
+
+/* --- 支撑压力 / 综合建议（对齐 build_advice） --- */
+function hcSupport(kl, ind, price){
+  var recent = kl.slice(-20), lo20 = Infinity, hi20 = -Infinity, i;
+  for(i = 0; i < recent.length; i++){
+    if(recent[i].low < lo20) lo20 = recent[i].low;
+    if(recent[i].high > hi20) hi20 = recent[i].high;
+  }
+  var b = ind.boll || {}, ma60 = ind.ma60;
+  var supCand = [lo20, b.low, ma60], preCand = [hi20, b.up, ma60];
+  var sup = [], pre = [], x;
+  for(i = 0; i < supCand.length; i++){
+    x = supCand[i];
+    if(x && x < price) sup.push(Math.round(x * 100) / 100);
+  }
+  for(i = 0; i < preCand.length; i++){
+    x = preCand[i];
+    if(x && x > price) pre.push(Math.round(x * 100) / 100);
+  }
+  var supports = [], pressures = [];
+  sup.sort(function(a, c){ return c - a; });
+  pre.sort(function(a, c){ return a - c; });
+  for(i = 0; i < sup.length; i++) if(supports.indexOf(sup[i]) < 0) supports.push(sup[i]);
+  for(i = 0; i < pre.length; i++) if(pressures.indexOf(pre[i]) < 0) pressures.push(pre[i]);
+  return {support: supports.length ? supports[0] : hcR(price * 0.95, 2),
+          pressure: pressures.length ? pressures[0] : hcR(price * 1.05, 2),
+          low20: hcR(lo20, 2), high20: hcR(hi20, 2)};
+}
+
+var HC_ALABEL = {buy: "买入", add: "加仓", hold: "持有", reduce: "减仓", sell: "卖出", watch: "观望"};
+
+function hcAdvice(q, kl, ind, ext){
+  var price = Number(q.p) || kl[kl.length - 1].close;
+  var sc = hcScore(q, ind, ext, kl);
+  var total = sc.total * 2 - 100;
+  var hasPos = false, cost = 0, shares = 0;
+  (watches || []).forEach(function(w){
+    if(w.code === q.code && w.cost > 0 && w.shares > 0){
+      hasPos = true; cost = Number(w.cost); shares = Number(w.shares);
+    }
+  });
+  var action;
+  if(total >= 50) action = hasPos ? "add" : "buy";
+  else if(total >= 20) action = "hold";
+  else if(total > -20) action = hasPos ? "hold" : "watch";
+  else if(total > -50) action = hasPos ? "reduce" : "watch";
+  else action = hasPos ? "sell" : "watch";
+
+  var sr = hcSupport(kl, ind, price);
+  var stop_loss = null, take_profit = null, buy_zone = null;
+  if(hasPos){
+    stop_loss = hcR(Math.min(sr.support * 0.995, cost * 0.93), 2);
+    take_profit = hcR(Math.max(sr.pressure * 1.01, cost * 1.15), 2);
+    if(action === "buy" || action === "add" || action === "hold"){
+      if(total >= 0) buy_zone = [hcR(sr.support * 0.98, 2), hcR(sr.support * 1.02, 2)];
+    }
+  }else{
+    take_profit = hcR(sr.pressure * 1.05, 2);
+    if(action === "buy") buy_zone = [hcR(sr.support * 0.97, 2), hcR(sr.support * 1.03, 2)];
+  }
+
+  return {
+    action: action, action_label: HC_ALABEL[action],
+    price: price, score: hcR(total, 1), score100: sc.total,
+    grade: sc.grade, grade_label: sc.grade_label,
+    dims: sc.dims, penalties: sc.penalties,
+    reasons: sc.reasons.slice(0, 5), warnings: sc.warnings.slice(0, 5),
+    ext: ext, holding: hasPos,
+    support: sr.support, pressure: sr.pressure, buy_zone: buy_zone,
+    stop_loss: stop_loss, take_profit: take_profit,
+    fund_type: "volume_price", local: true,
+    indicators: {
+      ma5: hcR(ind.ma5), ma10: hcR(ind.ma10), ma20: hcR(ind.ma20), ma60: hcR(ind.ma60),
+      dif: hcR((ind.macd || {}).dif), dea: hcR((ind.macd || {}).dea),
+      rsi6: hcR(ind.rsi6),
+      kdj_k: hcR((ind.kdj || {}).k), kdj_d: hcR((ind.kdj || {}).d),
+      boll_up: hcR((ind.boll || {}).up), boll_low: hcR((ind.boll || {}).low)
+    }
+  };
+}
+
+/* --- 持仓结论（对齐 engine.position_advice） --- */
+var HC_PLABEL = {hold: "继续持有", add: "逢低加仓", reduce: "分批减仓",
+                 sell: "止损离场", take: "分批止盈", watch: "持有观察"};
+
+function hcPosition(adv, cost, shares){
+  var price = Number(adv.price) || 0;
+  var score = Number(adv.score100) || 0;
+  var tech = adv.action || "hold";
+  var support = adv.support || 0, pressure = adv.pressure || 0;
+  var a_stop = adv.stop_loss || 0, a_tp = adv.take_profit || 0;
+  var has = !!(cost > 0 && shares > 0);
+  var pnl_pct = has ? (price / cost - 1) * 100 : null;
+  var pnl_amt = has ? (price - cost) * shares : null;
+
+  var cand = [];
+  if(a_stop && a_stop < price) cand.push(a_stop);
+  if(has){
+    cand.push(cost * 0.92);
+    if(pnl_pct !== null && pnl_pct >= 5) cand.push(cost * 1.005);
+    if(pnl_pct !== null && pnl_pct >= 15) cand.push(cost * 1.06);
+  }
+  var stop = cand.length ? Math.max.apply(null, cand) : price * 0.93;
+  stop = Math.max(Math.min(stop, price * 0.97), price * 0.85);
+
+  var cand2 = [price * 1.10];
+  if(a_tp && a_tp > price) cand2.push(a_tp);
+  if(pressure && pressure > price) cand2.push(pressure);
+  if(has && pnl_pct !== null && pnl_pct >= 0) cand2.push(cost * 1.20);
+  var tp = Math.max.apply(null, cand2);
+  var cap = price * (has ? 1.20 : 1.15);
+  tp = Math.min(tp, cap);
+  if(has && pnl_pct !== null && pnl_pct <= -8) tp = Math.min(tp, Math.max(price * 1.12, cost * 1.02));
+  tp = Math.max(tp, price * 1.04);
+
+  var verdict = "watch", detail = [], urgency = "normal";
+
+  if(!has){
+    if(score >= 70){ verdict = "add"; urgency = "opportunity"; detail.push("评分 " + Math.round(score) + " 分，技术面偏强，可考虑建仓"); }
+    else if(score >= 55){ detail.push("评分 " + Math.round(score) + " 分，中性偏强，等回调到支撑位再看"); }
+    else { detail.push("评分 " + Math.round(score) + " 分，技术面偏弱，暂不建议建仓"); }
+  }else{
+    if(pnl_pct <= -10 && score < 45){ verdict = "sell"; urgency = "high"; detail.push("浮亏 " + pnl_pct.toFixed(1) + "% 且评分仅 " + Math.round(score) + " 分，技术面已走坏，建议止损离场"); }
+    else if(pnl_pct <= -10 && score >= 55){ verdict = "hold"; detail.push("浮亏 " + pnl_pct.toFixed(1) + "%，但评分 " + Math.round(score) + " 分，技术面尚未破坏，可持有等待修复"); }
+    else if(pnl_pct <= -5 && score < 50){ verdict = "reduce"; detail.push("浮亏 " + pnl_pct.toFixed(1) + "% 且评分 " + Math.round(score) + " 分偏低，建议先减仓控制风险"); }
+    else if(pnl_pct >= 25 && score < 55){ verdict = "take"; urgency = "high"; detail.push("已盈利 " + pnl_pct.toFixed(1) + "%，但评分降到 " + Math.round(score) + " 分，建议分批止盈锁定收益"); }
+    else if(pnl_pct >= 15 && score < 50){ verdict = "take"; detail.push("盈利 " + pnl_pct.toFixed(1) + "%、评分 " + Math.round(score) + " 分，动能减弱，可部分止盈"); }
+    else if(score >= 70){ verdict = "hold"; detail.push("评分 " + Math.round(score) + " 分，趋势与量能配合，可继续持有"); }
+    else if(score >= 55){ verdict = "hold"; detail.push("评分 " + Math.round(score) + " 分，中性偏强，持有为主"); }
+    else if(score >= 45){ verdict = "reduce"; detail.push("评分 " + Math.round(score) + " 分，动能不足，建议逢高减仓"); }
+    else { verdict = "sell"; detail.push("评分仅 " + Math.round(score) + " 分，多项指标转弱，建议卖出"); }
+  }
+
+  if(has && pnl_pct !== null && pnl_pct <= -8 && (verdict === "hold" || verdict === "watch")){
+    detail.push("反弹至 " + (cost * 0.95).toFixed(2) + "（成本 95%）附近可先减一半，降低持仓压力");
+  }
+  if((tech === "sell" || tech === "reduce") && verdict === "hold") detail.push("技术面提示" + HC_ALABEL[tech] + "，需留意");
+  if((tech === "buy" || tech === "add") && (verdict === "sell" || verdict === "reduce")) detail.push("技术面仍有支撑，可等反弹再减");
+  if(price && stop) detail.push("止损位 " + stop.toFixed(2) + "（距现价 " + ((stop / price - 1) * 100).toFixed(1) + "%）");
+  if(price && tp) detail.push("止盈位 " + tp.toFixed(2) + "（距现价 " + ((tp / price - 1) * 100 >= 0 ? "+" : "") + ((tp / price - 1) * 100).toFixed(1) + "%）");
+
+  return {
+    verdict: verdict, verdict_label: HC_PLABEL[verdict], urgency: urgency,
+    pnl_pct: pnl_pct === null ? null : hcR(pnl_pct, 2),
+    pnl_amt: pnl_amt === null ? null : Math.round(pnl_amt),
+    stop: hcR(stop, 2), take_profit: hcR(tp, 2),
+    stop_dist: price ? hcR((stop / price - 1) * 100, 2) : null,
+    tp_dist: price ? hcR((tp / price - 1) * 100, 2) : null,
+    reasons: detail.slice(0, 4), local: true
+  };
+}
+
+/* --- 对外：拿一只股票的本地体检结果（带缓存 + 并发合并） --- */
+function hcRun(code, cb, force){
+  var c = HC_CACHE[code];
+  if(!force && c && (Date.now() - c.ts) < HC_TTL) return cb(c.data, null);
+  if(HC_WAIT[code]){ HC_WAIT[code].push(cb); return; }
+  HC_WAIT[code] = [cb];
+
+  function done(data, err){
+    var list = HC_WAIT[code] || [];
+    delete HC_WAIT[code];
+    if(data) HC_CACHE[code] = {ts: Date.now(), data: data};
+    for(var i = 0; i < list.length; i++){
+      try{ list[i](data, err); }catch(e){}
+    }
+  }
+
+  hcKline(code, function(kl){
+    if(!kl || kl.length < 40) return done(null, "K线获取失败，可能是网络或该股停牌");
+    var base = (DATA.quotes || {})[code] || {};
+    var last = kl[kl.length - 1];
+    var q = {
+      code: code, n: base.n || code,
+      p: Number(base.p) || last.close,
+      c: Number(base.c) || 0,
+      t: Number(base.t) || 0,
+      a: Number(base.a) || 0,
+      pe: base.pe, pb: base.pb,
+      vr: 0
+    };
+    /* 量比近似：当日量 / 前5日均量 */
+    var vols = [], i;
+    for(i = 0; i < kl.length; i++) vols.push(kl[i].volume);
+    var prev5 = hcMa(vols.slice(0, -1), 5);
+    if(prev5) q.vr = hcR(last.volume / prev5, 2);
+
+    try{
+      var ind = hcIndicators(kl);
+      var ext = hcExt(kl, q);
+      var adv = hcAdvice(q, kl, ind, ext);
+      var w = null;
+      (watches || []).forEach(function(x){ if(x.code === code) w = x; });
+      var cost = w ? Number(w.cost) || 0 : 0;
+      var shares = w ? Number(w.shares) || 0 : 0;
+      var pos = hcPosition(adv, cost, shares);
+      done({
+        code: code, name: q.n, local: true,
+        quote: {price: q.p, change_pct: q.c, turnover: q.t, amount: q.a, pe: q.pe, pb: q.pb},
+        advice: adv, position: pos, cost: cost, shares: shares,
+        ind: ind, ext: ext, kline: kl, news: {items: [], sources: []}
+      }, null);
+    }catch(e){ done(null, "计算失败：" + (e && e.message ? e.message : e)); }
+  });
+}
+
 var VERDICT_CLS = {hold:"v-hold", add:"v-add", reduce:"v-reduce", sell:"v-sell", take:"v-take", watch:"v-watch"};
 
-function posBlock(code){
-  var d = (DATA.watch_detail || {})[code];
-  if(!d || !d.position) return "";
+function posBoxHtml(code, d){
   var p = d.position, a = d.advice || {};
+  if(!p) return "";
   var vc = VERDICT_CLS[p.verdict] || "v-watch";
   var reasons = (p.reasons || []).slice(0, 2).map(function(r){
     return '<li>' + esc(r) + '</li>';
@@ -1515,6 +2356,7 @@ function posBlock(code){
     +   '<span class="posVerdict">' + esc(p.verdict_label) + '</span>'
     +   '<span class="posScore">' + (a.score100 || "--") + ' 分 · ' + esc(a.grade_label || a.grade || "") + '</span>'
     +   (p.urgency === "high" ? '<span class="posUrgent">优先处理</span>' : '')
+    +   (d.local ? '<span class="posLocal">本地快检</span>' : '')
     + '</div>'
     + '<div class="posPriceRow">'
     +   '<div><i>止损</i><b>' + fmt(p.stop, 2) + '</b><span>' + sign(p.stop_dist) + '%</span></div>'
@@ -1523,8 +2365,58 @@ function posBlock(code){
     + (reasons ? '<ul class="posReasons">' + reasons + '</ul>' : '')
     + '<div class="chartBar" style="margin-top:6px">'
     +   '<button data-wai="' + esc(code) + '">AI 复评持仓</button></div>'
-    + '<div id="wai-' + esc(code) + '"></div>'
+    + '<div class="waiOut" data-wai-out="' + esc(code) + '"></div>'
     + '</div>';
+}
+
+function posLoadingHtml(){
+  return '<div class="posBox v-watch"><div class="posLine">'
+    + '<span class="posVerdict">体检中…</span><span class="posScore">-- 分</span></div>'
+    + '<div class="hint" style="margin:2px 0 0">正在拉取 250 日K线计算评分</div></div>';
+}
+
+/* 云端成本可能和本地改过的不一致：以本地持仓为准重算一次结论 */
+function posWithLocalCost(code, d){
+  if(!d || d.local || !d.position) return d;
+  var w = null;
+  (watches || []).forEach(function(x){ if(x.code === code) w = x; });
+  if(!w) return d;
+  var cost = Number(w.cost) || 0, sh = Number(w.shares) || 0;
+  if(Math.abs((Number(d.cost) || 0) - cost) < 0.001 && (Number(d.shares) || 0) === sh) return d;
+  try{
+    return Object.assign({}, d, {position: hcPosition(d.advice, cost, sh)});
+  }catch(e){ return d; }
+}
+
+function posBlock(code){
+  var d = posWithLocalCost(code, (DATA.watch_detail || {})[code]);
+  if(d && d.position){
+    return '<div id="pb-' + esc(code) + '">' + posBoxHtml(code, d) + '</div>';
+  }
+  var c = HC_CACHE[code];
+  if(c && c.data && c.data.position) return '<div id="pb-' + esc(code) + '">' + posBoxHtml(code, c.data) + '</div>';
+  return '<div id="pb-' + esc(code) + '">' + posLoadingHtml() + '</div>';
+}
+
+/* 本地自选：云端没有深度数据时，现场算一份补上 */
+function hydrateLocal(){
+  (watches || []).forEach(function(w){
+    var code = w.code;
+    if((DATA.watch_detail || {})[code]) return;          // 云端报告已覆盖
+    var c = HC_CACHE[code];
+    if(c && c.data && c.data.position) return;           // 已渲染过
+    hcRun(code, function(data){
+      var el = document.getElementById("pb-" + code);
+      if(!el || !el.parentNode) return;
+      if(data && data.position){
+        el.innerHTML = posBoxHtml(code, data);
+      }else{
+        el.innerHTML = '<div class="posBox v-watch"><div class="posLine">'
+          + '<span class="posVerdict">暂无评分</span></div>'
+          + '<div class="hint" style="margin:2px 0 0">K线没取到，点「同步到云端」可走服务器端体检</div></div>';
+      }
+    });
+  });
 }
 
 function renderWatch(){
@@ -1567,6 +2459,7 @@ function renderWatch(){
       + '</div>';
   }).join("");
   $("main").innerHTML = html;
+  hydrateLocal();
 }
 
 /* ---------------- 实时行情（可选代理） ---------------- */
@@ -1918,6 +2811,7 @@ function renderCbAi(code, d){
     + (rk ? '<ul style="margin-top:3px">' + rk.replace(/<li>/g, '<li style="color:#ff9b9b">') + '</ul>' : '')
     + (d.advice ? '<p style="margin-top:5px;color:var(--sub);font-size:10.5px">操作：' + esc(d.advice) + '</p>' : '')
     + '</div>';
+  Array.prototype.forEach.call(boxes, function(b){ b.innerHTML = html0; });
 }
 
 /* ---------- 持仓 AI 复评 ---------- */
@@ -1954,7 +2848,17 @@ function watchAiReview(code, btn){
     return;
   }
   var d = (DATA.watch_detail || {})[code];
-  if(!d){ alert("该股暂无深度数据，请先同步到云端"); return; }
+  if(!d && HC_CACHE[code]) d = HC_CACHE[code].data;
+  if(!d){
+    var old0 = btn.textContent;
+    btn.textContent = "取数据…"; btn.disabled = true;
+    hcRun(code, function(data){
+      btn.disabled = false; btn.textContent = old0;
+      if(data) watchAiReview(code, btn);
+      else alert("拿不到这只股票的K线，稍后再试，或先同步到云端");
+    });
+    return;
+  }
   var cached = aiCacheGet("pos" + code);
   if(cached){ renderWatchAi(code, cached); return; }
   var old = btn.textContent;
@@ -1982,11 +2886,12 @@ function watchAiReview(code, btn){
 }
 
 function renderWatchAi(code, d){
-  var box = document.getElementById("wai-" + code);
-  if(!box) return;
+  var boxes = document.querySelectorAll('[data-wai-out="' + code + '"]');
+  if(!boxes.length) return;
+  var html0 = '';
   var th = (d.thesis || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
   var rk = (d.risks || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
-  box.innerHTML = '<div class="aiBox"><h5>' + esc(d.verdict || "") + ' · 置信度 ' + (d.confidence || 0)
+  html0 = '<div class="aiBox"><h5>' + esc(d.verdict || "") + ' · 置信度 ' + (d.confidence || 0)
     + '% · AI 评分 ' + (d.score || 0) + '</h5>'
     + (d.one_line ? '<p>' + esc(d.one_line) + '</p>' : '')
     + (d.stop || d.target ? '<p style="margin-top:4px">AI 止损 <b>' + fmt(d.stop, 2)
