@@ -48,6 +48,11 @@ jobs:
           while true; do
             n=$((n+1))
             echo "========== 第 $n 轮  $(date +'%H:%M:%S') =========="
+            # 拉一下远端：网页里点「一键同步」刚提交的 watchlist.json 要能立刻生效
+            if ! git pull --rebase -q origin main; then
+              git rebase --abort 2>/dev/null || true
+              echo "!! 同步远端失败，本轮沿用本地配置"
+            fi
             python build_static.py || echo "!! 本轮构建失败，稍后重试"
 
             git add docs/data/
