@@ -3022,7 +3022,6 @@ function syncPanelHtml(){
     + '<pre class="spPre">' + esc(payload) + '</pre>'
     + '<div class="chartBar" style="margin-top:5px"><button data-copy-sync="1">复制</button>'
     + '<button data-open-wl="1">手动去 GitHub 改</button></div>'
-    + '<textarea id="syncTxt" style="display:none">' + esc(payload) + '</textarea>'
     + '</details></div>';
   return h;
 }
@@ -3134,14 +3133,28 @@ $("main").addEventListener("click", function(e){
   }
   var cps = e.target.getAttribute("data-copy-sync");
   if(cps){
-    var ta = document.getElementById("syncTxt");
-    if(ta){
-      ta.style.display = "block";
+    var pre = document.querySelector(".spPre");
+    var txt = pre ? pre.textContent : "";
+    var bEl = e.target;
+    var fin = function(){
+      bEl.textContent = "已复制";
+      setTimeout(function(){ bEl.textContent = "复制"; }, 1500);
+    };
+    var fallback = function(){
+      var ta = document.createElement("textarea");
+      ta.value = txt;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
       ta.select();
       try{ document.execCommand("copy"); }catch(err){}
-      if(navigator.clipboard) navigator.clipboard.writeText(ta.value).catch(function(){});
-      e.target.textContent = "已复制";
-      setTimeout(function(){ e.target.textContent = "复制"; }, 1500);
+      document.body.removeChild(ta);
+      fin();
+    };
+    if(navigator.clipboard && txt){
+      navigator.clipboard.writeText(txt).then(fin).catch(fallback);
+    }else{
+      fallback();
     }
     return;
   }
