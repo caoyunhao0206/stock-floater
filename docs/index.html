@@ -198,6 +198,34 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 .lofWarn{background:rgba(255,212,94,.08);border:1px solid rgba(255,212,94,.28);
   border-radius:10px;padding:9px 10px;font-size:10px;line-height:1.65;color:#e8d8a8}
 
+/* 持仓结论 */
+.posBox{border-radius:10px;padding:8px 10px;margin-top:6px;border:1px solid transparent}
+.posBox.v-hold{background:rgba(76,141,255,.08);border-color:rgba(76,141,255,.28)}
+.posBox.v-add{background:rgba(61,220,151,.08);border-color:rgba(61,220,151,.3)}
+.posBox.v-reduce{background:rgba(255,212,94,.08);border-color:rgba(255,212,94,.3)}
+.posBox.v-sell{background:rgba(255,77,94,.1);border-color:rgba(255,77,94,.35)}
+.posBox.v-take{background:rgba(255,160,90,.09);border-color:rgba(255,160,90,.3)}
+.posBox.v-watch{background:rgba(255,255,255,.04);border-color:var(--line)}
+.posLine{display:flex;align-items:baseline;gap:7px}
+.posVerdict{font-size:13px;font-weight:700}
+.v-hold .posVerdict{color:#8fc0ff}
+.v-add .posVerdict{color:#3ddc97}
+.v-reduce .posVerdict{color:#ffd45e}
+.v-sell .posVerdict{color:#ff6b78}
+.v-take .posVerdict{color:#ffa05a}
+.v-watch .posVerdict{color:var(--sub)}
+.posScore{font-size:9.5px;color:var(--sub2)}
+.posUrgent{margin-left:auto;font-size:8.5px;color:#ff6b78;border:1px solid rgba(255,77,94,.45);
+  border-radius:4px;padding:0 5px}
+.posPriceRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.posPriceRow div{background:rgba(0,0,0,.22);border-radius:7px;padding:4px 7px;display:flex;align-items:baseline;gap:5px}
+.posPriceRow i{font-style:normal;font-size:8.5px;color:var(--sub2);flex:none}
+.posPriceRow b{font-size:11.5px;font-variant-numeric:tabular-nums}
+.posPriceRow span{font-size:9px;color:var(--sub2);margin-left:auto}
+.posReasons{list-style:none;margin-top:5px}
+.posReasons li{font-size:9.5px;line-height:1.55;color:var(--sub);padding-left:9px;position:relative}
+.posReasons li::before{content:"·";position:absolute;left:1px;color:var(--sub2)}
+
 /* 事件 */
 .evRow{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;
   background:rgba(255,255,255,.03);border:1px solid var(--line);margin-bottom:4px;font-size:10.5px}
@@ -1472,6 +1500,33 @@ function eventBlocks(){
   return h;
 }
 
+var VERDICT_CLS = {hold:"v-hold", add:"v-add", reduce:"v-reduce", sell:"v-sell", take:"v-take", watch:"v-watch"};
+
+function posBlock(code){
+  var d = (DATA.watch_detail || {})[code];
+  if(!d || !d.position) return "";
+  var p = d.position, a = d.advice || {};
+  var vc = VERDICT_CLS[p.verdict] || "v-watch";
+  var reasons = (p.reasons || []).slice(0, 2).map(function(r){
+    return '<li>' + esc(r) + '</li>';
+  }).join("");
+  return '<div class="posBox ' + vc + '">'
+    + '<div class="posLine">'
+    +   '<span class="posVerdict">' + esc(p.verdict_label) + '</span>'
+    +   '<span class="posScore">' + (a.score100 || "--") + ' 分 · ' + esc(a.grade_label || a.grade || "") + '</span>'
+    +   (p.urgency === "high" ? '<span class="posUrgent">优先处理</span>' : '')
+    + '</div>'
+    + '<div class="posPriceRow">'
+    +   '<div><i>止损</i><b>' + fmt(p.stop, 2) + '</b><span>' + sign(p.stop_dist) + '%</span></div>'
+    +   '<div><i>止盈</i><b>' + fmt(p.take_profit, 2) + '</b><span>' + sign(p.tp_dist) + '%</span></div>'
+    + '</div>'
+    + (reasons ? '<ul class="posReasons">' + reasons + '</ul>' : '')
+    + '<div class="chartBar" style="margin-top:6px">'
+    +   '<button data-wai="' + esc(code) + '">AI 复评持仓</button></div>'
+    + '<div id="wai-' + esc(code) + '"></div>'
+    + '</div>';
+}
+
 function renderWatch(){
   var pos = positionCard();
   if(!watches.length){
@@ -1479,10 +1534,10 @@ function renderWatch(){
     return;
   }
   var html = pos;
-  if(watches.length >= 2){
-    html += '<div class="chartBar" style="margin-bottom:8px">'
-      + '<button data-compare="1">自选股走势对比</button></div><div id="cmpBox"></div>';
-  }
+  html += '<div class="chartBar" style="margin-bottom:8px">'
+    + '<button data-sync="1">同步到云端（获得评分与建议）</button>'
+    + (watches.length >= 2 ? '<button data-compare="1">走势对比</button>' : '')
+    + '</div><div id="syncBox"></div><div id="cmpBox"></div>';
   html += watches.map(function(w){
     var q = (DATA.quotes||{})[w.code];
     if(!q){
@@ -1497,6 +1552,7 @@ function renderWatch(){
       + '<div class="wTop"><span class="wName">'+esc(q.n)+'</span><span class="wCode">'+esc(w.code)+'</span>'
       + '<span class="wPrice '+cls(q.c)+'" data-rt="'+esc(w.code)+'">'+fmt(q.p)+'</span>'
       + '<span class="wChg '+cls(q.c)+'" data-rtpct="'+esc(w.code)+'">'+sign(q.c)+'%</span></div>'
+      + posBlock(w.code)
       + '<div class="wGrid">'
       +   '<div>成本价<b>'+(w.cost?fmt(w.cost):'--')+'</b></div>'
       +   '<div>持仓<b>'+(w.shares?w.shares+' 股':'--')+'</b></div>'
@@ -1864,6 +1920,83 @@ function renderCbAi(code, d){
     + '</div>';
 }
 
+/* ---------- 持仓 AI 复评 ---------- */
+function buildWatchPrompt(d){
+  var a = d.advice || {}, p = d.position || {}, ind = a.indicators || {}, dims = a.dims || {};
+  var q = d.quote || {};
+  var pnl = p.pnl_pct;
+  return "你是A股投顾。客户持有下面这只股票，请给出明确的操作结论。\n\n"
+    + "股票：" + d.name + "（" + d.code + "）\n"
+    + "现价：" + (q.price || a.price) + "  今日涨跌：" + (q.change_pct || 0) + "%\n"
+    + "持仓成本：" + (d.cost || 0) + "  持仓数量：" + (d.shares || 0) + " 股"
+    + "  浮动盈亏：" + (pnl !== null && pnl !== undefined ? pnl + "%" : "未持仓") + "\n"
+    + "系统评分：" + (a.score100 || "-") + "/100（" + (a.grade_label || a.grade || "") + "）"
+    + "  六维：趋势" + (dims.trend||0) + " 动能" + (dims.momentum||0) + " 量能" + (dims.volume||0)
+    + " 资金" + (dims.fund||0) + " 消息" + (dims.news||0) + " 估值" + (dims.value||0) + "\n"
+    + "均线：MA5 " + (ind.ma5||"-") + " MA10 " + (ind.ma10||"-") + " MA20 " + (ind.ma20||"-")
+    + " MA60 " + (ind.ma60||"-") + "  RSI6 " + (ind.rsi6||"-") + "\n"
+    + "支撑：" + (a.support||"-") + "  压力：" + (a.pressure||"-") + "\n"
+    + "系统建议：" + (p.verdict_label||a.action_label||"-") + "，止损 " + (p.stop||"-")
+    + "，止盈 " + (p.take_profit||"-") + "\n"
+    + (a.penalties && a.penalties.length ? "风险点：" + a.penalties.join("；") + "\n" : "")
+    + (a.reasons && a.reasons.length ? "支持理由：" + a.reasons.slice(0,3).join("；") + "\n" : "")
+    + "\n请结合成本与盈亏，判断该继续持有、减仓还是卖出，并给出可执行的价位。\n"
+    + "只输出 JSON：{\"verdict\":\"继续持有/减仓/卖出/加仓\",\"score\":0到100,\"confidence\":0到100,"
+    + "\"one_line\":\"一句话结论\",\"thesis\":[\"理由\"],\"risks\":[\"风险\"],"
+    + "\"stop\":止损价,\"target\":止盈价,\"advice\":\"具体操作（分几批、什么价位）\"}";
+}
+
+function watchAiReview(code, btn){
+  var cfg = userAI();
+  if(!cfg.key || !cfg.base){
+    $("maskAI").classList.add("show");
+    $("uAiMsg").textContent = "请先填写 API 配置";
+    return;
+  }
+  var d = (DATA.watch_detail || {})[code];
+  if(!d){ alert("该股暂无深度数据，请先同步到云端"); return; }
+  var cached = aiCacheGet("pos" + code);
+  if(cached){ renderWatchAi(code, cached); return; }
+  var old = btn.textContent;
+  btn.textContent = "AI 分析中…"; btn.disabled = true;
+  fetch(cfg.base.replace(/\/+$/, "") + "/chat/completions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Authorization": "Bearer " + cfg.key},
+    body: JSON.stringify({model: cfg.model || "deepseek-chat",
+      messages: [{role: "user", content: buildWatchPrompt(d)}], temperature: 0.3, max_tokens: 700})
+  }).then(function(r){
+    if(!r.ok) return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + t.slice(0,60)); });
+    return r.json();
+  }).then(function(j){
+    var txt = (((j.choices || [])[0] || {}).message || {}).content || "";
+    var m = txt.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error("模型未返回 JSON");
+    var res = JSON.parse(m[0]);
+    aiCacheSet("pos" + code, res);
+    renderWatchAi(code, res);
+    btn.textContent = "重新复评"; btn.disabled = false;
+  }).catch(function(e){
+    btn.textContent = old; btn.disabled = false;
+    alert("AI 调用失败：" + e.message);
+  });
+}
+
+function renderWatchAi(code, d){
+  var box = document.getElementById("wai-" + code);
+  if(!box) return;
+  var th = (d.thesis || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
+  var rk = (d.risks || []).map(function(t){ return "<li>" + esc(t) + "</li>"; }).join("");
+  box.innerHTML = '<div class="aiBox"><h5>' + esc(d.verdict || "") + ' · 置信度 ' + (d.confidence || 0)
+    + '% · AI 评分 ' + (d.score || 0) + '</h5>'
+    + (d.one_line ? '<p>' + esc(d.one_line) + '</p>' : '')
+    + (d.stop || d.target ? '<p style="margin-top:4px">AI 止损 <b>' + fmt(d.stop, 2)
+        + '</b> · 目标 <b>' + fmt(d.target, 2) + '</b></p>' : '')
+    + (th ? '<ul>' + th + '</ul>' : '')
+    + (rk ? '<ul style="margin-top:3px">' + rk.replace(/<li>/g, '<li style="color:#ff9b9b">') + '</ul>' : '')
+    + (d.advice ? '<p style="margin-top:5px;color:var(--sub);font-size:10.5px">操作：' + esc(d.advice) + '</p>' : '')
+    + '</div>';
+}
+
 function isTradingTime(){
   var d = new Date();
   var w = d.getDay();
@@ -1885,6 +2018,49 @@ $("main").addEventListener("click", function(e){
   if(cba){ cbAiReview(cba, e.target); return; }
   var ls = e.target.getAttribute("data-lofsub");
   if(ls){ lofSub = ls; renderLof(); return; }
+  var wai = e.target.getAttribute("data-wai");
+  if(wai){ watchAiReview(wai, e.target); return; }
+  var syn = e.target.getAttribute("data-sync");
+  if(syn){
+    var arr = watches.map(function(w){
+      return {code: w.code, cost: Number(w.cost) || 0, shares: Number(w.shares) || 0};
+    });
+    var txt = JSON.stringify(arr, null, 1);
+    var box = document.getElementById("syncBox");
+    if(box){
+      box.innerHTML = '<div class="lofWarn" style="color:#cfe3ff;background:rgba(76,141,255,.08);'
+        + 'border-color:rgba(76,141,255,.3)">'
+        + '<b>第 1 步</b>：下面的内容已生成，点「复制」<br>'
+        + '<textarea id="syncTxt" style="width:100%;height:90px;margin-top:6px;background:rgba(0,0,0,.35);'
+        + 'border:1px solid var(--line);border-radius:8px;color:var(--txt);font-size:10px;padding:6px;'
+        + 'font-family:monospace" spellcheck="false">' + esc(txt) + '</textarea>'
+        + '<div class="chartBar" style="margin-top:6px">'
+        +   '<button data-copy-sync="1">复制</button>'
+        +   '<button data-open-wl="1">打开 GitHub 编辑</button>'
+        + '</div>'
+        + '<b>第 2 步</b>：把内容整段替换仓库里的 <code>watchlist.json</code>，提交<br>'
+        + '<b>第 3 步</b>：下一轮构建（约 5 分钟）后，这里就会显示评分、持有建议和止盈止损'
+        + '</div>';
+    }
+    return;
+  }
+  var cps = e.target.getAttribute("data-copy-sync");
+  if(cps){
+    var ta = document.getElementById("syncTxt");
+    if(ta){
+      ta.select();
+      try{ document.execCommand("copy"); }catch(err){}
+      if(navigator.clipboard) navigator.clipboard.writeText(ta.value).catch(function(){});
+      e.target.textContent = "已复制";
+      setTimeout(function(){ e.target.textContent = "复制"; }, 1500);
+    }
+    return;
+  }
+  var ow = e.target.getAttribute("data-open-wl");
+  if(ow){
+    window.open("https://github.com/caoyunhao0206/stock-floater/edit/main/watchlist.json", "_blank");
+    return;
+  }
   var cmp = e.target.getAttribute("data-compare");
   if(cmp){
     var cb = document.getElementById("cmpBox");
