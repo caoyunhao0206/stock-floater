@@ -2438,11 +2438,17 @@
     "news": 3.7,
     "value": 4.8
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 8.03
+   },
    "base": 8.03,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 8.03,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2462,11 +2468,17 @@
     "news": 6.4,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 13.94
+   },
    "base": 13.94,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 13.94,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2486,11 +2498,17 @@
     "news": 8,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 11.42
+   },
    "base": 11.42,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 11.42,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2510,11 +2528,17 @@
     "news": 5.0,
     "value": 2.6
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 9.33
+   },
    "base": 9.33,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 9.33,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2534,11 +2558,17 @@
     "news": 7.9,
     "value": 8.3
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 52.73
+   },
    "base": 52.73,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 52.73,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2558,11 +2588,17 @@
     "news": 6.9,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 18.49
+   },
    "base": 18.49,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 18.49,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2582,11 +2618,17 @@
     "news": 9.5,
     "value": 7.5
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 9.44
+   },
    "base": 9.44,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 9.44,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2606,11 +2648,17 @@
     "news": 5.9,
     "value": 6.8
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 29.82
+   },
    "base": 29.82,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 29.82,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-22",
@@ -2630,17 +2678,47 @@
     "news": 8.0,
     "value": 8.3
    },
-   "prices": {},
+   "prices": {
+    "2026-10-22": 85.29
+   },
    "base": 85.29,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 85.29,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-10-22",
+   "code": "603126",
+   "name": "中材节能",
+   "kind": "aggressive",
+   "buy": 6.45,
+   "target": 7.07,
+   "stop": 6.16,
+   "score": 62.0,
+   "grade": "B+",
+   "dims": {
+    "trend": 15.0,
+    "momentum": 7.0,
+    "volume": 16.5,
+    "fund": 14.1,
+    "news": 6.4,
+    "value": 3.0
+   },
+   "prices": {},
+   "base": 6.45,
    "ret": {},
    "status": "holding",
    "days": 0
   }
  ],
  "stats": {
-  "total": 89,
+  "total": 90,
   "settled": 10,
-  "holding": 79,
+  "holding": 80,
   "win": 5,
   "win_rate": 50.0,
   "avg_ret": -2.46,
