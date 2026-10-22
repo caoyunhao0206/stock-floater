@@ -3074,8 +3074,8 @@ function doCloudSync(btn, box){
     })
     .then(function(trig){
       if(trig === null){ btn.disabled = false; btn.textContent = old; return; }
-      say("已提交 ✅ " + (trig ? "已触发重建" : "会在下一轮自动重建")
-        + "，约 2~4 分钟后刷新本页，就能看到服务器版报告（含新闻面、研报、AI 复评）。", "#3ddc97");
+      say("已提交 ✅ " + (trig ? "已触发重建" : "下一轮构建会自动带上")
+        + "。盘中约 3 分钟、收盘后 2~4 分钟刷新本页，就能看到服务器版报告（含新闻面、研报、AI 复评）。", "#3ddc97");
       btn.disabled = false;
       btn.textContent = "再同步一次";
     })
