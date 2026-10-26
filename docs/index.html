@@ -238,6 +238,13 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
 .spMore summary{font-size:10px;color:var(--sub2);cursor:pointer;outline:none}
 .spPre{font-size:9.5px;color:var(--sub);background:rgba(0,0,0,.3);border-radius:6px;padding:6px;
   margin-top:4px;overflow:auto;max-height:110px;white-space:pre-wrap;word-break:break-all}
+/* 轻提示 */
+.sfToast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(10px);
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:120;
+  background:rgba(18,22,28,.96);border:1px solid rgba(76,141,255,.45);color:#dbe7ff;
+  font-size:11px;line-height:1.5;padding:8px 14px;border-radius:20px;max-width:86%;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);text-align:center}
+.sfToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .posPriceRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
 .posPriceRow div{background:rgba(0,0,0,.22);border-radius:7px;padding:4px 7px;display:flex;align-items:baseline;gap:5px}
 .posPriceRow i{font-style:normal;font-size:8.5px;color:var(--sub2);flex:none}
@@ -570,6 +577,7 @@ function loadData(){
       $("pTime").textContent = "更新于 " + fmtFull(d.updated_ts) + " · 扫描 " + (((d.market||{}).stats||{}).total||0) + " 只";
       renderPulse();
       render();
+      try{ cloudAuto(); }catch(e){}
     })
     .catch(function(e){
       $("liveTxt").textContent = "离线";
@@ -2443,7 +2451,7 @@ function renderWatch(){
     $("main").innerHTML = '<div class="empty"><b>还没有自选股</b>点下方「+ 自选股」添加<br>或在推荐、榜单里点一只直接加入</div>';
     return;
   }
-  var html = pos;
+  var html = pos + cloudStatusHtml();
   html += '<div class="chartBar" style="margin-bottom:8px">'
     + '<button data-sync="1">同步到云端</button>'
     + (watches.length >= 2 ? '<button data-compare="1">走势对比</button>' : '')
@@ -3090,6 +3098,106 @@ function doCloudSync(btn, box){
       btn.disabled = false;
       btn.textContent = old;
     });
+}
+
+/* ---------- 无人值守：自动同步自选 + 数据陈旧自愈 ---------- */
+function todayKey(){
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+
+function watchFp(){
+  return JSON.stringify((watches || []).map(function(w){
+    return [w.code, Number(w.cost) || 0, Number(w.shares) || 0];
+  }));
+}
+
+function toast(msg){
+  var el = document.getElementById("sfToast");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "sfToast";
+    el.className = "sfToast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._tm);
+  el._tm = setTimeout(function(){ el.classList.remove("show"); }, 3000);
+}
+
+function dispatchBuild(force){
+  var token = ghToken();
+  if(!token) return Promise.resolve(false);
+  var now = Math.floor(Date.now() / 1000);
+  var last = 0;
+  try{ last = Number(localStorage.getItem("sf_lastdispatch") || 0); }catch(e){}
+  if(!force && now - last < 600) return Promise.resolve(false);
+  try{ localStorage.setItem("sf_lastdispatch", String(now)); }catch(e){}
+  return ghApi("/repos/" + GH_REPO + "/actions/workflows/" + GH_WF + "/dispatches", {
+    method: "POST", token: token, body: {ref: GH_BRANCH}
+  }).then(function(){ return true; }).catch(function(){ return false; });
+}
+
+function silentSync(cb){
+  var token = ghToken();
+  if(!token || !watches.length){ if(cb) cb(false); return; }
+  var payload = JSON.stringify(watches.map(function(w){
+    return {code: w.code, cost: Number(w.cost) || 0, shares: Number(w.shares) || 0};
+  }), null, 1) + "\n";
+  ghApi("/repos/" + GH_REPO + "/contents/" + GH_FILE + "?ref=" + GH_BRANCH, {token: token})
+    .then(function(cur){
+      var old = "";
+      try{ old = b64dec(cur.content || ""); }catch(e){}
+      if(old.replace(/\s+$/, "") === payload.replace(/\s+$/, "")) return {changed: false};
+      return ghApi("/repos/" + GH_REPO + "/contents/" + GH_FILE, {
+        method: "PUT", token: token,
+        body: {message: "chore: 自动同步自选（" + watches.length + " 只）",
+               content: b64enc(payload), sha: cur.sha, branch: GH_BRANCH}
+      }).then(function(){ return {changed: true}; });
+    })
+    .then(function(res){
+      if(res && res.changed){
+        try{
+          localStorage.setItem("sf_autosync_day", todayKey());
+          localStorage.setItem("sf_autosync_fp", watchFp());
+        }catch(e){}
+        dispatchBuild(true);
+        toast("自选已自动同步到云端，2~4 分钟后有完整报告");
+      }
+      if(cb) cb(!!(res && res.changed));
+    })
+    .catch(function(){ if(cb) cb(false); });
+}
+
+function cloudAuto(){
+  if(!ghToken()) return;
+  var day = "", fp = "";
+  try{
+    day = localStorage.getItem("sf_autosync_day") || "";
+    fp = localStorage.getItem("sf_autosync_fp") || "";
+  }catch(e){}
+  /* 每天第一次打开、或者改了持仓 → 自动传一次，不用手动点 */
+  if(watches.length && (day !== todayKey() || fp !== watchFp())) silentSync();
+
+  /* 盘中数据超过 12 分钟没动 → 主动踢一次构建 */
+  if(isTradingTime()){
+    var ts = Number((DATA || {}).updated_ts) || 0;
+    if(ts && (Date.now() / 1000 - ts) / 60 > 12) dispatchBuild();
+  }
+}
+
+function cloudStatusHtml(){
+  if(!ghToken()){
+    return '<div class="hint" style="margin:0 0 7px">云端未连接 · 本地体检随时可用，'
+      + '连上后才有新闻面、研报和微信提醒</div>';
+  }
+  var ts = Number((DATA || {}).updated_ts) || 0;
+  var mins = ts ? Math.round((Date.now() / 1000 - ts) / 60) : -1;
+  var n = Object.keys((DATA || {}).watch_detail || {}).length;
+  var ago = mins < 0 ? "未知" : (mins < 1 ? "刚刚" : (mins < 60 ? mins + " 分钟前" : Math.round(mins / 60) + " 小时前"));
+  return '<div class="hint" style="margin:0 0 7px">云端报告 ' + n + ' 只 · 数据 ' + ago
+    + (isTradingTime() && mins > 12 ? ' · 正在追更新…' : '') + '</div>';
 }
 
 /* ---------------- 交互 ---------------- */
