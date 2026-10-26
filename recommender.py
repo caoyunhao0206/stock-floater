@@ -311,7 +311,7 @@ def build(rows, index_closes=None, per_list=10, agg_pool=34, steady_pool=34):
     tasks = [(r, "aggressive") for r in agg] + [(r, "steady") for r in st]
 
     results = []
-    with ThreadPoolExecutor(max_workers=8) as ex:
+    with ThreadPoolExecutor(max_workers=12) as ex:
         for res in ex.map(lambda t: _deep(t[0], t[1], index_closes), tasks):
             if res:
                 results.append(res)
