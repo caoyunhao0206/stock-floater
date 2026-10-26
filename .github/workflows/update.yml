@@ -50,21 +50,21 @@ jobs:
             n=$((n+1))
             echo "========== 第 $n 轮  $(date +'%H:%M:%S') =========="
             # 只取网页刚同步过来的 watchlist，不动其他文件，避免 rebase 卡住
-            git fetch -q origin main 2>/dev/null || echo "!! fetch 失败，沿用本地配置"
-            git checkout -q origin/main -- watchlist.json 2>/dev/null || true
+            timeout 60 git fetch -q origin main 2>/dev/null || echo "!! fetch 失败，沿用本地配置"
+            timeout 30 git checkout -q origin/main -- watchlist.json 2>/dev/null || true
 
-            # 单轮硬超时：某个数据源卡住也不会拖死整个任务
-            timeout 420 python build_static.py || echo "!! 本轮构建超时或失败，稍后重试"
+            # 单轮硬超时（13 分钟）：跨境访问慢，正常一轮 6~8 分钟，卡住也不会拖死整个任务
+            timeout 780 python build_static.py || echo "!! 本轮构建超时或失败，稍后重试"
 
             # 先把 HEAD 对齐远端（工作区文件保留），这样 push 永远是快进
-            git fetch -q origin main 2>/dev/null || true
+            timeout 60 git fetch -q origin main 2>/dev/null || true
             git reset --soft origin/main 2>/dev/null || true
             git add docs/data/
             if git diff --staged --quiet; then
               echo "数据无变化，跳过提交"
             else
               git commit -q -m "data: $(date +'%m-%d %H:%M')"
-              if git push -q; then
+              if timeout 90 git push -q; then
                 echo "已提交并推送"
               else
                 echo "!! 推送失败，下轮重试"
