@@ -245,6 +245,10 @@ main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
   font-size:11px;line-height:1.5;padding:8px 14px;border-radius:20px;max-width:86%;
   box-shadow:0 8px 24px rgba(0,0,0,.5);text-align:center}
 .sfToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.verBar{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:130;cursor:pointer;
+  background:linear-gradient(90deg,rgba(76,141,255,.95),rgba(120,110,255,.95));color:#fff;
+  font-size:10.5px;padding:6px 14px;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.verBar b{text-decoration:underline}
 .posPriceRow{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
 .posPriceRow div{background:rgba(0,0,0,.22);border-radius:7px;padding:4px 7px;display:flex;align-items:baseline;gap:5px}
 .posPriceRow i{font-style:normal;font-size:8.5px;color:var(--sub2);flex:none}
@@ -3542,10 +3546,30 @@ $("btnRefresh").onclick = function(){
     .catch(function(){ b.textContent = "刷新"; b.disabled = false; });
 };
 
+/* 页面本身也会被 CDN 缓存，检测到新版本就给个刷新入口 */
+function checkAppVersion(){
+  fetch("index.html", {method: "HEAD", cache: "no-store"}).then(function(r){
+    var lm = r.headers.get("last-modified");
+    if(!lm) return;
+    var remote = new Date(lm).getTime();
+    var local = new Date(document.lastModified).getTime();
+    if(remote > local + 120000 && !document.getElementById("verBar")){
+      var bar = document.createElement("div");
+      bar.id = "verBar";
+      bar.className = "verBar";
+      bar.innerHTML = '有新版本了 <b>点此刷新</b>';
+      bar.onclick = function(){ location.reload(); };
+      document.body.appendChild(bar);
+    }
+  }).catch(function(){});
+}
+
 initLock();
 if(isAuthed()){
   loadData();
   setInterval(loadData, 60000);
+  setTimeout(checkAppVersion, 8000);
+  setInterval(checkAppVersion, 300000);
   rtStart();
   setInterval(setRtStatus, 3000);
 }
