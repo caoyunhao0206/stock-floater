@@ -10,6 +10,7 @@ import json
 import re
 import time
 import logging
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -115,8 +116,14 @@ def fetch_kline(symbol, count=320):
     return kl
 
 
+# 资金流接口一旦连续失败就整轮停用，避免每只股票都白等一次超时（每轮省几十秒）
+_FF_FAIL = {"n": 0, "off": False}
+
+
 def fetch_fund_flow(secid, days=5):
     """东方财富主力资金流（近 N 日）；接口不可用时返回 []，由引擎降级为量价评分"""
+    if _FF_FAIL["off"]:
+        return []
     url = "https://push2.eastmoney.com/api/qt/stock/fflow/daykline/get"
     params = {
         "secid": secid, "lmt": days, "klt": 101,
@@ -127,7 +134,11 @@ def fetch_fund_flow(secid, days=5):
         r = _get(url, params=params)
         klines = (r.json().get("data") or {}).get("klines") or []
     except Exception:  # noqa: BLE001
+        _FF_FAIL["n"] += 1
+        if _FF_FAIL["n"] >= 3:
+            _FF_FAIL["off"] = True
         return []
+    _FF_FAIL["n"] = 0
     out = []
     for row in klines:
         f = row.split(",")
@@ -478,6 +489,34 @@ def fetch_sectors(sort="price", count=60):
     return out
 
 
+# 证券时报 / 新浪滚动是「全市场列表」，不是按股票拉的。
+# 68 只候选逐只拉一遍 = 白跑 270 次跨境请求，所以按 2 分钟做一次全局缓存。
+_GLOBAL_NEWS = {"t": 0.0, "stcn": [], "sina": []}
+_GLOBAL_NEWS_LOCK = threading.Lock()
+
+
+def _global_news():
+    now = time.time()
+    if now - _GLOBAL_NEWS["t"] < 120:
+        return _GLOBAL_NEWS["stcn"], _GLOBAL_NEWS["sina"]
+    with _GLOBAL_NEWS_LOCK:
+        if time.time() - _GLOBAL_NEWS["t"] < 120:
+            return _GLOBAL_NEWS["stcn"], _GLOBAL_NEWS["sina"]
+        with ThreadPoolExecutor(max_workers=2) as ex:
+            f1 = ex.submit(fetch_stcn)
+            f2 = ex.submit(fetch_sina_roll_multi)
+            try:
+                _GLOBAL_NEWS["stcn"] = f1.result() or []
+            except Exception:  # noqa: BLE001
+                _GLOBAL_NEWS["stcn"] = []
+            try:
+                _GLOBAL_NEWS["sina"] = f2.result() or []
+            except Exception:  # noqa: BLE001
+                _GLOBAL_NEWS["sina"] = []
+        _GLOBAL_NEWS["t"] = time.time()
+    return _GLOBAL_NEWS["stcn"], _GLOBAL_NEWS["sina"]
+
+
 def fetch_news_multi_v2(symbol, code, name, limit=10):
     """
     五源合并：公告(2.0) + 证券时报(1.5) + 7x24(1.2) + 新浪滚动(1.1) + 新浪个股(1.0)
@@ -493,15 +532,13 @@ def fetch_news_multi_v2(symbol, code, name, limit=10):
     pool += fetch_roll_news(name, 8)
     short = name.replace("股份", "").replace("集团", "").replace("科技", "")[:4] if name else ""
 
-    for src_fn, key in ((fetch_stcn, name), (fetch_sina_roll_multi, name)):
-        try:
-            items = src_fn()
-        except Exception:  # noqa: BLE001
-            items = []
+    stcn_items, sina_items = _global_news()
+    for items, key in ((stcn_items, name), (sina_items, name)):
         for it in items:
             title = it.get("title", "")
             hit = (key and key in title) or (short and len(short) >= 2 and short in title)
             if hit:
+                it = dict(it)          # 拷贝，别把 source/weight 写进缓存
                 pool.append(it)
 
     merged = []
