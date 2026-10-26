@@ -5835,11 +5835,17 @@
     "news": 8.9,
     "value": 1.6
    },
-   "prices": {},
+   "prices": {
+    "2026-10-26": 9.37
+   },
    "base": 9.37,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 9.37,
+   "ret_now": 0.0
   },
   {
    "date": "2026-10-26",
@@ -5859,17 +5865,47 @@
     "news": 6.3,
     "value": 4.8
    },
-   "prices": {},
+   "prices": {
+    "2026-10-26": 15.14
+   },
    "base": 15.14,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 15.14,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-10-26",
+   "code": "600031",
+   "name": "三一重工",
+   "kind": "steady",
+   "buy": 17.91,
+   "target": 19.5,
+   "stop": 16.95,
+   "score": 52.5,
+   "grade": "B",
+   "dims": {
+    "trend": 17.0,
+    "momentum": 17.0,
+    "volume": 3.0,
+    "fund": 9.5,
+    "news": 5.0,
+    "value": 9.0
+   },
+   "prices": {},
+   "base": 18.27,
    "ret": {},
    "status": "holding",
    "days": 0
   }
  ],
  "stats": {
-  "total": 185,
+  "total": 186,
   "settled": 32,
-  "holding": 153,
+  "holding": 154,
   "win": 14,
   "win_rate": 43.8,
   "avg_ret": -3.69,
