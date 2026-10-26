@@ -4329,16 +4329,16 @@
    },
    "prices": {
     "2026-10-23": 22.23,
-    "2026-10-26": 21.95
+    "2026-10-26": 21.9
    },
    "base": 22.23,
    "ret": {
-    "t1": -1.26
+    "t1": -1.48
    },
    "status": "holding",
    "days": 2,
-   "last": 21.95,
-   "ret_now": -1.26
+   "last": 21.9,
+   "ret_now": -1.48
   },
   {
    "date": "2026-10-23",
@@ -5805,17 +5805,71 @@
     "news": 7.1,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-10-26": 42.5
+   },
    "base": 42.5,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 42.5,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-10-26",
+   "code": "002292",
+   "name": "奥飞娱乐",
+   "kind": "aggressive",
+   "buy": 9.37,
+   "target": 11.13,
+   "stop": 8.52,
+   "score": 79.6,
+   "grade": "A",
+   "dims": {
+    "trend": 21.0,
+    "momentum": 20,
+    "volume": 16.5,
+    "fund": 11.6,
+    "news": 8.9,
+    "value": 1.6
+   },
+   "prices": {},
+   "base": 9.37,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-10-26",
+   "code": "300017",
+   "name": "网宿科技",
+   "kind": "aggressive",
+   "buy": 14.14,
+   "target": 16.4,
+   "stop": 13.65,
+   "score": 58.3,
+   "grade": "B",
+   "dims": {
+    "trend": 14.0,
+    "momentum": 14.0,
+    "volume": 15.0,
+    "fund": 7.2,
+    "news": 6.3,
+    "value": 4.8
+   },
+   "prices": {},
+   "base": 15.14,
    "ret": {},
    "status": "holding",
    "days": 0
   }
  ],
  "stats": {
-  "total": 183,
+  "total": 185,
   "settled": 32,
-  "holding": 151,
+  "holding": 153,
   "win": 14,
   "win_rate": 43.8,
   "avg_ret": -3.69,
