@@ -15,27 +15,43 @@ on:
 
 permissions:
   contents: write
-
-concurrency:
-  group: update-data
-  cancel-in-progress: false
+  actions: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
+      - name: 已有实例在跑就跳过（避免排队积压）
+        id: guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep $((RANDOM % 20))
+          n=$(gh run list --workflow=update.yml --status=in_progress --limit 20 --json databaseId \
+              --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID)] | length" 2>/dev/null || echo 0)
+          if [ "$n" -gt 0 ]; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+            echo "已有 $n 个实例在跑，本次直接退出"
+          else
+            echo "skip=0" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.guard.outputs.skip != '1'
 
       - uses: actions/setup-python@v5
+        if: steps.guard.outputs.skip != '1'
         with:
           python-version: "3.11"
           cache: pip
 
       - name: Install deps
+        if: steps.guard.outputs.skip != '1'
         run: pip install -r requirements-server.txt
 
       - name: Intraday loop
+        if: steps.guard.outputs.skip != '1'
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ vars.AI_BASE_URL }}
