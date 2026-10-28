@@ -578,7 +578,10 @@ function loadData(){
       DATA = d;
       $("liveDot").className = "liveDot ok";
       $("liveTxt").textContent = "已同步";
-      $("pTime").textContent = "更新于 " + fmtFull(d.updated_ts) + " · 扫描 " + (((d.market||{}).stats||{}).total||0) + " 只";
+      var _age = d.updated_ts ? (Date.now()/1000 - d.updated_ts) / 60 : 999;
+      var _stale = _age > 15 ? " · ⚠ 数据偏旧" : "";
+      $("pTime").textContent = "更新于 " + fmtFull(d.updated_ts) + _stale + " · 扫描 " + (((d.market||{}).stats||{}).total||0) + " 只";
+      $("pTime").style.color = _age > 30 ? "#ff8a94" : (_age > 15 ? "#ffd45e" : "");
       renderPulse();
       render();
       try{ cloudAuto(); }catch(e){}
