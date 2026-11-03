@@ -24,13 +24,14 @@
   "002376",
   "000701"
  ],
- "last_daily": "2026-11-02",
+ "last_daily": "2026-11-03",
  "date": "2026-11-03",
  "counts": {
   "new_a": 4,
   "board": 3,
-  "lof": 3
+  "lof": 3,
+  "daily": 1
  },
- "ai_fail_streak": 34,
+ "ai_fail_streak": 35,
  "ai_alert_date": "2026-11-03"
 }
