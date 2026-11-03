@@ -10,6 +10,7 @@ import json
 import re
 import time
 import logging
+import socket
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -17,6 +18,11 @@ from datetime import datetime
 import requests
 
 log = logging.getLogger("floater.sources")
+
+# 兜底：任何忘记写 timeout 的请求最多等 20 秒就失败。
+# 没有这行时，某个接口被限流（TCP 连上了但不回包）会让整轮构建永久挂住，
+# 表现出来就是"数据半天不动、任务却一直是 in_progress"。
+socket.setdefaulttimeout(20)
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 TIMEOUT = (5, 8)
