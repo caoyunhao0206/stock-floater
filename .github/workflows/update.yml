@@ -1,16 +1,20 @@
 name: update-market-data
 # 设计说明：
-# GitHub 免费层的 schedule 对这个新仓库延迟严重（实测延迟 3 小时以上，甚至不触发），
-# 所以不再依赖"每 5 分钟触发一次"，改为一早触发一次、任务内部循环到收盘。
-# 只要 09:00-10:30 之间 cron 命中一次，整个交易日就能持续更新并推送。
+# GitHub 免费层的 schedule 对这个仓库近乎失效（11-03、11-06 全天 48 次机会 0 次落地），
+# 所以不再依赖定时器：任务跑满 5.5 小时后再派发下一个自己，形成不间断的接力链。
+# 交易日 09:00-11:30、13:00-15:00 每 3 分钟一轮；其余时段只待机不构建。
 
 on:
   schedule:
-    # GitHub 免费层的 schedule 极不稳定：实测 11-03 全天 24 次机会一次都没落地。
-    # 对策：把机会铺到最密——北京 08:00-15:50，每 10 分钟一次，共 48 次；
-    # 任意一次落地，任务内部就会一直循环到 14:50，覆盖整个交易日。
-    - cron: "*/10 0-7 * * 1-5"
+    # 仅作兜底：万一接力链断了，靠这个重新拉起（能命中最好，命中不了也不影响）
+    - cron: "7 1 * * 1-5"
+    - cron: "37 5 * * 1-5"
   workflow_dispatch:
+    inputs:
+      chain:
+        description: "是否接力运行（内部用，外部无需填）"
+        required: false
+        default: "0"
 
 permissions:
   contents: write
@@ -19,14 +23,20 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 355
     steps:
-      - name: 已有实例在跑就跳过（避免排队积压）
+      - name: 已有实例在跑就跳过（接力运行除外）
         id: guard
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHAIN: ${{ github.event.inputs.chain }}
         run: |
-          sleep $((RANDOM % 20))
+          if [ "$CHAIN" = "1" ]; then
+            echo "skip=0" >> "$GITHUB_OUTPUT"
+            echo "接力运行，直接开始"
+            exit 0
+          fi
+          sleep $((RANDOM % 15))
           n=$(gh run list --workflow=update.yml --status=in_progress --limit 20 --json databaseId \
               --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID)] | length" 2>/dev/null || echo 0)
           if [ "$n" -gt 0 ]; then
@@ -60,39 +70,66 @@ jobs:
         run: |
           git config user.name "stock-floater-bot"
           git config user.email "actions@users.noreply.github.com"
+
+          in_trade() {
+            t=$((10#$(date +%H%M)))
+            if { [ $t -ge 900 ] && [ $t -lt 1135 ]; } || { [ $t -ge 1300 ] && [ $t -lt 1505 ]; }; then
+              return 0
+            fi
+            return 1
+          }
+
+          START=$(date +%s)
+          LIMIT=19800          # 5.5 小时后交接班
           n=0
           while true; do
-            n=$((n+1))
-            echo "========== 第 $n 轮  $(date +'%H:%M:%S') =========="
-            # 只取网页刚同步过来的 watchlist，不动其他文件，避免 rebase 卡住
-            timeout 60 git fetch -q origin main 2>/dev/null || echo "!! fetch 失败，沿用本地配置"
-            timeout 30 git checkout -q origin/main -- watchlist.json 2>/dev/null || true
+            if in_trade; then
+              n=$((n+1))
+              echo "========== 第 $n 轮  $(date +'%H:%M:%S') =========="
+              timeout 60 git fetch -q origin main 2>/dev/null || echo "!! fetch 失败，沿用本地配置"
+              timeout 30 git checkout -q origin/main -- watchlist.json 2>/dev/null || true
 
-            # 单轮硬超时（13 分钟）：跨境访问慢，正常一轮 6~8 分钟，卡住也不会拖死整个任务
-            timeout 780 python build_static.py || echo "!! 本轮构建超时或失败，稍后重试"
+              timeout 780 python build_static.py || echo "!! 本轮构建超时或失败，稍后重试"
 
-            # 先把 HEAD 对齐远端（工作区文件保留），这样 push 永远是快进
-            timeout 60 git fetch -q origin main 2>/dev/null || true
-            git reset --soft origin/main 2>/dev/null || true
-            git add docs/data/
-            if git diff --staged --quiet; then
-              echo "数据无变化，跳过提交"
-            else
-              git commit -q -m "data: $(date +'%m-%d %H:%M')"
-              if timeout 90 git push -q; then
-                echo "已提交并推送"
+              timeout 60 git fetch -q origin main 2>/dev/null || true
+              git reset --soft origin/main 2>/dev/null || true
+              git add docs/data/
+              if git diff --staged --quiet; then
+                echo "数据无变化，跳过提交"
               else
-                echo "!! 推送失败，下轮重试"
-                git reset --soft origin/main 2>/dev/null || true
+                git commit -q -m "data: $(date +'%m-%d %H:%M')"
+                if timeout 90 git push -q; then
+                  echo "已提交并推送"
+                else
+                  echo "!! 推送失败，下轮重试"
+                  git reset --soft origin/main 2>/dev/null || true
+                fi
               fi
+            else
+              echo "非交易时段（$(date +%H:%M)），待机中…"
             fi
 
-            NOW=$(date +%H%M)
-            # 14:50 收尾，给 6 小时上限留余量（9:00 启动 → 约 5 小时 50 分）
-            if [ "$NOW" -ge 1450 ] || [ "$NOW" -lt 900 ]; then
-              echo "收盘或未开盘（当前 $NOW），结束循环"
+            if [ $(( $(date +%s) - START )) -ge $LIMIT ]; then
+              echo "已跑满 5.5 小时，准备交接给下一棒"
               break
             fi
-            echo "等待 3 分钟后进入下一轮…"
-            sleep 180
+
+            if in_trade; then sleep 180; else sleep 600; fi
           done
+
+      - name: 接力：派发下一个运行
+        if: always() && steps.guard.outputs.skip != '1'
+        env:
+          PAT: ${{ secrets.PAT }}
+        run: |
+          if [ -z "$PAT" ]; then
+            echo "!! 没有 PAT，无法接力，只能等定时器"
+            exit 0
+          fi
+          curl -sS -m 30 -X POST \
+            -H "Authorization: Bearer $PAT" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d '{"ref":"main","inputs":{"chain":"1"}}' \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/update.yml/dispatches" \
+            -w "接力状态:%{http_code}\n"
