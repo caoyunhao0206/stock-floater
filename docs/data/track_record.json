@@ -17187,66 +17187,6 @@
   },
   {
    "date": "2026-11-07",
-   "code": "601566",
-   "name": "九牧王",
-   "kind": "aggressive",
-   "buy": 11.31,
-   "target": 14.48,
-   "stop": 10.18,
-   "score": 74.9,
-   "grade": "A",
-   "dims": {
-    "trend": 25,
-    "momentum": 14.0,
-    "volume": 13.0,
-    "fund": 12.1,
-    "news": 5.8,
-    "value": 7.5
-   },
-   "prices": {
-    "2026-11-07": 11.31
-   },
-   "base": 11.31,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 11.31,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-07",
-   "code": "002275",
-   "name": "桂林三金",
-   "kind": "aggressive",
-   "buy": 17.08,
-   "target": 20.19,
-   "stop": 15.37,
-   "score": 74.8,
-   "grade": "A",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 10.0,
-    "volume": 11.5,
-    "fund": 15,
-    "news": 9,
-    "value": 6.8
-   },
-   "prices": {
-    "2026-11-07": 18.2
-   },
-   "base": 18.2,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 18.2,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-07",
    "code": "300747",
    "name": "锐科激光",
    "kind": "aggressive",
@@ -17277,19 +17217,79 @@
   },
   {
    "date": "2026-11-07",
+   "code": "601566",
+   "name": "九牧王",
+   "kind": "aggressive",
+   "buy": 11.31,
+   "target": 14.48,
+   "stop": 10.18,
+   "score": 70.3,
+   "grade": "B+",
+   "dims": {
+    "trend": 25,
+    "momentum": 14.0,
+    "volume": 13.0,
+    "fund": 7.5,
+    "news": 5.8,
+    "value": 7.5
+   },
+   "prices": {
+    "2026-11-07": 11.31
+   },
+   "base": 11.31,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 11.31,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-07",
+   "code": "002275",
+   "name": "桂林三金",
+   "kind": "aggressive",
+   "buy": 17.08,
+   "target": 20.19,
+   "stop": 15.37,
+   "score": 67.0,
+   "grade": "B+",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 10.0,
+    "volume": 11.5,
+    "fund": 7.2,
+    "news": 9,
+    "value": 6.8
+   },
+   "prices": {
+    "2026-11-07": 18.2
+   },
+   "base": 18.2,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 18.2,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-07",
    "code": "603037",
    "name": "凯众股份",
    "kind": "aggressive",
    "buy": 12.62,
    "target": 15.69,
    "stop": 11.36,
-   "score": 67.9,
+   "score": 63.9,
    "grade": "B+",
    "dims": {
     "trend": 21.0,
     "momentum": 17.0,
     "volume": 15.0,
-    "fund": 12.7,
+    "fund": 8.7,
     "news": 2.4,
     "value": 4.8
    },
@@ -17313,13 +17313,13 @@
    "buy": 278.6,
    "target": 320.68,
    "stop": 266.97,
-   "score": 66.7,
+   "score": 62.4,
    "grade": "B+",
    "dims": {
     "trend": 19.0,
     "momentum": 12.0,
     "volume": 16.5,
-    "fund": 11.8,
+    "fund": 7.5,
     "news": 5.9,
     "value": 2.0
    },
@@ -17343,13 +17343,13 @@
    "buy": 42.51,
    "target": 54.41,
    "stop": 38.26,
-   "score": 64.7,
-   "grade": "B+",
+   "score": 61.1,
+   "grade": "B",
    "dims": {
     "trend": 17.0,
     "momentum": 16.0,
     "volume": 13.0,
-    "fund": 12.7,
+    "fund": 9.1,
     "news": 6.2,
     "value": 4.8
    },
@@ -17373,13 +17373,13 @@
    "buy": 48.03,
    "target": 56.06,
    "stop": 43.23,
-   "score": 63.1,
-   "grade": "B+",
+   "score": 59.0,
+   "grade": "B",
    "dims": {
     "trend": 14.0,
     "momentum": 12.0,
     "volume": 15.0,
-    "fund": 12.8,
+    "fund": 8.7,
     "news": 8,
     "value": 4.8
    },
@@ -17397,49 +17397,19 @@
   },
   {
    "date": "2026-11-07",
-   "code": "300102",
-   "name": "乾照光电",
-   "kind": "aggressive",
-   "buy": 15.61,
-   "target": 19.22,
-   "stop": 14.05,
-   "score": 62.1,
-   "grade": "B+",
-   "dims": {
-    "trend": 13.0,
-    "momentum": 13.0,
-    "volume": 16.5,
-    "fund": 14.1,
-    "news": 6.2,
-    "value": 2.3
-   },
-   "prices": {
-    "2026-11-07": 16.4
-   },
-   "base": 16.4,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 16.4,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-07",
    "code": "003021",
    "name": "兆威机电",
    "kind": "aggressive",
    "buy": 93.57,
    "target": 117.08,
    "stop": 84.21,
-   "score": 61.2,
+   "score": 56.8,
    "grade": "B",
    "dims": {
     "trend": 19.0,
     "momentum": 14.0,
     "volume": 16.5,
-    "fund": 12.2,
+    "fund": 7.8,
     "news": 5.9,
     "value": 1.6
    },
@@ -17457,32 +17427,62 @@
   },
   {
    "date": "2026-11-07",
-   "code": "002149",
-   "name": "西部材料",
+   "code": "603151",
+   "name": "邦基科技",
    "kind": "aggressive",
-   "buy": 35.54,
-   "target": 43.0,
-   "stop": 34.29,
-   "score": 61.0,
+   "buy": 18.7,
+   "target": 22.49,
+   "stop": 17.15,
+   "score": 56.2,
    "grade": "B",
    "dims": {
-    "trend": 19.0,
-    "momentum": 10.0,
-    "volume": 11.5,
-    "fund": 14.1,
-    "news": 7.1,
-    "value": 2.3
+    "trend": 23.0,
+    "momentum": 9.0,
+    "volume": 13.5,
+    "fund": 13.9,
+    "news": 4,
+    "value": 6.8
    },
    "prices": {
-    "2026-11-07": 37.74
+    "2026-11-07": 20.77
    },
-   "base": 37.74,
+   "base": 20.77,
    "ret": {
     "t1": 0.0
    },
    "status": "holding",
    "days": 1,
-   "last": 37.74,
+   "last": 20.77,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-07",
+   "code": "300102",
+   "name": "乾照光电",
+   "kind": "aggressive",
+   "buy": 15.61,
+   "target": 19.22,
+   "stop": 14.05,
+   "score": 56.0,
+   "grade": "B",
+   "dims": {
+    "trend": 13.0,
+    "momentum": 13.0,
+    "volume": 16.5,
+    "fund": 8.0,
+    "news": 6.2,
+    "value": 2.3
+   },
+   "prices": {
+    "2026-11-07": 16.4
+   },
+   "base": 16.4,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 16.4,
    "ret_now": 0.0
   },
   {
@@ -17673,14 +17673,14 @@
    "buy": 9.68,
    "target": 10.34,
    "stop": 9.29,
-   "score": 67.0,
+   "score": 67.2,
    "grade": "B+",
    "dims": {
     "trend": 21.0,
     "momentum": 10.0,
     "volume": 8.0,
     "fund": 8.5,
-    "news": 9.5,
+    "news": 9.7,
     "value": 7.5
    },
    "prices": {
@@ -17703,14 +17703,14 @@
    "buy": 30.11,
    "target": 32.42,
    "stop": 28.72,
-   "score": 67.0,
+   "score": 67.1,
    "grade": "B+",
    "dims": {
     "trend": 23.0,
     "momentum": 10.0,
     "volume": 11.5,
     "fund": 11.7,
-    "news": 8.5,
+    "news": 8.6,
     "value": 8.3
    },
    "prices": {
@@ -17733,14 +17733,14 @@
    "buy": 72.09,
    "target": 77.52,
    "stop": 69.57,
-   "score": 66.7,
+   "score": 66.8,
    "grade": "B+",
    "dims": {
     "trend": 21.0,
     "momentum": 11.0,
     "volume": 11.0,
     "fund": 9.2,
-    "news": 5.5,
+    "news": 5.6,
     "value": 9.0
    },
    "prices": {
@@ -17787,6 +17787,36 @@
   },
   {
    "date": "2026-11-07",
+   "code": "002149",
+   "name": "西部材料",
+   "kind": "aggressive",
+   "buy": 35.54,
+   "target": 43.0,
+   "stop": 34.29,
+   "score": 60.2,
+   "grade": "B",
+   "dims": {
+    "trend": 19.0,
+    "momentum": 10.0,
+    "volume": 11.5,
+    "fund": 14.1,
+    "news": 7.1,
+    "value": 2.3
+   },
+   "prices": {
+    "2026-11-07": 37.74
+   },
+   "base": 37.74,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 37.74,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-07",
    "code": "002223",
    "name": "鱼跃医疗",
    "kind": "steady",
@@ -17803,11 +17833,17 @@
     "news": 10,
     "value": 9.3
    },
-   "prices": {},
+   "prices": {
+    "2026-11-07": 28.93
+   },
    "base": 28.93,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 28.93,
+   "ret_now": 0.0
   },
   {
    "date": "2026-11-07",
@@ -17827,17 +17863,23 @@
     "news": 7.6,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-11-07": 4.71
+   },
    "base": 4.71,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 4.71,
+   "ret_now": 0.0
   }
  ],
  "stats": {
-  "total": 500,
+  "total": 501,
   "settled": 368,
-  "holding": 132,
+  "holding": 133,
   "win": 170,
   "win_rate": 46.2,
   "avg_ret": -1.32,
