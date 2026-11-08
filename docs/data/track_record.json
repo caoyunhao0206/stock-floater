@@ -19078,12 +19078,36 @@
    "days": 1,
    "last": 20.77,
    "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-08",
+   "code": "300217",
+   "name": "东方电热",
+   "kind": "aggressive",
+   "buy": 4.03,
+   "target": 4.55,
+   "stop": 3.89,
+   "score": 54.2,
+   "grade": "B",
+   "dims": {
+    "trend": 19.0,
+    "momentum": 9.0,
+    "volume": 16.5,
+    "fund": 14.7,
+    "news": 1.0,
+    "value": 5.5
+   },
+   "prices": {},
+   "base": 4.26,
+   "ret": {},
+   "status": "holding",
+   "days": 0
   }
  ],
  "stats": {
-  "total": 531,
+  "total": 532,
   "settled": 410,
-  "holding": 121,
+  "holding": 122,
   "win": 195,
   "win_rate": 47.6,
   "avg_ret": -1.12,
