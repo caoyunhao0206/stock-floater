@@ -18601,6 +18601,36 @@
   },
   {
    "date": "2026-11-08",
+   "code": "603151",
+   "name": "邦基科技",
+   "kind": "aggressive",
+   "buy": 18.7,
+   "target": 22.49,
+   "stop": 17.15,
+   "score": 55.6,
+   "grade": "B",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 9.0,
+    "volume": 13.5,
+    "fund": 13.9,
+    "news": 3.4,
+    "value": 6.8
+   },
+   "prices": {
+    "2026-11-08": 20.77
+   },
+   "base": 20.77,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 20.77,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-08",
    "code": "002149",
    "name": "西部材料",
    "kind": "aggressive",
@@ -18637,13 +18667,13 @@
    "buy": 17.28,
    "target": 18.84,
    "stop": 16.57,
-   "score": 73.0,
+   "score": 74.3,
    "grade": "A",
    "dims": {
     "trend": 21.0,
     "momentum": 17.0,
     "volume": 9.0,
-    "fund": 7.5,
+    "fund": 8.8,
     "news": 9.5,
     "value": 9.0
    },
@@ -18947,11 +18977,17 @@
     "news": 4.1,
     "value": 2.3
    },
-   "prices": {},
+   "prices": {
+    "2026-11-08": 16.4
+   },
    "base": 16.4,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 16.4,
+   "ret_now": 0.0
   },
   {
    "date": "2026-11-08",
@@ -18971,17 +19007,71 @@
     "news": 10,
     "value": 9.0
    },
-   "prices": {},
+   "prices": {
+    "2026-11-08": 39.02
+   },
    "base": 39.02,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 39.02,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-08",
+   "code": "002223",
+   "name": "鱼跃医疗",
+   "kind": "steady",
+   "buy": 28.31,
+   "target": 31.05,
+   "stop": 26.66,
+   "score": 72.9,
+   "grade": "A",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 14.0,
+    "volume": 10.0,
+    "fund": 9.8,
+    "news": 9.0,
+    "value": 9.3
+   },
+   "prices": {},
+   "base": 28.93,
+   "ret": {},
+   "status": "holding",
+   "days": 0
+  },
+  {
+   "date": "2026-11-08",
+   "code": "601668",
+   "name": "中国建筑",
+   "kind": "steady",
+   "buy": 4.64,
+   "target": 4.92,
+   "stop": 4.48,
+   "score": 72.0,
+   "grade": "B+",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 12.0,
+    "volume": 9.0,
+    "fund": 10.8,
+    "news": 7.6,
+    "value": 9.0
+   },
+   "prices": {},
+   "base": 4.71,
    "ret": {},
    "status": "holding",
    "days": 0
   }
  ],
  "stats": {
-  "total": 528,
+  "total": 531,
   "settled": 410,
-  "holding": 118,
+  "holding": 121,
   "win": 195,
   "win_rate": 47.6,
   "avg_ret": -1.12,
