@@ -18601,36 +18601,6 @@
   },
   {
    "date": "2026-11-08",
-   "code": "603151",
-   "name": "邦基科技",
-   "kind": "aggressive",
-   "buy": 18.7,
-   "target": 22.49,
-   "stop": 17.15,
-   "score": 55.6,
-   "grade": "B",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 9.0,
-    "volume": 13.5,
-    "fund": 13.9,
-    "news": 3.4,
-    "value": 6.8
-   },
-   "prices": {
-    "2026-11-08": 20.77
-   },
-   "base": 20.77,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 20.77,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-08",
    "code": "002149",
    "name": "西部材料",
    "kind": "aggressive",
@@ -18667,13 +18637,13 @@
    "buy": 17.28,
    "target": 18.84,
    "stop": 16.57,
-   "score": 74.3,
+   "score": 73.0,
    "grade": "A",
    "dims": {
     "trend": 21.0,
     "momentum": 17.0,
     "volume": 9.0,
-    "fund": 8.8,
+    "fund": 7.5,
     "news": 9.5,
     "value": 9.0
    },
@@ -19078,12 +19048,96 @@
    "days": 1,
    "last": 4.71,
    "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-08",
+   "code": "603151",
+   "name": "邦基科技",
+   "kind": "aggressive",
+   "buy": 18.7,
+   "target": 22.49,
+   "stop": 17.15,
+   "score": 65.3,
+   "grade": "B+",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 9.0,
+    "volume": 13.5,
+    "fund": 13.9,
+    "news": 5.4,
+    "value": 6.8
+   },
+   "prices": {
+    "2026-11-08": 20.77
+   },
+   "base": 20.77,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 20.77,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-08",
+   "code": "300217",
+   "name": "东方电热",
+   "kind": "aggressive",
+   "buy": 4.03,
+   "target": 4.55,
+   "stop": 3.89,
+   "score": 54.2,
+   "grade": "B",
+   "dims": {
+    "trend": 19.0,
+    "momentum": 9.0,
+    "volume": 16.5,
+    "fund": 14.7,
+    "news": 1.0,
+    "value": 5.5
+   },
+   "prices": {
+    "2026-11-08": 4.26
+   },
+   "base": 4.26,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 4.26,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-08",
+   "code": "002611",
+   "name": "东方精工",
+   "kind": "aggressive",
+   "buy": 13.91,
+   "target": 16.24,
+   "stop": 12.52,
+   "score": 70.2,
+   "grade": "B+",
+   "dims": {
+    "trend": 10.0,
+    "momentum": 20,
+    "volume": 16.5,
+    "fund": 12.0,
+    "news": 4.2,
+    "value": 7.5
+   },
+   "prices": {},
+   "base": 13.91,
+   "ret": {},
+   "status": "holding",
+   "days": 0
   }
  ],
  "stats": {
-  "total": 531,
+  "total": 533,
   "settled": 410,
-  "holding": 121,
+  "holding": 123,
   "win": 195,
   "win_rate": 47.6,
   "avg_ret": -1.12,
