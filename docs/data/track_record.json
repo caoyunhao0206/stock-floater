@@ -18553,30 +18553,6 @@
   },
   {
    "date": "2026-11-08",
-   "code": "603151",
-   "name": "邦基科技",
-   "kind": "aggressive",
-   "buy": 18.7,
-   "target": 22.49,
-   "stop": 17.15,
-   "score": 55.6,
-   "grade": "B",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 9.0,
-    "volume": 13.5,
-    "fund": 13.9,
-    "news": 3.4,
-    "value": 6.8
-   },
-   "prices": {},
-   "base": 20.77,
-   "ret": {},
-   "status": "holding",
-   "days": 0
-  },
-  {
-   "date": "2026-11-08",
    "code": "002149",
    "name": "西部材料",
    "kind": "aggressive",
@@ -18607,13 +18583,13 @@
    "buy": 17.28,
    "target": 18.84,
    "stop": 16.57,
-   "score": 74.3,
+   "score": 73.0,
    "grade": "A",
    "dims": {
     "trend": 21.0,
     "momentum": 17.0,
     "volume": 9.0,
-    "fund": 8.8,
+    "fund": 7.5,
     "news": 9.5,
     "value": 9.0
    },
@@ -18841,9 +18817,9 @@
   }
  ],
  "stats": {
-  "total": 527,
+  "total": 526,
   "settled": 410,
-  "holding": 117,
+  "holding": 116,
   "win": 195,
   "win_rate": 47.6,
   "avg_ret": -1.12,
