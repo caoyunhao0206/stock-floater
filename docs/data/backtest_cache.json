@@ -10,14 +10,6 @@
     "tp": 10,
     "sl": 7
    },
-   "002889": {
-    "samples": 22,
-    "win_rate": 59.1,
-    "avg_ret": 1.32,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "002086": {
     "samples": 23,
     "win_rate": 73.9,
@@ -34,42 +26,10 @@
     "tp": 10,
     "sl": 7
    },
-   "300007": {
-    "samples": 8,
-    "win_rate": 37.5,
-    "avg_ret": -0.63,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002124": {
-    "samples": 24,
-    "win_rate": 20.8,
-    "avg_ret": -3.23,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "600408": {
-    "samples": 33,
-    "win_rate": 42.4,
-    "avg_ret": 0.42,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "600641": {
-    "samples": 53,
-    "win_rate": 54.7,
-    "avg_ret": 2.17,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "603533": {
-    "samples": 33,
-    "win_rate": 21.2,
-    "avg_ret": -2.86,
+   "002889": {
+    "samples": 22,
+    "win_rate": 59.1,
+    "avg_ret": 1.32,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -82,10 +42,10 @@
     "tp": 10,
     "sl": 7
    },
-   "300291": {
-    "samples": 15,
-    "win_rate": 6.7,
-    "avg_ret": -6.09,
+   "603533": {
+    "samples": 33,
+    "win_rate": 21.2,
+    "avg_ret": -2.86,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -98,6 +58,14 @@
     "tp": 10,
     "sl": 7
    },
+   "600641": {
+    "samples": 53,
+    "win_rate": 54.7,
+    "avg_ret": 2.17,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
    "002343": {
     "samples": 21,
     "win_rate": 52.4,
@@ -106,18 +74,18 @@
     "tp": 10,
     "sl": 7
    },
-   "002488": {
-    "samples": 3,
-    "win_rate": 0.0,
-    "avg_ret": -7.0,
+   "002124": {
+    "samples": 24,
+    "win_rate": 20.8,
+    "avg_ret": -3.23,
     "horizon": 10,
     "tp": 10,
     "sl": 7
    },
-   "603703": {
-    "samples": 18,
-    "win_rate": 44.4,
-    "avg_ret": -1.06,
+   "002164": {
+    "samples": 36,
+    "win_rate": 47.2,
+    "avg_ret": 1.26,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -138,14 +106,6 @@
     "tp": 10,
     "sl": 7
    },
-   "002164": {
-    "samples": 36,
-    "win_rate": 47.2,
-    "avg_ret": 1.26,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "600853": {
     "samples": 20,
     "win_rate": 40.0,
@@ -162,6 +122,14 @@
     "tp": 10,
     "sl": 7
    },
+   "002488": {
+    "samples": 3,
+    "win_rate": 0.0,
+    "avg_ret": -7.0,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
    "002712": {
     "samples": 19,
     "win_rate": 26.3,
@@ -170,10 +138,10 @@
     "tp": 10,
     "sl": 7
    },
-   "301132": {
-    "samples": 39,
-    "win_rate": 33.3,
-    "avg_ret": -1.33,
+   "603703": {
+    "samples": 18,
+    "win_rate": 44.4,
+    "avg_ret": -1.06,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -186,10 +154,26 @@
     "tp": 10,
     "sl": 7
    },
-   "301218": {
-    "samples": 40,
-    "win_rate": 25.0,
-    "avg_ret": -2.75,
+   "301132": {
+    "samples": 39,
+    "win_rate": 33.3,
+    "avg_ret": -1.33,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "002388": {
+    "samples": 22,
+    "win_rate": 68.2,
+    "avg_ret": 4.59,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "600838": {
+    "samples": 16,
+    "win_rate": 37.5,
+    "avg_ret": -0.88,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -198,38 +182,6 @@
     "samples": 22,
     "win_rate": 18.2,
     "avg_ret": -3.61,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "300006": {
-    "samples": 34,
-    "win_rate": 52.9,
-    "avg_ret": 1.65,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "000026": {
-    "samples": 21,
-    "win_rate": 42.9,
-    "avg_ret": -0.12,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "300624": {
-    "samples": 8,
-    "win_rate": 12.5,
-    "avg_ret": -4.88,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002241": {
-    "samples": 27,
-    "win_rate": 44.4,
-    "avg_ret": -0.99,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -250,14 +202,6 @@
     "tp": 10,
     "sl": 7
    },
-   "002353": {
-    "samples": 27,
-    "win_rate": 55.6,
-    "avg_ret": 2.33,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "600487": {
     "samples": 26,
     "win_rate": 57.7,
@@ -274,14 +218,6 @@
     "tp": 10,
     "sl": 7
    },
-   "600988": {
-    "samples": 18,
-    "win_rate": 50.0,
-    "avg_ret": 1.03,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "603179": {
     "samples": 5,
     "win_rate": 20.0,
@@ -293,15 +229,15 @@
   },
   "horizon": 10,
   "strategy": {
-   "samples": 882,
-   "stocks": 36,
-   "win_rate": 41.0,
-   "avg_ret": -0.24,
-   "avg_win": 8.89,
-   "avg_loss": -6.6,
-   "rr": 1.35,
-   "big_win_rate": 37.6,
-   "big_loss_rate": 55.8,
+   "samples": 689,
+   "stocks": 28,
+   "win_rate": 42.2,
+   "avg_ret": -0.0,
+   "avg_win": 8.9,
+   "avg_loss": -6.51,
+   "rr": 1.37,
+   "big_win_rate": 38.6,
+   "big_loss_rate": 53.8,
    "threshold": 65,
    "tp": 10,
    "sl": 7
