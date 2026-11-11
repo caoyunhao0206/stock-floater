@@ -2,34 +2,18 @@
  "date": "2026-11-11",
  "data": {
   "per_stock": {
+   "002310": {
+    "samples": 22,
+    "win_rate": 27.3,
+    "avg_ret": -2.36,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
    "000530": {
     "samples": 21,
     "win_rate": 19.0,
     "avg_ret": -3.31,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "603381": {
-    "samples": 8,
-    "win_rate": 0.0,
-    "avg_ret": -6.25,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "000678": {
-    "samples": 32,
-    "win_rate": 34.4,
-    "avg_ret": -1.16,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002578": {
-    "samples": 15,
-    "win_rate": 46.7,
-    "avg_ret": 1.43,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -42,26 +26,18 @@
     "tp": 10,
     "sl": 7
    },
-   "002310": {
-    "samples": 22,
-    "win_rate": 27.3,
-    "avg_ret": -2.36,
+   "002578": {
+    "samples": 15,
+    "win_rate": 46.7,
+    "avg_ret": 1.43,
     "horizon": 10,
     "tp": 10,
     "sl": 7
    },
-   "300570": {
-    "samples": 26,
-    "win_rate": 42.3,
-    "avg_ret": 0.19,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002865": {
-    "samples": 10,
-    "win_rate": 0.0,
-    "avg_ret": -7.0,
+   "000678": {
+    "samples": 32,
+    "win_rate": 34.4,
+    "avg_ret": -1.16,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -74,34 +50,10 @@
     "tp": 10,
     "sl": 7
    },
-   "002708": {
-    "samples": 27,
-    "win_rate": 77.8,
-    "avg_ret": 3.99,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "300825": {
-    "samples": 24,
-    "win_rate": 58.3,
-    "avg_ret": 2.92,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "605488": {
-    "samples": 19,
-    "win_rate": 47.4,
-    "avg_ret": 0.89,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "603466": {
-    "samples": 58,
-    "win_rate": 39.7,
-    "avg_ret": -1.09,
+   "600261": {
+    "samples": 20,
+    "win_rate": 40.0,
+    "avg_ret": 0.03,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -114,10 +66,34 @@
     "tp": 10,
     "sl": 7
    },
-   "600261": {
-    "samples": 20,
-    "win_rate": 40.0,
-    "avg_ret": 0.03,
+   "002708": {
+    "samples": 27,
+    "win_rate": 77.8,
+    "avg_ret": 3.99,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "603466": {
+    "samples": 58,
+    "win_rate": 39.7,
+    "avg_ret": -1.09,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "002865": {
+    "samples": 10,
+    "win_rate": 0.0,
+    "avg_ret": -7.0,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "603381": {
+    "samples": 8,
+    "win_rate": 0.0,
+    "avg_ret": -6.25,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -130,50 +106,10 @@
     "tp": 10,
     "sl": 7
    },
-   "600127": {
-    "samples": 35,
-    "win_rate": 45.7,
-    "avg_ret": 0.89,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002009": {
-    "samples": 6,
-    "win_rate": 0.0,
-    "avg_ret": -7.0,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "301313": {
-    "samples": 34,
+   "002376": {
+    "samples": 26,
     "win_rate": 50.0,
-    "avg_ret": 1.28,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002432": {
-    "samples": 14,
-    "win_rate": 28.6,
-    "avg_ret": -2.14,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "000823": {
-    "samples": 43,
-    "win_rate": 46.5,
-    "avg_ret": 1.08,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002048": {
-    "samples": 12,
-    "win_rate": 8.3,
-    "avg_ret": -5.92,
+    "avg_ret": 1.52,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -189,15 +125,15 @@
   },
   "horizon": 10,
   "strategy": {
-   "samples": 550,
-   "stocks": 23,
-   "win_rate": 39.6,
-   "avg_ret": -0.43,
-   "avg_win": 8.75,
-   "avg_loss": -6.46,
-   "rr": 1.35,
-   "big_win_rate": 36.2,
-   "big_loss_rate": 55.6,
+   "samples": 363,
+   "stocks": 15,
+   "win_rate": 38.3,
+   "avg_ret": -0.74,
+   "avg_win": 7.89,
+   "avg_loss": -6.1,
+   "rr": 1.29,
+   "big_win_rate": 32.5,
+   "big_loss_rate": 53.2,
    "threshold": 65,
    "tp": 10,
    "sl": 7
