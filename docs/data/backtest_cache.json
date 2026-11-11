@@ -2,18 +2,10 @@
  "date": "2026-11-11",
  "data": {
   "per_stock": {
-   "000530": {
-    "samples": 21,
-    "win_rate": 19.0,
-    "avg_ret": -3.31,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "603381": {
-    "samples": 8,
-    "win_rate": 0.0,
-    "avg_ret": -6.25,
+   "002310": {
+    "samples": 22,
+    "win_rate": 27.3,
+    "avg_ret": -2.36,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -26,74 +18,18 @@
     "tp": 10,
     "sl": 7
    },
+   "000530": {
+    "samples": 21,
+    "win_rate": 19.0,
+    "avg_ret": -3.31,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
    "002578": {
     "samples": 15,
     "win_rate": 46.7,
     "avg_ret": 1.43,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002425": {
-    "samples": 24,
-    "win_rate": 16.7,
-    "avg_ret": -4.17,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002310": {
-    "samples": 22,
-    "win_rate": 27.3,
-    "avg_ret": -2.36,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "300570": {
-    "samples": 26,
-    "win_rate": 42.3,
-    "avg_ret": 0.19,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002865": {
-    "samples": 10,
-    "win_rate": 0.0,
-    "avg_ret": -7.0,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "605598": {
-    "samples": 8,
-    "win_rate": 0.0,
-    "avg_ret": -7.0,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002708": {
-    "samples": 27,
-    "win_rate": 77.8,
-    "avg_ret": 3.99,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "300825": {
-    "samples": 24,
-    "win_rate": 58.3,
-    "avg_ret": 2.92,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "605488": {
-    "samples": 19,
-    "win_rate": 47.4,
-    "avg_ret": 0.89,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -106,10 +42,10 @@
     "tp": 10,
     "sl": 7
    },
-   "600408": {
-    "samples": 32,
-    "win_rate": 43.8,
-    "avg_ret": 0.66,
+   "002708": {
+    "samples": 27,
+    "win_rate": 77.8,
+    "avg_ret": 3.99,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -122,58 +58,10 @@
     "tp": 10,
     "sl": 7
    },
-   "300613": {
-    "samples": 27,
-    "win_rate": 44.4,
-    "avg_ret": -0.38,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "600127": {
-    "samples": 35,
-    "win_rate": 45.7,
-    "avg_ret": 0.89,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "002009": {
     "samples": 6,
     "win_rate": 0.0,
     "avg_ret": -7.0,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "301313": {
-    "samples": 34,
-    "win_rate": 50.0,
-    "avg_ret": 1.28,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002432": {
-    "samples": 14,
-    "win_rate": 28.6,
-    "avg_ret": -2.14,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "000823": {
-    "samples": 43,
-    "win_rate": 46.5,
-    "avg_ret": 1.08,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "002048": {
-    "samples": 12,
-    "win_rate": 8.3,
-    "avg_ret": -5.92,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -189,15 +77,15 @@
   },
   "horizon": 10,
   "strategy": {
-   "samples": 550,
-   "stocks": 23,
-   "win_rate": 39.6,
-   "avg_ret": -0.43,
-   "avg_win": 8.75,
-   "avg_loss": -6.46,
-   "rr": 1.35,
-   "big_win_rate": 36.2,
-   "big_loss_rate": 55.6,
+   "samples": 234,
+   "stocks": 9,
+   "win_rate": 41.0,
+   "avg_ret": -0.37,
+   "avg_win": 7.86,
+   "avg_loss": -6.09,
+   "rr": 1.29,
+   "big_win_rate": 35.0,
+   "big_loss_rate": 50.9,
    "threshold": 65,
    "tp": 10,
    "sl": 7
