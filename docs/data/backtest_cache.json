@@ -10,18 +10,18 @@
     "tp": 10,
     "sl": 7
    },
-   "000678": {
-    "samples": 32,
-    "win_rate": 34.4,
-    "avg_ret": -1.16,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "000530": {
     "samples": 21,
     "win_rate": 19.0,
     "avg_ret": -3.31,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "000678": {
+    "samples": 32,
+    "win_rate": 34.4,
+    "avg_ret": -1.16,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -42,14 +42,6 @@
     "tp": 10,
     "sl": 7
    },
-   "002708": {
-    "samples": 27,
-    "win_rate": 77.8,
-    "avg_ret": 3.99,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "600261": {
     "samples": 20,
     "win_rate": 40.0,
@@ -58,10 +50,10 @@
     "tp": 10,
     "sl": 7
    },
-   "002009": {
-    "samples": 6,
-    "win_rate": 0.0,
-    "avg_ret": -7.0,
+   "002343": {
+    "samples": 22,
+    "win_rate": 50.0,
+    "avg_ret": 0.48,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -77,15 +69,15 @@
   },
   "horizon": 10,
   "strategy": {
-   "samples": 234,
-   "stocks": 9,
-   "win_rate": 41.0,
-   "avg_ret": -0.37,
-   "avg_win": 7.86,
-   "avg_loss": -6.09,
-   "rr": 1.29,
-   "big_win_rate": 35.0,
-   "big_loss_rate": 50.9,
+   "samples": 223,
+   "stocks": 8,
+   "win_rate": 38.6,
+   "avg_ret": -0.63,
+   "avg_win": 8.04,
+   "avg_loss": -6.07,
+   "rr": 1.32,
+   "big_win_rate": 33.2,
+   "big_loss_rate": 52.5,
    "threshold": 65,
    "tp": 10,
    "sl": 7
