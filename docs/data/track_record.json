@@ -20454,19 +20454,19 @@
     "2026-11-09": 31.79,
     "2026-11-10": 32.27,
     "2026-11-11": 31.89,
-    "2026-11-12": 31.33
+    "2026-11-12": 31.32
    },
    "base": 33.09,
    "ret": {
-    "t1": -5.32,
-    "t3": -5.32
+    "t1": -5.35,
+    "t3": -5.35
    },
    "status": "hit_stop",
    "days": 4,
-   "last": 31.33,
-   "ret_now": -5.32,
+   "last": 31.32,
+   "ret_now": -5.35,
    "close_day": 4,
-   "final_ret": -5.32
+   "final_ret": -5.35
   },
   {
    "date": "2026-11-09",
@@ -20764,19 +20764,19 @@
     "2026-11-09": 100.65,
     "2026-11-10": 102.45,
     "2026-11-11": 100.17,
-    "2026-11-12": 92.11
+    "2026-11-12": 92.06
    },
    "base": 102.42,
    "ret": {
-    "t1": -10.07,
-    "t3": -10.07
+    "t1": -10.12,
+    "t3": -10.12
    },
    "status": "hit_stop",
    "days": 4,
-   "last": 92.11,
-   "ret_now": -10.07,
+   "last": 92.06,
+   "ret_now": -10.12,
    "close_day": 4,
-   "final_ret": -10.07
+   "final_ret": -10.12
   },
   {
    "date": "2026-11-09",
@@ -21000,19 +21000,19 @@
     "2026-11-09": 296.2,
     "2026-11-10": 302.76,
     "2026-11-11": 303.0,
-    "2026-11-12": 288.36
+    "2026-11-12": 288.2
    },
    "base": 302.54,
    "ret": {
-    "t1": -4.69,
-    "t3": -4.69
+    "t1": -4.74,
+    "t3": -4.74
    },
    "status": "hit_stop",
    "days": 4,
-   "last": 288.36,
-   "ret_now": -4.69,
+   "last": 288.2,
+   "ret_now": -4.74,
    "close_day": 4,
-   "final_ret": -4.69
+   "final_ret": -4.74
   },
   {
    "date": "2026-11-09",
@@ -23754,19 +23754,19 @@
    "prices": {
     "2026-11-10": 302.76,
     "2026-11-11": 303.0,
-    "2026-11-12": 288.36
+    "2026-11-12": 289.2
    },
    "base": 312.58,
    "ret": {
-    "t1": -7.75,
-    "t3": -7.75
+    "t1": -7.48,
+    "t3": -7.48
    },
    "status": "hit_stop",
    "days": 3,
-   "last": 288.36,
-   "ret_now": -7.75,
+   "last": 289.2,
+   "ret_now": -7.48,
    "close_day": 3,
-   "final_ret": -7.75
+   "final_ret": -7.48
   },
   {
    "date": "2026-11-10",
@@ -23921,19 +23921,19 @@
    "prices": {
     "2026-11-10": 62.74,
     "2026-11-11": 64.9,
-    "2026-11-12": 60.93
+    "2026-11-12": 60.95
    },
    "base": 64.11,
    "ret": {
-    "t1": -4.96,
-    "t3": -4.96
+    "t1": -4.93,
+    "t3": -4.93
    },
    "status": "hit_stop",
    "days": 3,
-   "last": 60.93,
-   "ret_now": -4.96,
+   "last": 60.95,
+   "ret_now": -4.93,
    "close_day": 3,
-   "final_ret": -4.96
+   "final_ret": -4.93
   },
   {
    "date": "2026-11-10",
@@ -24222,19 +24222,19 @@
    "prices": {
     "2026-11-10": 55.98,
     "2026-11-11": 58.23,
-    "2026-11-12": 53.84
+    "2026-11-12": 53.85
    },
    "base": 57.0,
    "ret": {
-    "t1": -5.54,
-    "t3": -5.54
+    "t1": -5.53,
+    "t3": -5.53
    },
    "status": "hit_stop",
    "days": 3,
-   "last": 53.84,
-   "ret_now": -5.54,
+   "last": 53.85,
+   "ret_now": -5.53,
    "close_day": 3,
-   "final_ret": -5.54
+   "final_ret": -5.53
   },
   {
    "date": "2026-11-10",
@@ -26959,18 +26959,18 @@
    },
    "prices": {
     "2026-11-11": 33.37,
-    "2026-11-12": 31.45
+    "2026-11-12": 31.35
    },
    "base": 32.59,
    "ret": {
-    "t1": -3.5
+    "t1": -3.8
    },
    "status": "hit_stop",
    "days": 2,
-   "last": 31.45,
-   "ret_now": -3.5,
+   "last": 31.35,
+   "ret_now": -3.8,
    "close_day": 2,
-   "final_ret": -3.5
+   "final_ret": -3.8
   },
   {
    "date": "2026-11-11",
@@ -26992,18 +26992,18 @@
    },
    "prices": {
     "2026-11-11": 9.38,
-    "2026-11-12": 8.89
+    "2026-11-12": 8.88
    },
    "base": 9.71,
    "ret": {
-    "t1": -8.44
+    "t1": -8.55
    },
    "status": "hit_stop",
    "days": 2,
-   "last": 8.89,
-   "ret_now": -8.44,
+   "last": 8.88,
+   "ret_now": -8.55,
    "close_day": 2,
-   "final_ret": -8.44
+   "final_ret": -8.55
   },
   {
    "date": "2026-11-11",
@@ -29470,13 +29470,43 @@
   },
   {
    "date": "2026-11-12",
+   "code": "002081",
+   "name": "金 螳 螂",
+   "kind": "aggressive",
+   "buy": 4.81,
+   "target": 5.5,
+   "stop": 4.39,
+   "score": 66.7,
+   "grade": "B+",
+   "dims": {
+    "trend": 13.0,
+    "momentum": 17.0,
+    "volume": 10.0,
+    "fund": 14.2,
+    "news": 5.0,
+    "value": 7.5
+   },
+   "prices": {
+    "2026-11-12": 4.68
+   },
+   "base": 4.81,
+   "ret": {
+    "t1": -2.7
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 4.68,
+   "ret_now": -2.7
+  },
+  {
+   "date": "2026-11-12",
    "code": "601169",
    "name": "北京银行",
    "kind": "steady",
    "buy": 5.84,
    "target": 6.27,
    "stop": 5.58,
-   "score": 59.7,
+   "score": 59.6,
    "grade": "B",
    "dims": {
     "trend": 23.0,
@@ -29500,163 +29530,43 @@
   },
   {
    "date": "2026-11-12",
-   "code": "600875",
-   "name": "东方电气",
-   "kind": "steady",
-   "buy": 22.49,
-   "target": 25.11,
-   "stop": 21.54,
-   "score": 58.2,
-   "grade": "B",
-   "dims": {
-    "trend": 10.0,
-    "momentum": 12.0,
-    "volume": 11.0,
-    "fund": 8.2,
-    "news": 9.5,
-    "value": 9.0
-   },
-   "prices": {
-    "2026-11-12": 21.96
-   },
-   "base": 22.42,
-   "ret": {
-    "t1": -2.05
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 21.96,
-   "ret_now": -2.05
-  },
-  {
-   "date": "2026-11-12",
-   "code": "002081",
-   "name": "金 螳 螂",
-   "kind": "aggressive",
-   "buy": 4.83,
-   "target": 5.52,
-   "stop": 4.66,
-   "score": 68.5,
-   "grade": "B+",
-   "dims": {
-    "trend": 15.0,
-    "momentum": 17.0,
-    "volume": 10.0,
-    "fund": 14.2,
-    "news": 5.0,
-    "value": 7.5
-   },
-   "prices": {
-    "2026-11-12": 4.68
-   },
-   "base": 4.83,
-   "ret": {
-    "t1": -3.11
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 4.68,
-   "ret_now": -3.11
-  },
-  {
-   "date": "2026-11-12",
-   "code": "300442",
-   "name": "润泽科技",
-   "kind": "steady",
-   "buy": 55.78,
-   "target": 65.48,
-   "stop": 50.83,
-   "score": 60.8,
-   "grade": "B",
-   "dims": {
-    "trend": 10.0,
-    "momentum": 15.0,
-    "volume": 11.0,
-    "fund": 9.7,
-    "news": 8.0,
-    "value": 7.0
-   },
-   "prices": {
-    "2026-11-12": 56.01
-   },
-   "base": 57.4,
-   "ret": {
-    "t1": -2.42
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 56.01,
-   "ret_now": -2.42
-  },
-  {
-   "date": "2026-11-12",
    "code": "002966",
    "name": "苏州银行",
    "kind": "steady",
    "buy": 9.41,
    "target": 10.31,
    "stop": 9.08,
-   "score": 59.0,
+   "score": 58.5,
    "grade": "B",
    "dims": {
     "trend": 19.0,
     "momentum": 10.0,
     "volume": 3.0,
-    "fund": 6.8,
+    "fund": 6.9,
     "news": 8.1,
     "value": 9.0
    },
    "prices": {
     "2026-11-12": 9.46
    },
-   "base": 9.46,
+   "base": 9.47,
    "ret": {
-    "t1": 0.0
+    "t1": -0.11
    },
    "status": "holding",
    "days": 1,
    "last": 9.46,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-12",
-   "code": "002580",
-   "name": "圣阳股份",
-   "kind": "aggressive",
-   "buy": 18.93,
-   "target": 22.67,
-   "stop": 17.04,
-   "score": 71.4,
-   "grade": "B+",
-   "dims": {
-    "trend": 17.0,
-    "momentum": 17.0,
-    "volume": 16.5,
-    "fund": 11.5,
-    "news": 5.0,
-    "value": 4.8
-   },
-   "prices": {
-    "2026-11-12": 18.4
-   },
-   "base": 18.93,
-   "ret": {
-    "t1": -2.8
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 18.4,
-   "ret_now": -2.8
+   "ret_now": -0.11
   },
   {
    "date": "2026-11-12",
    "code": "000525",
    "name": "红太阳",
    "kind": "aggressive",
-   "buy": 5.45,
-   "target": 6.59,
-   "stop": 4.91,
-   "score": 63.4,
+   "buy": 5.47,
+   "target": 6.61,
+   "stop": 4.92,
+   "score": 64.1,
    "grade": "B+",
    "dims": {
     "trend": 19.0,
@@ -29669,14 +29579,14 @@
    "prices": {
     "2026-11-12": 5.38
    },
-   "base": 5.45,
+   "base": 5.47,
    "ret": {
-    "t1": -1.28
+    "t1": -1.65
    },
    "status": "holding",
    "days": 1,
    "last": 5.38,
-   "ret_now": -1.28
+   "ret_now": -1.65
   },
   {
    "date": "2026-11-12",
@@ -29686,36 +29596,96 @@
    "buy": 32.03,
    "target": 36.51,
    "stop": 29.81,
-   "score": 75.4,
+   "score": 74.9,
    "grade": "A",
    "dims": {
     "trend": 25,
     "momentum": 14.0,
     "volume": 10.5,
-    "fund": 7.8,
+    "fund": 7.6,
     "news": 7.0,
     "value": 8.3
    },
    "prices": {
     "2026-11-12": 32.47
    },
-   "base": 32.69,
+   "base": 32.58,
    "ret": {
-    "t1": -0.67
+    "t1": -0.34
    },
    "status": "holding",
    "days": 1,
    "last": 32.47,
-   "ret_now": -0.67
+   "ret_now": -0.34
+  },
+  {
+   "date": "2026-11-12",
+   "code": "300442",
+   "name": "润泽科技",
+   "kind": "steady",
+   "buy": 55.78,
+   "target": 65.48,
+   "stop": 50.83,
+   "score": 60.6,
+   "grade": "B",
+   "dims": {
+    "trend": 10.0,
+    "momentum": 15.0,
+    "volume": 11.0,
+    "fund": 9.6,
+    "news": 8.0,
+    "value": 7.0
+   },
+   "prices": {
+    "2026-11-12": 56.01
+   },
+   "base": 57.35,
+   "ret": {
+    "t1": -2.34
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 56.01,
+   "ret_now": -2.34
+  },
+  {
+   "date": "2026-11-12",
+   "code": "600802",
+   "name": "福建水泥",
+   "kind": "aggressive",
+   "buy": 8.25,
+   "target": 10.31,
+   "stop": 7.42,
+   "score": 52.1,
+   "grade": "B",
+   "dims": {
+    "trend": 21.0,
+    "momentum": 14.0,
+    "volume": 13.5,
+    "fund": 11.9,
+    "news": 3.1,
+    "value": 1.6
+   },
+   "prices": {
+    "2026-11-12": 8.59
+   },
+   "base": 8.25,
+   "ret": {
+    "t1": 4.12
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 8.59,
+   "ret_now": 4.12
   },
   {
    "date": "2026-11-12",
    "code": "600506",
    "name": "统一股份",
    "kind": "aggressive",
-   "buy": 19.48,
-   "target": 24.47,
-   "stop": 17.53,
+   "buy": 19.28,
+   "target": 24.27,
+   "stop": 17.35,
    "score": 63.8,
    "grade": "B+",
    "dims": {
@@ -29729,23 +29699,83 @@
    "prices": {
     "2026-11-12": 19.35
    },
-   "base": 19.48,
+   "base": 19.28,
    "ret": {
-    "t1": -0.67
+    "t1": 0.36
    },
    "status": "holding",
    "days": 1,
    "last": 19.35,
-   "ret_now": -0.67
+   "ret_now": 0.36
+  },
+  {
+   "date": "2026-11-12",
+   "code": "002222",
+   "name": "福晶科技",
+   "kind": "aggressive",
+   "buy": 52.47,
+   "target": 61.93,
+   "stop": 47.22,
+   "score": 59.3,
+   "grade": "B",
+   "dims": {
+    "trend": 7.0,
+    "momentum": 20,
+    "volume": 14.5,
+    "fund": 11.7,
+    "news": 7.6,
+    "value": 1.0
+   },
+   "prices": {
+    "2026-11-12": 51.26
+   },
+   "base": 52.47,
+   "ret": {
+    "t1": -2.31
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 51.26,
+   "ret_now": -2.31
+  },
+  {
+   "date": "2026-11-12",
+   "code": "600259",
+   "name": "中稀有色",
+   "kind": "aggressive",
+   "buy": 65.74,
+   "target": 79.01,
+   "stop": 63.44,
+   "score": 57.4,
+   "grade": "B",
+   "dims": {
+    "trend": 17.0,
+    "momentum": 10.0,
+    "volume": 16.5,
+    "fund": 13.2,
+    "news": 8.1,
+    "value": 1.6
+   },
+   "prices": {
+    "2026-11-12": 74.02
+   },
+   "base": 75.25,
+   "ret": {
+    "t1": -1.63
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 74.02,
+   "ret_now": -1.63
   },
   {
    "date": "2026-11-12",
    "code": "601929",
    "name": "吉视传媒",
    "kind": "aggressive",
-   "buy": 2.68,
-   "target": 3.17,
-   "stop": 2.41,
+   "buy": 2.72,
+   "target": 3.21,
+   "stop": 2.45,
    "score": 54.5,
    "grade": "B",
    "dims": {
@@ -29759,14 +29789,14 @@
    "prices": {
     "2026-11-12": 2.81
    },
-   "base": 2.68,
+   "base": 2.72,
    "ret": {
-    "t1": 4.85
+    "t1": 3.31
    },
    "status": "holding",
    "days": 1,
    "last": 2.81,
-   "ret_now": 4.85
+   "ret_now": 3.31
   },
   {
    "date": "2026-11-12",
@@ -29776,12 +29806,12 @@
    "buy": 85.2,
    "target": 94.76,
    "stop": 80.08,
-   "score": 77.1,
+   "score": 79.1,
    "grade": "A",
    "dims": {
     "trend": 25,
     "momentum": 15.0,
-    "volume": 10.5,
+    "volume": 12.5,
     "fund": 7.9,
     "news": 9.7,
     "value": 9.0
@@ -29789,14 +29819,14 @@
    "prices": {
     "2026-11-12": 85.49
    },
-   "base": 85.2,
+   "base": 85.28,
    "ret": {
-    "t1": 0.34
+    "t1": 0.25
    },
    "status": "holding",
    "days": 1,
    "last": 85.49,
-   "ret_now": 0.34
+   "ret_now": 0.25
   },
   {
    "date": "2026-11-12",
@@ -29830,72 +29860,12 @@
   },
   {
    "date": "2026-11-12",
-   "code": "600259",
-   "name": "中稀有色",
-   "kind": "aggressive",
-   "buy": 65.74,
-   "target": 79.18,
-   "stop": 63.44,
-   "score": 57.4,
-   "grade": "B",
-   "dims": {
-    "trend": 17.0,
-    "momentum": 10.0,
-    "volume": 16.5,
-    "fund": 13.2,
-    "news": 8.1,
-    "value": 1.6
-   },
-   "prices": {
-    "2026-11-12": 74.02
-   },
-   "base": 75.41,
-   "ret": {
-    "t1": -1.84
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 74.02,
-   "ret_now": -1.84
-  },
-  {
-   "date": "2026-11-12",
-   "code": "600863",
-   "name": "华能蒙电",
-   "kind": "steady",
-   "buy": 5.3,
-   "target": 5.85,
-   "stop": 4.97,
-   "score": 58.7,
-   "grade": "B",
-   "dims": {
-    "trend": 19.0,
-    "momentum": 10.0,
-    "volume": 3.0,
-    "fund": 8.2,
-    "news": 7.7,
-    "value": 8.3
-   },
-   "prices": {
-    "2026-11-12": 5.27
-   },
-   "base": 5.28,
-   "ret": {
-    "t1": -0.19
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 5.27,
-   "ret_now": -0.19
-  },
-  {
-   "date": "2026-11-12",
    "code": "688222",
    "name": "成都先导",
    "kind": "aggressive",
-   "buy": 41.06,
-   "target": 51.47,
-   "stop": 36.95,
+   "buy": 41.02,
+   "target": 51.43,
+   "stop": 36.92,
    "score": 68.0,
    "grade": "B+",
    "dims": {
@@ -29909,44 +29879,74 @@
    "prices": {
     "2026-11-12": 40.85
    },
-   "base": 41.06,
+   "base": 41.02,
    "ret": {
-    "t1": -0.51
+    "t1": -0.41
    },
    "status": "holding",
    "days": 1,
    "last": 40.85,
-   "ret_now": -0.51
+   "ret_now": -0.41
   },
   {
    "date": "2026-11-12",
-   "code": "002352",
-   "name": "顺丰控股",
-   "kind": "steady",
-   "buy": 32.53,
-   "target": 34.95,
-   "stop": 31.39,
-   "score": 74.1,
-   "grade": "A",
+   "code": "002580",
+   "name": "圣阳股份",
+   "kind": "aggressive",
+   "buy": 18.62,
+   "target": 22.36,
+   "stop": 16.76,
+   "score": 68.8,
+   "grade": "B+",
    "dims": {
-    "trend": 25,
-    "momentum": 14.0,
-    "volume": 9.0,
-    "fund": 7.4,
-    "news": 7.2,
-    "value": 9.0
+    "trend": 17.0,
+    "momentum": 17.0,
+    "volume": 14.5,
+    "fund": 10.5,
+    "news": 5.0,
+    "value": 4.8
    },
    "prices": {
-    "2026-11-12": 32.71
+    "2026-11-12": 18.4
    },
-   "base": 32.81,
+   "base": 18.62,
    "ret": {
-    "t1": -0.3
+    "t1": -1.18
    },
    "status": "holding",
    "days": 1,
-   "last": 32.71,
-   "ret_now": -0.3
+   "last": 18.4,
+   "ret_now": -1.18
+  },
+  {
+   "date": "2026-11-12",
+   "code": "002773",
+   "name": "康弘药业",
+   "kind": "steady",
+   "buy": 21.21,
+   "target": 24.22,
+   "stop": 20.47,
+   "score": 73.0,
+   "grade": "A",
+   "dims": {
+    "trend": 21.0,
+    "momentum": 14.0,
+    "volume": 12.5,
+    "fund": 12.7,
+    "news": 5.0,
+    "value": 8.3
+   },
+   "prices": {
+    "2026-11-12": 23.05
+   },
+   "base": 23.05,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 23.05,
+   "ret_now": 0.0
   },
   {
    "date": "2026-11-12",
@@ -29980,6 +29980,36 @@
   },
   {
    "date": "2026-11-12",
+   "code": "002352",
+   "name": "顺丰控股",
+   "kind": "steady",
+   "buy": 32.53,
+   "target": 34.95,
+   "stop": 31.39,
+   "score": 74.0,
+   "grade": "A",
+   "dims": {
+    "trend": 25,
+    "momentum": 14.0,
+    "volume": 9.0,
+    "fund": 7.3,
+    "news": 7.2,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-12": 32.71
+   },
+   "base": 32.79,
+   "ret": {
+    "t1": -0.24
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 32.71,
+   "ret_now": -0.24
+  },
+  {
+   "date": "2026-11-12",
    "code": "000651",
    "name": "格力电器",
    "kind": "steady",
@@ -29999,83 +30029,23 @@
    "prices": {
     "2026-11-12": 38.89
    },
-   "base": 38.98,
+   "base": 38.97,
    "ret": {
-    "t1": -0.23
+    "t1": -0.21
    },
    "status": "holding",
    "days": 1,
    "last": 38.89,
-   "ret_now": -0.23
-  },
-  {
-   "date": "2026-11-12",
-   "code": "002222",
-   "name": "福晶科技",
-   "kind": "aggressive",
-   "buy": 51.82,
-   "target": 61.28,
-   "stop": 46.64,
-   "score": 59.3,
-   "grade": "B",
-   "dims": {
-    "trend": 7.0,
-    "momentum": 20,
-    "volume": 14.5,
-    "fund": 11.7,
-    "news": 7.6,
-    "value": 1.0
-   },
-   "prices": {
-    "2026-11-12": 51.26
-   },
-   "base": 51.82,
-   "ret": {
-    "t1": -1.08
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 51.26,
-   "ret_now": -1.08
-  },
-  {
-   "date": "2026-11-12",
-   "code": "002773",
-   "name": "康弘药业",
-   "kind": "steady",
-   "buy": 21.13,
-   "target": 24.14,
-   "stop": 20.39,
-   "score": 72.8,
-   "grade": "A",
-   "dims": {
-    "trend": 21.0,
-    "momentum": 14.0,
-    "volume": 12.5,
-    "fund": 12.5,
-    "news": 5.0,
-    "value": 8.3
-   },
-   "prices": {
-    "2026-11-12": 23.05
-   },
-   "base": 22.97,
-   "ret": {
-    "t1": 0.35
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 23.05,
-   "ret_now": 0.35
+   "ret_now": -0.21
   },
   {
    "date": "2026-11-12",
    "code": "600199",
    "name": "金种子酒",
    "kind": "aggressive",
-   "buy": 8.11,
-   "target": 9.31,
-   "stop": 7.39,
+   "buy": 8.08,
+   "target": 9.28,
+   "stop": 7.36,
    "score": 54.6,
    "grade": "B",
    "dims": {
@@ -30089,44 +30059,44 @@
    "prices": {
     "2026-11-12": 8.1
    },
-   "base": 8.11,
+   "base": 8.08,
    "ret": {
-    "t1": -0.12
+    "t1": 0.25
    },
    "status": "holding",
    "days": 1,
    "last": 8.1,
-   "ret_now": -0.12
+   "ret_now": 0.25
   },
   {
    "date": "2026-11-12",
-   "code": "002229",
-   "name": "鸿博股份",
+   "code": "301357",
+   "name": "北方长龙",
    "kind": "aggressive",
-   "buy": 10.08,
-   "target": 11.22,
-   "stop": 9.4,
-   "score": 55.3,
+   "buy": 93.2,
+   "target": 110.73,
+   "stop": 83.88,
+   "score": 54.5,
    "grade": "B",
    "dims": {
-    "trend": 12.0,
-    "momentum": 15.0,
-    "volume": 11.0,
-    "fund": 9.7,
-    "news": 6,
-    "value": 1.6
+    "trend": 13.0,
+    "momentum": 17.0,
+    "volume": 12.0,
+    "fund": 7.9,
+    "news": 3.6,
+    "value": 1.0
    },
    "prices": {
-    "2026-11-12": 9.81
+    "2026-11-12": 96.58
    },
-   "base": 10.08,
+   "base": 93.2,
    "ret": {
-    "t1": -2.68
+    "t1": 3.63
    },
    "status": "holding",
    "days": 1,
-   "last": 9.81,
-   "ret_now": -2.68
+   "last": 96.58,
+   "ret_now": 3.63
   },
   {
    "date": "2026-11-12",
@@ -30160,33 +30130,33 @@
   },
   {
    "date": "2026-11-12",
-   "code": "600600",
-   "name": "青岛啤酒",
-   "kind": "steady",
-   "buy": 51.58,
-   "target": 55.39,
-   "stop": 49.77,
-   "score": 71.2,
-   "grade": "B+",
+   "code": "002229",
+   "name": "鸿博股份",
+   "kind": "aggressive",
+   "buy": 10.0,
+   "target": 11.14,
+   "stop": 9.32,
+   "score": 55.3,
+   "grade": "B",
    "dims": {
-    "trend": 21.0,
-    "momentum": 14.0,
-    "volume": 9.0,
-    "fund": 7.6,
-    "news": 8.8,
-    "value": 8.3
+    "trend": 12.0,
+    "momentum": 15.0,
+    "volume": 11.0,
+    "fund": 9.7,
+    "news": 6,
+    "value": 1.6
    },
    "prices": {
-    "2026-11-12": 51.73
+    "2026-11-12": 9.81
    },
-   "base": 51.7,
+   "base": 10.0,
    "ret": {
-    "t1": 0.06
+    "t1": -1.9
    },
    "status": "holding",
    "days": 1,
-   "last": 51.73,
-   "ret_now": 0.06
+   "last": 9.81,
+   "ret_now": -1.9
   },
   {
    "date": "2026-11-12",
@@ -30250,66 +30220,6 @@
   },
   {
    "date": "2026-11-12",
-   "code": "603456",
-   "name": "九洲药业",
-   "kind": "steady",
-   "buy": 16.02,
-   "target": 18.25,
-   "stop": 15.46,
-   "score": 66.2,
-   "grade": "B+",
-   "dims": {
-    "trend": 18.0,
-    "momentum": 15.0,
-    "volume": 11.0,
-    "fund": 9.3,
-    "news": 5.4,
-    "value": 7.5
-   },
-   "prices": {
-    "2026-11-12": 17.1
-   },
-   "base": 16.67,
-   "ret": {
-    "t1": 2.58
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 17.1,
-   "ret_now": 2.58
-  },
-  {
-   "date": "2026-11-12",
-   "code": "000701",
-   "name": "厦门信达",
-   "kind": "aggressive",
-   "buy": 6.52,
-   "target": 7.85,
-   "stop": 5.87,
-   "score": 74.2,
-   "grade": "A",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 17.0,
-    "volume": 13.0,
-    "fund": 12.1,
-    "news": 6.8,
-    "value": 2.3
-   },
-   "prices": {
-    "2026-11-12": 6.26
-   },
-   "base": 6.52,
-   "ret": {
-    "t1": -3.99
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 6.26,
-   "ret_now": -3.99
-  },
-  {
-   "date": "2026-11-12",
    "code": "001301",
    "name": "尚太科技",
    "kind": "steady",
@@ -30329,14 +30239,44 @@
    "prices": {
     "2026-11-12": 48.48
    },
-   "base": 48.5,
+   "base": 48.51,
    "ret": {
-    "t1": -0.04
+    "t1": -0.06
    },
    "status": "holding",
    "days": 1,
    "last": 48.48,
-   "ret_now": -0.04
+   "ret_now": -0.06
+  },
+  {
+   "date": "2026-11-12",
+   "code": "000701",
+   "name": "厦门信达",
+   "kind": "aggressive",
+   "buy": 6.38,
+   "target": 7.71,
+   "stop": 5.74,
+   "score": 74.2,
+   "grade": "A",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 17.0,
+    "volume": 13.0,
+    "fund": 12.1,
+    "news": 6.8,
+    "value": 2.3
+   },
+   "prices": {
+    "2026-11-12": 6.26
+   },
+   "base": 6.38,
+   "ret": {
+    "t1": -1.88
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 6.26,
+   "ret_now": -1.88
   },
   {
    "date": "2026-11-12",
@@ -30359,14 +30299,14 @@
    "prices": {
     "2026-11-12": 12.94
    },
-   "base": 12.95,
+   "base": 12.94,
    "ret": {
-    "t1": -0.08
+    "t1": 0.0
    },
    "status": "holding",
    "days": 1,
    "last": 12.94,
-   "ret_now": -0.08
+   "ret_now": 0.0
   },
   {
    "date": "2026-11-12",
@@ -30389,44 +30329,14 @@
    "prices": {
     "2026-11-12": 22.88
    },
-   "base": 22.92,
+   "base": 22.9,
    "ret": {
-    "t1": -0.17
+    "t1": -0.09
    },
    "status": "holding",
    "days": 1,
    "last": 22.88,
-   "ret_now": -0.17
-  },
-  {
-   "date": "2026-11-12",
-   "code": "603613",
-   "name": "国联股份",
-   "kind": "steady",
-   "buy": 18.97,
-   "target": 20.91,
-   "stop": 18.31,
-   "score": 74.7,
-   "grade": "A",
-   "dims": {
-    "trend": 19.0,
-    "momentum": 18.0,
-    "volume": 12.5,
-    "fund": 9.2,
-    "news": 7.0,
-    "value": 9.0
-   },
-   "prices": {
-    "2026-11-12": 19.02
-   },
-   "base": 19.16,
-   "ret": {
-    "t1": -0.73
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 19.02,
-   "ret_now": -0.73
+   "ret_now": -0.09
   },
   {
    "date": "2026-11-12",
@@ -30466,87 +30376,87 @@
    "buy": 43.01,
    "target": 46.96,
    "stop": 41.5,
-   "score": 69.5,
+   "score": 69.6,
    "grade": "B+",
    "dims": {
     "trend": 21.0,
     "momentum": 14.0,
     "volume": 12.5,
-    "fund": 10.7,
+    "fund": 10.8,
     "news": 6.0,
     "value": 8.3
    },
    "prices": {
     "2026-11-12": 44.96
    },
-   "base": 44.93,
+   "base": 44.95,
    "ret": {
-    "t1": 0.07
+    "t1": 0.02
    },
    "status": "holding",
    "days": 1,
    "last": 44.96,
-   "ret_now": 0.07
+   "ret_now": 0.02
   },
   {
    "date": "2026-11-12",
-   "code": "603318",
-   "name": "水发燃气",
+   "code": "600189",
+   "name": "泉阳泉",
    "kind": "aggressive",
-   "buy": 8.13,
-   "target": 9.27,
-   "stop": 7.61,
-   "score": 60.8,
+   "buy": 9.15,
+   "target": 11.23,
+   "stop": 8.24,
+   "score": 55.7,
    "grade": "B",
    "dims": {
-    "trend": 14.0,
-    "momentum": 11.0,
-    "volume": 14.5,
-    "fund": 13.3,
-    "news": 6.2,
-    "value": 2.3
+    "trend": 21.0,
+    "momentum": 15.0,
+    "volume": 9.0,
+    "fund": 11.1,
+    "news": 6.0,
+    "value": 1.6
    },
    "prices": {
-    "2026-11-12": 8.83
+    "2026-11-12": 9.24
    },
-   "base": 8.8,
+   "base": 9.15,
    "ret": {
-    "t1": 0.34
+    "t1": 0.98
    },
    "status": "holding",
    "days": 1,
-   "last": 8.83,
-   "ret_now": 0.34
+   "last": 9.24,
+   "ret_now": 0.98
   },
   {
    "date": "2026-11-12",
-   "code": "002838",
-   "name": "道恩股份",
-   "kind": "aggressive",
-   "buy": 20.36,
-   "target": 24.41,
-   "stop": 19.65,
-   "score": 58.8,
-   "grade": "B",
+   "code": "600741",
+   "name": "华域汽车",
+   "kind": "steady",
+   "buy": 16.45,
+   "target": 17.59,
+   "stop": 15.77,
+   "score": 76.0,
+   "grade": "A",
    "dims": {
-    "trend": 12.0,
-    "momentum": 13.0,
-    "volume": 14.5,
-    "fund": 12.0,
-    "news": 5.5,
-    "value": 3.3
+    "trend": 25,
+    "momentum": 17.0,
+    "volume": 10.5,
+    "fund": 8.6,
+    "news": 5.9,
+    "value": 9.0
    },
    "prices": {
-    "2026-11-12": 23.24
+    "2026-11-12": 16.49
    },
-   "base": 23.25,
+   "base": 16.5,
    "ret": {
-    "t1": -0.04
+    "t1": -0.06
    },
    "status": "holding",
    "days": 1,
-   "last": 23.24,
-   "ret_now": -0.04
+   "last": 16.49,
+   "ret_now": -0.06
   },
   {
    "date": "2026-11-12",
@@ -30580,57 +30490,39 @@
   },
   {
    "date": "2026-11-12",
-   "code": "600189",
-   "name": "泉阳泉",
+   "code": "603318",
+   "name": "水发燃气",
    "kind": "aggressive",
-   "buy": 9.24,
-   "target": 11.32,
-   "stop": 8.32,
-   "score": 55.7,
+   "buy": 8.13,
+   "target": 9.27,
+   "stop": 7.61,
+   "score": 60.8,
    "grade": "B",
    "dims": {
-    "trend": 21.0,
-    "momentum": 15.0,
-    "volume": 9.0,
-    "fund": 11.1,
-    "news": 6.0,
-    "value": 1.6
+    "trend": 14.0,
+    "momentum": 11.0,
+    "volume": 14.5,
+    "fund": 13.3,
+    "news": 6.2,
+    "value": 2.3
    },
-   "prices": {},
-   "base": 9.24,
-   "ret": {},
-   "status": "holding",
-   "days": 0
-  },
-  {
-   "date": "2026-11-12",
-   "code": "600741",
-   "name": "华域汽车",
-   "kind": "steady",
-   "buy": 16.45,
-   "target": 17.59,
-   "stop": 15.77,
-   "score": 76.0,
-   "grade": "A",
-   "dims": {
-    "trend": 25,
-    "momentum": 17.0,
-    "volume": 10.5,
-    "fund": 8.6,
-    "news": 5.9,
-    "value": 9.0
+   "prices": {
+    "2026-11-12": 8.83
    },
-   "prices": {},
-   "base": 16.49,
-   "ret": {},
+   "base": 8.83,
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 8.83,
+   "ret_now": 0.0
   }
  ],
  "stats": {
-  "total": 870,
+  "total": 866,
   "settled": 567,
-  "holding": 303,
+  "holding": 299,
   "win": 269,
   "win_rate": 47.4,
   "avg_ret": -0.66,
@@ -30642,7 +30534,7 @@
    "days": 5,
    "count": 60,
    "win_rate": 41.7,
-   "avg_ret": 0.57
+   "avg_ret": 0.56
   }
  },
  "updated": "2026-10-21"
