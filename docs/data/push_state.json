@@ -1,14 +1,19 @@
 {
  "recos": [
+  "600699",
+  "301262",
   "002703",
   "002148"
  ],
- "grade_a": [],
+ "grade_a": [
+  "301262"
+ ],
  "last_daily": "2026-11-11",
  "date": "2026-11-12",
  "counts": {
   "board": 1,
-  "lof": 2
+  "lof": 3,
+  "new_a": 1
  },
  "ai_fail_streak": 296,
  "ai_alert_date": "2026-11-12"
