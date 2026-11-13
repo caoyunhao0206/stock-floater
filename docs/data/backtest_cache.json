@@ -18,22 +18,6 @@
     "tp": 10,
     "sl": 7
    },
-   "603466": {
-    "samples": 60,
-    "win_rate": 38.3,
-    "avg_ret": -1.29,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
-   "600853": {
-    "samples": 23,
-    "win_rate": 34.8,
-    "avg_ret": -2.58,
-    "horizon": 10,
-    "tp": 10,
-    "sl": 7
-   },
    "002623": {
     "samples": 19,
     "win_rate": 36.8,
@@ -50,10 +34,10 @@
     "tp": 10,
     "sl": 7
    },
-   "002164": {
-    "samples": 39,
-    "win_rate": 51.3,
-    "avg_ret": 1.94,
+   "600853": {
+    "samples": 23,
+    "win_rate": 34.8,
+    "avg_ret": -2.58,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -66,10 +50,10 @@
     "tp": 10,
     "sl": 7
    },
-   "300607": {
-    "samples": 31,
-    "win_rate": 45.2,
-    "avg_ret": 0.66,
+   "002164": {
+    "samples": 39,
+    "win_rate": 51.3,
+    "avg_ret": 1.94,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -82,10 +66,26 @@
     "tp": 10,
     "sl": 7
    },
+   "300607": {
+    "samples": 31,
+    "win_rate": 45.2,
+    "avg_ret": 0.66,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
    "002931": {
     "samples": 7,
     "win_rate": 57.1,
     "avg_ret": 2.71,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "301413": {
+    "samples": 12,
+    "win_rate": 41.7,
+    "avg_ret": 0.08,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -98,10 +98,10 @@
     "tp": 10,
     "sl": 7
    },
-   "301413": {
-    "samples": 12,
-    "win_rate": 41.7,
-    "avg_ret": 0.08,
+   "002313": {
+    "samples": 28,
+    "win_rate": 17.9,
+    "avg_ret": -3.17,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -146,10 +146,10 @@
     "tp": 10,
     "sl": 7
    },
-   "000938": {
-    "samples": 38,
-    "win_rate": 60.5,
-    "avg_ret": 2.93,
+   "000823": {
+    "samples": 43,
+    "win_rate": 46.5,
+    "avg_ret": 1.08,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -157,15 +157,15 @@
   },
   "horizon": 10,
   "strategy": {
-   "samples": 529,
+   "samples": 502,
    "stocks": 19,
-   "win_rate": 41.4,
-   "avg_ret": -0.32,
-   "avg_win": 8.78,
-   "avg_loss": -6.74,
-   "rr": 1.3,
-   "big_win_rate": 37.6,
-   "big_loss_rate": 56.0,
+   "win_rate": 39.4,
+   "avg_ret": -0.48,
+   "avg_win": 8.92,
+   "avg_loss": -6.61,
+   "rr": 1.35,
+   "big_win_rate": 36.5,
+   "big_loss_rate": 56.6,
    "threshold": 65,
    "tp": 10,
    "sl": 7
