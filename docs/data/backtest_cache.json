@@ -1,11 +1,27 @@
 {
- "date": "2026-11-12",
+ "date": "2026-11-13",
  "data": {
   "per_stock": {
-   "603366": {
+   "600715": {
     "samples": 27,
-    "win_rate": 63.0,
-    "avg_ret": 2.85,
+    "win_rate": 33.3,
+    "avg_ret": -0.74,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "002623": {
+    "samples": 19,
+    "win_rate": 36.8,
+    "avg_ret": -0.47,
+    "horizon": 10,
+    "tp": 10,
+    "sl": 7
+   },
+   "002931": {
+    "samples": 7,
+    "win_rate": 57.1,
+    "avg_ret": 2.71,
     "horizon": 10,
     "tp": 10,
     "sl": 7
@@ -13,15 +29,15 @@
   },
   "horizon": 10,
   "strategy": {
-   "samples": 27,
-   "stocks": 1,
-   "win_rate": 63.0,
-   "avg_ret": 2.85,
-   "avg_win": 8.65,
-   "avg_loss": -7.0,
-   "rr": 1.24,
-   "big_win_rate": 55.6,
-   "big_loss_rate": 37.0,
+   "samples": 53,
+   "stocks": 3,
+   "win_rate": 37.7,
+   "avg_ret": -0.19,
+   "avg_win": 9.62,
+   "avg_loss": -6.13,
+   "rr": 1.57,
+   "big_win_rate": 35.8,
+   "big_loss_rate": 54.7,
    "threshold": 65,
    "tp": 10,
    "sl": 7
