@@ -32,9 +32,9 @@
  "date": "2026-11-14",
  "counts": {
   "board": 2,
-  "lof": 3,
+  "lof": 2,
   "new_a": 1
  },
- "ai_fail_streak": 383,
+ "ai_fail_streak": 382,
  "ai_alert_date": "2026-11-14"
 }
