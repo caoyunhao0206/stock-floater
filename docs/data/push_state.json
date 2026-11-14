@@ -31,10 +31,10 @@
  "last_daily": "2026-11-13",
  "date": "2026-11-14",
  "counts": {
-  "new_a": 2,
   "board": 2,
-  "lof": 2
+  "lof": 3,
+  "new_a": 1
  },
- "ai_fail_streak": 382,
+ "ai_fail_streak": 383,
  "ai_alert_date": "2026-11-14"
 }
