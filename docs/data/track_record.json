@@ -34816,13 +34816,13 @@
    "buy": 24.27,
    "target": 27.68,
    "stop": 22.86,
-   "score": 76.6,
+   "score": 77.2,
    "grade": "A",
    "dims": {
     "trend": 25,
     "momentum": 15.0,
     "volume": 15.0,
-    "fund": 7.3,
+    "fund": 7.9,
     "news": 7.5,
     "value": 6.8
    },
@@ -34846,14 +34846,14 @@
    "buy": 88.68,
    "target": 94.88,
    "stop": 85.55,
-   "score": 71.2,
-   "grade": "B+",
+   "score": 74.8,
+   "grade": "A",
    "dims": {
     "trend": 23.0,
     "momentum": 14.0,
     "volume": 9.0,
-    "fund": 7.6,
-    "news": 9.3,
+    "fund": 11.0,
+    "news": 9.5,
     "value": 8.3
    },
    "prices": {
@@ -34996,13 +34996,13 @@
    "buy": 9.68,
    "target": 10.36,
    "stop": 9.34,
-   "score": 62.3,
+   "score": 62.0,
    "grade": "B+",
    "dims": {
     "trend": 20.0,
     "momentum": 10.0,
     "volume": 6.0,
-    "fund": 7.8,
+    "fund": 7.5,
     "news": 8.5,
     "value": 7.5
    },
@@ -35080,32 +35080,32 @@
   },
   {
    "date": "2026-11-14",
-   "code": "002475",
-   "name": "立讯精密",
+   "code": "601169",
+   "name": "北京银行",
    "kind": "steady",
-   "buy": 49.61,
-   "target": 56.11,
-   "stop": 45.71,
-   "score": 58.3,
+   "buy": 5.93,
+   "target": 6.38,
+   "stop": 5.66,
+   "score": 59.7,
    "grade": "B",
    "dims": {
-    "trend": 13.0,
-    "momentum": 15.0,
-    "volume": 9.0,
-    "fund": 7.5,
-    "news": 7.0,
-    "value": 6.8
+    "trend": 23.0,
+    "momentum": 10.0,
+    "volume": 11.0,
+    "fund": 11.4,
+    "news": 4.3,
+    "value": 9.0
    },
    "prices": {
-    "2026-11-14": 50.02
+    "2026-11-14": 6.16
    },
-   "base": 50.02,
+   "base": 6.16,
    "ret": {
     "t1": 0.0
    },
    "status": "holding",
    "days": 1,
-   "last": 50.02,
+   "last": 6.16,
    "ret_now": 0.0
   },
   {
@@ -35146,14 +35146,14 @@
    "buy": 77.43,
    "target": 94.6,
    "stop": 69.69,
-   "score": 63.4,
+   "score": 63.3,
    "grade": "B+",
    "dims": {
     "trend": 14.0,
     "momentum": 13.0,
     "volume": 16.5,
     "fund": 12.3,
-    "news": 8.6,
+    "news": 8.5,
     "value": 4.8
    },
    "prices": {
@@ -35230,36 +35230,6 @@
   },
   {
    "date": "2026-11-14",
-   "code": "300969",
-   "name": "恒帅股份",
-   "kind": "aggressive",
-   "buy": 93.51,
-   "target": 118.29,
-   "stop": 84.16,
-   "score": 75.0,
-   "grade": "A",
-   "dims": {
-    "trend": 25,
-    "momentum": 14.0,
-    "volume": 16.5,
-    "fund": 12.4,
-    "news": 7.9,
-    "value": 2.0
-   },
-   "prices": {
-    "2026-11-14": 93.51
-   },
-   "base": 93.51,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 93.51,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
    "code": "000151",
    "name": "中成股份",
    "kind": "aggressive",
@@ -35320,36 +35290,6 @@
   },
   {
    "date": "2026-11-14",
-   "code": "000417",
-   "name": "合百集团",
-   "kind": "aggressive",
-   "buy": 6.21,
-   "target": 7.35,
-   "stop": 5.77,
-   "score": 66.9,
-   "grade": "B+",
-   "dims": {
-    "trend": 19.0,
-    "momentum": 17.0,
-    "volume": 16.5,
-    "fund": 11.4,
-    "news": 3.6,
-    "value": 7.5
-   },
-   "prices": {
-    "2026-11-14": 6.21
-   },
-   "base": 6.21,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 6.21,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
    "code": "600941",
    "name": "中国移动",
    "kind": "steady",
@@ -35377,42 +35317,12 @@
    "days": 1,
    "last": 101.46,
    "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "601169",
-   "name": "北京银行",
-   "kind": "steady",
-   "buy": 5.93,
-   "target": 6.38,
-   "stop": 5.66,
-   "score": 60.0,
-   "grade": "B",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 10.0,
-    "volume": 11.0,
-    "fund": 11.4,
-    "news": 4.3,
-    "value": 9.0
-   },
-   "prices": {
-    "2026-11-14": 6.16
-   },
-   "base": 6.16,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 6.16,
-   "ret_now": 0.0
   }
  ],
  "stats": {
-  "total": 989,
+  "total": 986,
   "settled": 730,
-  "holding": 259,
+  "holding": 256,
   "win": 300,
   "win_rate": 41.1,
   "avg_ret": -1.22,
