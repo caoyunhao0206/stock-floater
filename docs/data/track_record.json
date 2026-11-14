@@ -34780,14 +34780,14 @@
    "buy": 88.68,
    "target": 94.88,
    "stop": 85.55,
-   "score": 71.2,
+   "score": 71.4,
    "grade": "B+",
    "dims": {
     "trend": 23.0,
     "momentum": 14.0,
     "volume": 9.0,
     "fund": 7.6,
-    "news": 9.3,
+    "news": 9.5,
     "value": 8.3
    },
    "prices": {},
@@ -34876,13 +34876,13 @@
    "buy": 9.68,
    "target": 10.36,
    "stop": 9.34,
-   "score": 62.3,
+   "score": 62.0,
    "grade": "B+",
    "dims": {
     "trend": 20.0,
     "momentum": 10.0,
     "volume": 6.0,
-    "fund": 7.8,
+    "fund": 7.5,
     "news": 8.5,
     "value": 7.5
    },
