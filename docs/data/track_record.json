@@ -34966,13 +34966,13 @@
    "buy": 9.68,
    "target": 10.36,
    "stop": 9.34,
-   "score": 62.3,
+   "score": 62.0,
    "grade": "B+",
    "dims": {
     "trend": 20.0,
     "momentum": 10.0,
     "volume": 6.0,
-    "fund": 7.8,
+    "fund": 7.5,
     "news": 8.5,
     "value": 7.5
    },
@@ -35227,12 +35227,132 @@
    "days": 1,
    "last": 21.82,
    "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "000151",
+   "name": "中成股份",
+   "kind": "aggressive",
+   "buy": 10.04,
+   "target": 11.88,
+   "stop": 9.69,
+   "score": 74.0,
+   "grade": "A",
+   "dims": {
+    "trend": 19.0,
+    "momentum": 14.0,
+    "volume": 15.0,
+    "fund": 13.5,
+    "news": 8,
+    "value": 7.6
+   },
+   "prices": {
+    "2026-11-14": 10.35
+   },
+   "base": 10.35,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 10.35,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "600829",
+   "name": "人民同泰",
+   "kind": "aggressive",
+   "buy": 9.71,
+   "target": 11.47,
+   "stop": 9.37,
+   "score": 73.4,
+   "grade": "A",
+   "dims": {
+    "trend": 21.0,
+    "momentum": 13.0,
+    "volume": 14.5,
+    "fund": 15,
+    "news": 5.2,
+    "value": 5.5
+   },
+   "prices": {
+    "2026-11-14": 10.18
+   },
+   "base": 10.18,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 10.18,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "600941",
+   "name": "中国移动",
+   "kind": "steady",
+   "buy": 101.62,
+   "target": 109.25,
+   "stop": 98.06,
+   "score": 60.4,
+   "grade": "B",
+   "dims": {
+    "trend": 12.0,
+    "momentum": 7.0,
+    "volume": 11.0,
+    "fund": 9.9,
+    "news": 8.7,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 101.46
+   },
+   "base": 101.46,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 101.46,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "601169",
+   "name": "北京银行",
+   "kind": "steady",
+   "buy": 5.93,
+   "target": 6.38,
+   "stop": 5.66,
+   "score": 60.0,
+   "grade": "B",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 10.0,
+    "volume": 11.0,
+    "fund": 11.4,
+    "news": 4.3,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 6.16
+   },
+   "base": 6.16,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 6.16,
+   "ret_now": 0.0
   }
  ],
  "stats": {
-  "total": 983,
+  "total": 987,
   "settled": 730,
-  "holding": 253,
+  "holding": 257,
   "win": 300,
   "win_rate": 41.1,
   "avg_ret": -1.22,
