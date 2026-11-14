@@ -35317,36 +35317,12 @@
    "days": 1,
    "last": 101.46,
    "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "601169",
-   "name": "北京银行",
-   "kind": "steady",
-   "buy": 5.93,
-   "target": 6.38,
-   "stop": 5.66,
-   "score": 60.0,
-   "grade": "B",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 10.0,
-    "volume": 11.0,
-    "fund": 11.4,
-    "news": 4.3,
-    "value": 9.0
-   },
-   "prices": {},
-   "base": 6.16,
-   "ret": {},
-   "status": "holding",
-   "days": 0
   }
  ],
  "stats": {
-  "total": 987,
+  "total": 986,
   "settled": 730,
-  "holding": 257,
+  "holding": 256,
   "win": 300,
   "win_rate": 41.1,
   "avg_ret": -1.22,
