@@ -35216,11 +35216,17 @@
     "news": 8.5,
     "value": 4.8
    },
-   "prices": {},
+   "prices": {
+    "2026-11-14": 83.72
+   },
    "base": 83.72,
-   "ret": {},
+   "ret": {
+    "t1": 0.0
+   },
    "status": "holding",
-   "days": 0
+   "days": 1,
+   "last": 83.72,
+   "ret_now": 0.0
   }
  ],
  "stats": {
