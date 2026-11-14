@@ -34846,14 +34846,14 @@
    "buy": 88.68,
    "target": 94.88,
    "stop": 85.55,
-   "score": 71.4,
+   "score": 71.2,
    "grade": "B+",
    "dims": {
     "trend": 23.0,
     "momentum": 14.0,
     "volume": 9.0,
     "fund": 7.6,
-    "news": 9.5,
+    "news": 9.3,
     "value": 8.3
    },
    "prices": {
@@ -34960,19 +34960,49 @@
   },
   {
    "date": "2026-11-14",
+   "code": "603063",
+   "name": "禾望电气",
+   "kind": "steady",
+   "buy": 22.01,
+   "target": 26.16,
+   "stop": 19.88,
+   "score": 63.0,
+   "grade": "B+",
+   "dims": {
+    "trend": 14.0,
+    "momentum": 14.0,
+    "volume": 9.0,
+    "fund": 9.6,
+    "news": 7.4,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 22.72
+   },
+   "base": 22.72,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 22.72,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
    "code": "601985",
    "name": "中国核电",
    "kind": "steady",
    "buy": 9.68,
    "target": 10.36,
    "stop": 9.34,
-   "score": 62.0,
+   "score": 62.3,
    "grade": "B+",
    "dims": {
     "trend": 20.0,
     "momentum": 10.0,
     "volume": 6.0,
-    "fund": 7.5,
+    "fund": 7.8,
     "news": 8.5,
     "value": 7.5
    },
@@ -35016,36 +35046,6 @@
    "status": "holding",
    "days": 1,
    "last": 12.07,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "603063",
-   "name": "禾望电气",
-   "kind": "steady",
-   "buy": 22.01,
-   "target": 26.16,
-   "stop": 19.88,
-   "score": 61.5,
-   "grade": "B",
-   "dims": {
-    "trend": 14.0,
-    "momentum": 14.0,
-    "volume": 9.0,
-    "fund": 8.1,
-    "news": 7.4,
-    "value": 9.0
-   },
-   "prices": {
-    "2026-11-14": 22.72
-   },
-   "base": 22.72,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 22.72,
    "ret_now": 0.0
   },
   {
@@ -35110,36 +35110,6 @@
   },
   {
    "date": "2026-11-14",
-   "code": "000034",
-   "name": "神州数码",
-   "kind": "aggressive",
-   "buy": 21.82,
-   "target": 24.23,
-   "stop": 20.37,
-   "score": 69.7,
-   "grade": "B+",
-   "dims": {
-    "trend": 13.0,
-    "momentum": 12.0,
-    "volume": 16.5,
-    "fund": 13.0,
-    "news": 7.8,
-    "value": 7.5
-   },
-   "prices": {
-    "2026-11-14": 21.82
-   },
-   "base": 21.82,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 21.82,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
    "code": "605169",
    "name": "洪通燃气",
    "kind": "aggressive",
@@ -35166,6 +35136,36 @@
    "status": "holding",
    "days": 1,
    "last": 14.32,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "688372",
+   "name": "伟测科技",
+   "kind": "aggressive",
+   "buy": 77.43,
+   "target": 94.6,
+   "stop": 69.69,
+   "score": 63.4,
+   "grade": "B+",
+   "dims": {
+    "trend": 14.0,
+    "momentum": 13.0,
+    "volume": 16.5,
+    "fund": 12.3,
+    "news": 8.6,
+    "value": 4.8
+   },
+   "prices": {
+    "2026-11-14": 83.72
+   },
+   "base": 83.72,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 83.72,
    "ret_now": 0.0
   },
   {
@@ -35200,32 +35200,62 @@
   },
   {
    "date": "2026-11-14",
-   "code": "688372",
-   "name": "伟测科技",
+   "code": "000034",
+   "name": "神州数码",
    "kind": "aggressive",
-   "buy": 77.43,
-   "target": 94.6,
-   "stop": 69.69,
-   "score": 63.3,
+   "buy": 21.82,
+   "target": 24.23,
+   "stop": 20.37,
+   "score": 69.7,
    "grade": "B+",
    "dims": {
-    "trend": 14.0,
-    "momentum": 13.0,
+    "trend": 13.0,
+    "momentum": 12.0,
     "volume": 16.5,
-    "fund": 12.3,
-    "news": 8.5,
-    "value": 4.8
+    "fund": 13.0,
+    "news": 7.8,
+    "value": 7.5
    },
    "prices": {
-    "2026-11-14": 83.72
+    "2026-11-14": 21.82
    },
-   "base": 83.72,
+   "base": 21.82,
    "ret": {
     "t1": 0.0
    },
    "status": "holding",
    "days": 1,
-   "last": 83.72,
+   "last": 21.82,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "300969",
+   "name": "恒帅股份",
+   "kind": "aggressive",
+   "buy": 93.51,
+   "target": 118.29,
+   "stop": 84.16,
+   "score": 75.0,
+   "grade": "A",
+   "dims": {
+    "trend": 25,
+    "momentum": 14.0,
+    "volume": 16.5,
+    "fund": 12.4,
+    "news": 7.9,
+    "value": 2.0
+   },
+   "prices": {
+    "2026-11-14": 93.51
+   },
+   "base": 93.51,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 93.51,
    "ret_now": 0.0
   },
   {
@@ -35290,6 +35320,36 @@
   },
   {
    "date": "2026-11-14",
+   "code": "000417",
+   "name": "合百集团",
+   "kind": "aggressive",
+   "buy": 6.21,
+   "target": 7.35,
+   "stop": 5.77,
+   "score": 66.9,
+   "grade": "B+",
+   "dims": {
+    "trend": 19.0,
+    "momentum": 17.0,
+    "volume": 16.5,
+    "fund": 11.4,
+    "news": 3.6,
+    "value": 7.5
+   },
+   "prices": {
+    "2026-11-14": 6.21
+   },
+   "base": 6.21,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 6.21,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
    "code": "600941",
    "name": "中国移动",
    "kind": "steady",
@@ -35317,12 +35377,42 @@
    "days": 1,
    "last": 101.46,
    "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "601169",
+   "name": "北京银行",
+   "kind": "steady",
+   "buy": 5.93,
+   "target": 6.38,
+   "stop": 5.66,
+   "score": 60.0,
+   "grade": "B",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 10.0,
+    "volume": 11.0,
+    "fund": 11.4,
+    "news": 4.3,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 6.16
+   },
+   "base": 6.16,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 6.16,
+   "ret_now": 0.0
   }
  ],
  "stats": {
-  "total": 986,
+  "total": 989,
   "settled": 730,
-  "holding": 256,
+  "holding": 259,
   "win": 300,
   "win_rate": 41.1,
   "avg_ret": -1.22,
