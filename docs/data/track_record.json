@@ -34960,6 +34960,36 @@
   },
   {
    "date": "2026-11-14",
+   "code": "603063",
+   "name": "禾望电气",
+   "kind": "steady",
+   "buy": 22.01,
+   "target": 26.16,
+   "stop": 19.88,
+   "score": 63.0,
+   "grade": "B+",
+   "dims": {
+    "trend": 14.0,
+    "momentum": 14.0,
+    "volume": 9.0,
+    "fund": 9.6,
+    "news": 7.4,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 22.72
+   },
+   "base": 22.72,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 22.72,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
    "code": "601985",
    "name": "中国核电",
    "kind": "steady",
@@ -35016,36 +35046,6 @@
    "status": "holding",
    "days": 1,
    "last": 12.07,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "603063",
-   "name": "禾望电气",
-   "kind": "steady",
-   "buy": 22.01,
-   "target": 26.16,
-   "stop": 19.88,
-   "score": 61.5,
-   "grade": "B",
-   "dims": {
-    "trend": 14.0,
-    "momentum": 14.0,
-    "volume": 9.0,
-    "fund": 8.1,
-    "news": 7.4,
-    "value": 9.0
-   },
-   "prices": {
-    "2026-11-14": 22.72
-   },
-   "base": 22.72,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 22.72,
    "ret_now": 0.0
   },
   {
@@ -35146,14 +35146,14 @@
    "buy": 77.43,
    "target": 94.6,
    "stop": 69.69,
-   "score": 63.3,
+   "score": 63.4,
    "grade": "B+",
    "dims": {
     "trend": 14.0,
     "momentum": 13.0,
     "volume": 16.5,
     "fund": 12.3,
-    "news": 8.5,
+    "news": 8.6,
     "value": 4.8
    },
    "prices": {
