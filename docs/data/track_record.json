@@ -34846,14 +34846,14 @@
    "buy": 88.68,
    "target": 94.88,
    "stop": 85.55,
-   "score": 71.2,
+   "score": 71.4,
    "grade": "B+",
    "dims": {
     "trend": 23.0,
     "momentum": 14.0,
     "volume": 9.0,
     "fund": 7.6,
-    "news": 9.3,
+    "news": 9.5,
     "value": 8.3
    },
    "prices": {
@@ -35110,6 +35110,36 @@
   },
   {
    "date": "2026-11-14",
+   "code": "000034",
+   "name": "神州数码",
+   "kind": "aggressive",
+   "buy": 21.82,
+   "target": 24.23,
+   "stop": 20.37,
+   "score": 69.7,
+   "grade": "B+",
+   "dims": {
+    "trend": 13.0,
+    "momentum": 12.0,
+    "volume": 16.5,
+    "fund": 13.0,
+    "news": 7.8,
+    "value": 7.5
+   },
+   "prices": {
+    "2026-11-14": 21.82
+   },
+   "base": 21.82,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 21.82,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
    "code": "605169",
    "name": "洪通燃气",
    "kind": "aggressive",
@@ -35136,36 +35166,6 @@
    "status": "holding",
    "days": 1,
    "last": 14.32,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "688372",
-   "name": "伟测科技",
-   "kind": "aggressive",
-   "buy": 77.43,
-   "target": 94.6,
-   "stop": 69.69,
-   "score": 63.3,
-   "grade": "B+",
-   "dims": {
-    "trend": 14.0,
-    "momentum": 13.0,
-    "volume": 16.5,
-    "fund": 12.3,
-    "news": 8.5,
-    "value": 4.8
-   },
-   "prices": {
-    "2026-11-14": 83.72
-   },
-   "base": 83.72,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 83.72,
    "ret_now": 0.0
   },
   {
@@ -35200,32 +35200,32 @@
   },
   {
    "date": "2026-11-14",
-   "code": "000034",
-   "name": "神州数码",
+   "code": "688372",
+   "name": "伟测科技",
    "kind": "aggressive",
-   "buy": 21.82,
-   "target": 24.23,
-   "stop": 20.37,
-   "score": 69.7,
+   "buy": 77.43,
+   "target": 94.6,
+   "stop": 69.69,
+   "score": 63.3,
    "grade": "B+",
    "dims": {
-    "trend": 13.0,
-    "momentum": 12.0,
+    "trend": 14.0,
+    "momentum": 13.0,
     "volume": 16.5,
-    "fund": 13.0,
-    "news": 7.8,
-    "value": 7.5
+    "fund": 12.3,
+    "news": 8.5,
+    "value": 4.8
    },
    "prices": {
-    "2026-11-14": 21.82
+    "2026-11-14": 83.72
    },
-   "base": 21.82,
+   "base": 83.72,
    "ret": {
     "t1": 0.0
    },
    "status": "holding",
    "days": 1,
-   "last": 21.82,
+   "last": 83.72,
    "ret_now": 0.0
   },
   {
