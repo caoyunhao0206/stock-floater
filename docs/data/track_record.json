@@ -34816,13 +34816,13 @@
    "buy": 24.27,
    "target": 27.68,
    "stop": 22.86,
-   "score": 77.2,
+   "score": 76.6,
    "grade": "A",
    "dims": {
     "trend": 25,
     "momentum": 15.0,
     "volume": 15.0,
-    "fund": 7.9,
+    "fund": 7.3,
     "news": 7.5,
     "value": 6.8
    },
@@ -34846,14 +34846,14 @@
    "buy": 88.68,
    "target": 94.88,
    "stop": 85.55,
-   "score": 74.8,
-   "grade": "A",
+   "score": 71.2,
+   "grade": "B+",
    "dims": {
     "trend": 23.0,
     "momentum": 14.0,
     "volume": 9.0,
-    "fund": 11.0,
-    "news": 9.5,
+    "fund": 7.6,
+    "news": 9.3,
     "value": 8.3
    },
    "prices": {
@@ -34960,36 +34960,6 @@
   },
   {
    "date": "2026-11-14",
-   "code": "603063",
-   "name": "禾望电气",
-   "kind": "steady",
-   "buy": 22.01,
-   "target": 26.16,
-   "stop": 19.88,
-   "score": 63.0,
-   "grade": "B+",
-   "dims": {
-    "trend": 14.0,
-    "momentum": 14.0,
-    "volume": 9.0,
-    "fund": 9.6,
-    "news": 7.4,
-    "value": 9.0
-   },
-   "prices": {
-    "2026-11-14": 22.72
-   },
-   "base": 22.72,
-   "ret": {
-    "t1": 0.0
-   },
-   "status": "holding",
-   "days": 1,
-   "last": 22.72,
-   "ret_now": 0.0
-  },
-  {
-   "date": "2026-11-14",
    "code": "601985",
    "name": "中国核电",
    "kind": "steady",
@@ -35050,6 +35020,36 @@
   },
   {
    "date": "2026-11-14",
+   "code": "603063",
+   "name": "禾望电气",
+   "kind": "steady",
+   "buy": 22.01,
+   "target": 26.16,
+   "stop": 19.88,
+   "score": 61.5,
+   "grade": "B",
+   "dims": {
+    "trend": 14.0,
+    "momentum": 14.0,
+    "volume": 9.0,
+    "fund": 8.1,
+    "news": 7.4,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 22.72
+   },
+   "base": 22.72,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 22.72,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
    "code": "601939",
    "name": "建设银行",
    "kind": "steady",
@@ -35080,32 +35080,32 @@
   },
   {
    "date": "2026-11-14",
-   "code": "601169",
-   "name": "北京银行",
+   "code": "002475",
+   "name": "立讯精密",
    "kind": "steady",
-   "buy": 5.93,
-   "target": 6.38,
-   "stop": 5.66,
-   "score": 59.7,
+   "buy": 49.61,
+   "target": 56.11,
+   "stop": 45.71,
+   "score": 58.3,
    "grade": "B",
    "dims": {
-    "trend": 23.0,
-    "momentum": 10.0,
-    "volume": 11.0,
-    "fund": 11.4,
-    "news": 4.3,
-    "value": 9.0
+    "trend": 13.0,
+    "momentum": 15.0,
+    "volume": 9.0,
+    "fund": 7.5,
+    "news": 7.0,
+    "value": 6.8
    },
    "prices": {
-    "2026-11-14": 6.16
+    "2026-11-14": 50.02
    },
-   "base": 6.16,
+   "base": 50.02,
    "ret": {
     "t1": 0.0
    },
    "status": "holding",
    "days": 1,
-   "last": 6.16,
+   "last": 50.02,
    "ret_now": 0.0
   },
   {
