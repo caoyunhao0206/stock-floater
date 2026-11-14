@@ -34846,14 +34846,14 @@
    "buy": 88.68,
    "target": 94.88,
    "stop": 85.55,
-   "score": 71.4,
+   "score": 71.2,
    "grade": "B+",
    "dims": {
     "trend": 23.0,
     "momentum": 14.0,
     "volume": 9.0,
     "fund": 7.6,
-    "news": 9.5,
+    "news": 9.3,
     "value": 8.3
    },
    "prices": {
@@ -34966,13 +34966,13 @@
    "buy": 9.68,
    "target": 10.36,
    "stop": 9.34,
-   "score": 62.0,
+   "score": 62.3,
    "grade": "B+",
    "dims": {
     "trend": 20.0,
     "momentum": 10.0,
     "volume": 6.0,
-    "fund": 7.5,
+    "fund": 7.8,
     "news": 8.5,
     "value": 7.5
    },
@@ -35110,6 +35110,96 @@
   },
   {
    "date": "2026-11-14",
+   "code": "605169",
+   "name": "洪通燃气",
+   "kind": "aggressive",
+   "buy": 12.81,
+   "target": 14.93,
+   "stop": 12.3,
+   "score": 65.5,
+   "grade": "B+",
+   "dims": {
+    "trend": 17.0,
+    "momentum": 9.0,
+    "volume": 16.5,
+    "fund": 14.8,
+    "news": 4.4,
+    "value": 7.5
+   },
+   "prices": {
+    "2026-11-14": 14.32
+   },
+   "base": 14.32,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 14.32,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "688372",
+   "name": "伟测科技",
+   "kind": "aggressive",
+   "buy": 77.43,
+   "target": 94.6,
+   "stop": 69.69,
+   "score": 63.3,
+   "grade": "B+",
+   "dims": {
+    "trend": 14.0,
+    "momentum": 13.0,
+    "volume": 16.5,
+    "fund": 12.3,
+    "news": 8.5,
+    "value": 4.8
+   },
+   "prices": {
+    "2026-11-14": 83.72
+   },
+   "base": 83.72,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 83.72,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
+   "code": "600919",
+   "name": "江苏银行",
+   "kind": "steady",
+   "buy": 12.78,
+   "target": 13.69,
+   "stop": 12.33,
+   "score": 61.0,
+   "grade": "B",
+   "dims": {
+    "trend": 23.0,
+    "momentum": 10.0,
+    "volume": 7.0,
+    "fund": 10.8,
+    "news": 9.8,
+    "value": 9.0
+   },
+   "prices": {
+    "2026-11-14": 13.23
+   },
+   "base": 13.23,
+   "ret": {
+    "t1": 0.0
+   },
+   "status": "holding",
+   "days": 1,
+   "last": 13.23,
+   "ret_now": 0.0
+  },
+  {
+   "date": "2026-11-14",
    "code": "000034",
    "name": "神州数码",
    "kind": "aggressive",
@@ -35131,60 +35221,12 @@
    "ret": {},
    "status": "holding",
    "days": 0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "605169",
-   "name": "洪通燃气",
-   "kind": "aggressive",
-   "buy": 12.81,
-   "target": 14.93,
-   "stop": 12.3,
-   "score": 65.5,
-   "grade": "B+",
-   "dims": {
-    "trend": 17.0,
-    "momentum": 9.0,
-    "volume": 16.5,
-    "fund": 14.8,
-    "news": 4.4,
-    "value": 7.5
-   },
-   "prices": {},
-   "base": 14.32,
-   "ret": {},
-   "status": "holding",
-   "days": 0
-  },
-  {
-   "date": "2026-11-14",
-   "code": "600919",
-   "name": "江苏银行",
-   "kind": "steady",
-   "buy": 12.78,
-   "target": 13.69,
-   "stop": 12.33,
-   "score": 61.0,
-   "grade": "B",
-   "dims": {
-    "trend": 23.0,
-    "momentum": 10.0,
-    "volume": 7.0,
-    "fund": 10.8,
-    "news": 9.8,
-    "value": 9.0
-   },
-   "prices": {},
-   "base": 13.23,
-   "ret": {},
-   "status": "holding",
-   "days": 0
   }
  ],
  "stats": {
-  "total": 982,
+  "total": 983,
   "settled": 730,
-  "holding": 252,
+  "holding": 253,
   "win": 300,
   "win_rate": 41.1,
   "avg_ret": -1.22,
